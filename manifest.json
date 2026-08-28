@@ -1,0 +1,48 @@
+{
+  "manifest_version": 3,
+  "name": "Mail Lens \u2014 Spam & AI Detector for Gmail",
+  "version": "1.0.0",
+  "description": "Flags every Gmail message as Spam, AI-written or Human \u2014 inline in the message list and at the top of the open message.",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://api.anthropic.com/*",
+    "https://mail.google.com/*"
+  ],
+  "background": {
+    "service_worker": "src/background/service-worker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://mail.google.com/*"
+      ],
+      "js": [
+        "src/lib/util.js",
+        "src/content/gmail.js"
+      ],
+      "css": [
+        "src/content/badges.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "options_page": "src/options/options.html",
+  "action": {
+    "default_title": "Mail Lens",
+    "default_popup": "src/popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

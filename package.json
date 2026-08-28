@@ -1,0 +1,15 @@
+{
+  "name": "mail-lens",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Chrome extension that labels Gmail messages as spam, AI-written or human.",
+  "scripts": {
+    "test": "node tools/api-test.js && node tools/smoke-test.js",
+    "test:unit": "node tools/api-test.js",
+    "test:browser": "node tools/smoke-test.js",
+    "icons": "node tools/make-icons.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.62.1"
+  }
+}

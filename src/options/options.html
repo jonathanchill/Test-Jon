@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Mail Lens settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Mail Lens</h1>
+      <p class="sub">Flags Gmail messages as <strong>Spam</strong>, <strong>AI-written</strong> or <strong>Human</strong>, in the message list and inside the open message.</p>
+    </header>
+
+    <section>
+      <label class="row switch">
+        <input type="checkbox" id="enabled">
+        <span>Turn Mail Lens on</span>
+      </label>
+    </section>
+
+    <section>
+      <h2>Claude API key</h2>
+      <p class="hint">Create one at <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noreferrer">console.anthropic.com</a>. Without a key the extension still works, using its built-in offline scoring — which is noticeably rougher.</p>
+      <div class="row">
+        <input type="password" id="apiKey" placeholder="sk-ant-..." autocomplete="off" spellcheck="false">
+        <button id="toggleKey" type="button" class="ghost">Show</button>
+        <button id="testKey" type="button">Test</button>
+      </div>
+      <p id="keyStatus" class="status"></p>
+      <p class="hint warn">The key is kept in this browser profile's extension storage. Anyone with access to this Chrome profile can read it. Use a key scoped to a workspace you can revoke.</p>
+    </section>
+
+    <section>
+      <h2>Model</h2>
+      <div class="row">
+        <select id="model">
+          <option value="claude-opus-5">Claude Opus 5 — most accurate</option>
+          <option value="claude-sonnet-5">Claude Sonnet 5 — cheaper</option>
+          <option value="claude-haiku-4-5">Claude Haiku 4.5 — cheapest, fastest</option>
+        </select>
+      </div>
+    </section>
+
+    <section>
+      <h2>What gets checked</h2>
+      <label class="row">
+        <span class="lbl">Rows in the message list</span>
+        <select id="listMode">
+          <option value="api">Ask Claude (subject + preview text)</option>
+          <option value="heuristics">Offline scoring only — free</option>
+          <option value="off">Don't badge the list</option>
+        </select>
+      </label>
+      <label class="row">
+        <span class="lbl">A message you open</span>
+        <select id="openMode">
+          <option value="api">Ask Claude (full message)</option>
+          <option value="heuristics">Offline scoring only — free</option>
+        </select>
+      </label>
+      <label class="row switch">
+        <input type="checkbox" id="showCleanBadge">
+        <span>Also badge ordinary mail (not spam, human-written)</span>
+      </label>
+      <label class="row">
+        <span class="lbl">Daily API call cap</span>
+        <input type="number" id="dailyCallLimit" min="0" max="10000" step="10">
+      </label>
+      <p class="hint">List rows are sent in batches of eight per API call, and only rows you actually scroll past are checked. Every verdict is cached for 30 days, so each message costs you one check.</p>
+    </section>
+
+    <section>
+      <h2>Today</h2>
+      <dl id="stats" class="stats"></dl>
+      <div class="row">
+        <button id="clearCache" type="button" class="ghost">Clear cached verdicts</button>
+      </div>
+    </section>
+
+    <section class="caveat">
+      <h2>How much to trust it</h2>
+      <p>Spam detection is reliable enough to act on. <strong>AI-authorship detection is not a solved problem</strong> — no detector, this one included, can prove text was machine-written. Fluent, well-organised writing by a careful human is the common false positive, and a light human edit defeats detection entirely. Read the percentage as the strength of a hunch, not a measurement, and treat a badge on someone's mail as a prompt to look closer rather than a verdict about them.</p>
+      <p>Mail Lens reads what Gmail has already drawn on screen. It sends the sender, subject and message text of the mail you look at to the Anthropic API when a Claude mode is on, and nowhere else. Turn either mode to offline scoring to stop that.</p>
+    </section>
+
+    <p id="saved" class="saved" hidden>Saved</p>
+  </main>
+  <script src="options.js"></script>
+</body>
+</html>

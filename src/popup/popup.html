@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Mail Lens</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <h1>Mail Lens</h1>
+    <label class="switch"><input type="checkbox" id="enabled"><span></span></label>
+  </header>
+
+  <p id="banner" class="banner" hidden></p>
+
+  <ul class="legend">
+    <li><span class="chip ml-spam">SPAM</span> unsolicited, phishing or fraud</li>
+    <li><span class="chip ml-ai">AI</span> reads as model-generated</li>
+    <li><span class="chip ml-mixed">AI+H</span> human draft, model-polished</li>
+    <li><span class="chip ml-human">HUMAN</span> written by a person</li>
+    <li><span class="chip ml-unclear">?</span> not enough text to tell</li>
+  </ul>
+
+  <dl id="stats" class="stats"></dl>
+
+  <footer>
+    <button id="options" type="button">Settings</button>
+    <button id="clearCache" type="button" class="ghost">Clear cache</button>
+  </footer>
+  <script src="popup.js"></script>
+</body>
+</html>
