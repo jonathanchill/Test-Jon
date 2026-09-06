@@ -1,0 +1,669 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pocket Dictaphone</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+:root{
+  --bg:#E7EAEC; --panel:#FBFCFC; --panel-2:#F0F3F4; --ink:#131A20; --muted:#5C6873;
+  --line:#CFD6DB; --line-soft:#DFE4E8;
+  --accent:#B45A00; --accent-soft:#F3E4D2; --rec:#C62A1E; --ok:#2E7D5B;
+  --shadow:0 1px 0 rgba(19,26,32,.04), 0 10px 30px -20px rgba(19,26,32,.45);
+  --ui:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1216; --panel:#161C22; --panel-2:#1E252C; --ink:#E6EDF3; --muted:#8C9BA8;
+    --line:#2A333B; --line-soft:#222A31;
+    --accent:#F0A63C; --accent-soft:#33260F; --rec:#FF6B5E; --ok:#57C79A;
+    --shadow:0 1px 0 rgba(255,255,255,.03), 0 12px 34px -22px #000;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1216; --panel:#161C22; --panel-2:#1E252C; --ink:#E6EDF3; --muted:#8C9BA8;
+  --line:#2A333B; --line-soft:#222A31;
+  --accent:#F0A63C; --accent-soft:#33260F; --rec:#FF6B5E; --ok:#57C79A;
+  --shadow:0 1px 0 rgba(255,255,255,.03), 0 12px 34px -22px #000;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:var(--ui); font-size:15px; line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{
+  max-width:600px; margin:0 auto; min-height:100vh;
+  display:flex; flex-direction:column; gap:14px;
+  padding:18px 16px calc(20px + env(safe-area-inset-bottom));
+}
+
+/* ---- masthead ---- */
+.mast{display:flex; align-items:flex-end; justify-content:space-between; gap:12px}
+.mark{display:flex; align-items:center; gap:10px}
+.mark svg{display:block; flex:none}
+.mark h1{
+  margin:0; font-size:19px; font-weight:600; letter-spacing:-.015em;
+  text-wrap:balance;
+}
+.mark p{margin:2px 0 0; font-family:var(--mono); font-size:10.5px; letter-spacing:.09em; white-space:nowrap; text-transform:uppercase; color:var(--muted)}
+.lang{
+  font-family:var(--mono); font-size:12px; color:var(--ink);
+  background:var(--panel); border:1px solid var(--line); border-radius:7px;
+  padding:7px 8px; min-height:36px;
+}
+
+/* ---- status rail ---- */
+.rail{
+  display:grid; grid-template-columns:1.4fr 1fr 1fr; align-items:center;
+  background:var(--panel); border:1px solid var(--line); border-radius:10px;
+  box-shadow:var(--shadow); overflow:hidden;
+}
+.cell{padding:9px 12px; display:flex; flex-direction:column; gap:2px; min-width:0}
+.cell + .cell{border-left:1px solid var(--line-soft)}
+.cell b{
+  font-family:var(--mono); font-size:9.5px; font-weight:500; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--muted);
+}
+.cell span{
+  font-family:var(--mono); font-size:14px; font-variant-numeric:tabular-nums;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.state{display:flex; align-items:center; gap:7px}
+.dot{width:8px; height:8px; border-radius:50%; background:var(--muted); flex:none}
+body.live .dot{background:var(--rec); animation:blink 1.4s ease-in-out infinite}
+body.live .state span{color:var(--rec)}
+body.err .dot{background:var(--accent)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* ---- transcript ---- */
+.sheet{
+  flex:1; display:flex; flex-direction:column; min-height:290px;
+  background:var(--panel); border:1px solid var(--line); border-radius:12px;
+  box-shadow:var(--shadow); overflow:hidden;
+}
+.sheet-head{
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  padding:8px 12px; border-bottom:1px solid var(--line-soft); background:var(--panel-2);
+}
+.sheet-head b{font-family:var(--mono); font-size:9.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); font-weight:500}
+.chip{
+  font-family:var(--mono); font-size:9.5px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--accent); background:var(--accent-soft); border-radius:999px; padding:3px 8px;
+}
+#note{
+  flex:1; width:100%; resize:none; border:0; outline:0; background:transparent;
+  color:var(--ink); font-family:var(--serif); font-size:17px; line-height:1.6;
+  padding:14px 14px 4px; min-height:210px;
+}
+#note::placeholder{color:var(--muted); opacity:.75}
+#note:focus-visible{box-shadow:inset 0 0 0 2px var(--accent)}
+#interim{
+  padding:0 14px 12px; font-family:var(--serif); font-size:17px; line-height:1.6;
+  color:var(--muted); font-style:italic; min-height:12px;
+}
+#interim:empty{padding-bottom:0}
+
+/* ---- transport ---- */
+.deck{
+  position:sticky; bottom:calc(6px + env(safe-area-inset-bottom)); z-index:2;
+  display:flex; flex-direction:column; gap:7px;
+  background:var(--bg); padding:6px 0;
+}
+.transport{
+  display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:12px;
+  padding:12px; background:var(--panel); border:1px solid var(--line);
+  border-radius:14px; box-shadow:var(--shadow);
+}
+button{font-family:inherit; color:inherit}
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  min-height:46px; padding:0 12px; width:100%;
+  background:var(--panel-2); border:1px solid var(--line); border-radius:9px;
+  font-size:13.5px; font-weight:500; cursor:pointer;
+}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.4; cursor:default}
+.btn:focus-visible, .rec:focus-visible, .lang:focus-visible, .cmds summary:focus-visible{
+  outline:2px solid var(--accent); outline-offset:2px;
+}
+.rec{
+  position:relative; width:78px; height:78px; border-radius:50%; cursor:pointer;
+  border:1px solid var(--line); background:var(--panel-2);
+  display:grid; place-items:center;
+}
+.rec .core{
+  width:30px; height:30px; border-radius:50%; background:var(--rec);
+  transition:border-radius .18s ease, width .18s ease, height .18s ease;
+}
+body.live .rec .core{width:26px; height:26px; border-radius:5px}
+body.live .rec{border-color:var(--rec)}
+body.live .rec::after{
+  content:""; position:absolute; inset:-1px; border-radius:50%;
+  border:2px solid var(--rec); animation:ring 1.7s ease-out infinite;
+}
+@keyframes ring{0%{transform:scale(1); opacity:.7}100%{transform:scale(1.22); opacity:0}}
+.rec-label{
+  grid-column:1 / -1; text-align:center; font-family:var(--mono);
+  font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted);
+}
+
+/* ---- secondary row ---- */
+.row{display:grid; grid-template-columns:repeat(3,1fr); gap:8px}
+.row .btn{font-size:12.5px; min-height:40px}
+
+/* ---- toggles + commands ---- */
+.opts{display:flex; flex-wrap:wrap; gap:8px}
+.toggle{
+  display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+  background:var(--panel); border:1px solid var(--line); border-radius:9px;
+  padding:9px 11px; font-size:13px; flex:1 1 auto; min-height:42px;
+}
+.toggle input{accent-color:var(--accent); width:17px; height:17px; margin:0}
+.cmds{background:var(--panel); border:1px solid var(--line); border-radius:10px; overflow:hidden}
+.cmds summary{
+  cursor:pointer; list-style:none; padding:11px 12px;
+  font-family:var(--mono); font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted);
+  display:flex; justify-content:space-between; align-items:center;
+}
+.cmds summary::-webkit-details-marker{display:none}
+.cmds summary::after{content:"+"; font-size:14px}
+.cmds[open] summary::after{content:"–"}
+.cmds dl{margin:0; padding:0 12px 12px; display:grid; grid-template-columns:auto 1fr; gap:6px 12px; align-items:baseline}
+.cmds dt{font-family:var(--serif); font-style:italic; font-size:14.5px}
+.cmds dd{margin:0; font-family:var(--mono); font-size:12px; color:var(--muted)}
+.cmds .rule{grid-column:1 / -1; border-top:1px solid var(--line-soft); margin:2px 0}
+
+.note-msg{
+  margin:0; font-size:12.5px; color:var(--muted); text-align:center; min-height:17px;
+  font-family:var(--mono); letter-spacing:.02em;
+}
+.note-msg.warn{color:var(--accent)}
+.banner{
+  display:none; background:var(--accent-soft); border:1px solid var(--accent);
+  border-radius:10px; padding:12px 13px; font-size:13.5px; line-height:1.5;
+}
+.banner.show{display:block}
+.banner b{display:block; margin-bottom:3px; font-size:13px}
+footer{
+  font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--muted); text-align:center; opacity:.8;
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none !important; transition:none !important}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="mast">
+    <div class="mark">
+      <svg width="26" height="30" viewBox="0 0 26 30" fill="none" aria-hidden="true">
+        <rect x="8.5" y="1" width="9" height="16" rx="4.5" stroke="currentColor" stroke-width="1.6" fill="none"/>
+        <path d="M3.5 13.5a9.5 9.5 0 0 0 19 0" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+        <path d="M13 23v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <h1>Pocket Dictaphone</h1>
+        <p>Speak · tidy · paste</p>
+      </div>
+    </div>
+    <select class="lang" id="lang" aria-label="Dictation language">
+      <option value="en-GB">EN · GB</option>
+      <option value="en-US">EN · US</option>
+      <option value="en-AU">EN · AU</option>
+      <option value="en-IN">EN · IN</option>
+      <option value="fr-FR">FR</option>
+      <option value="de-DE">DE</option>
+      <option value="es-ES">ES</option>
+      <option value="it-IT">IT</option>
+      <option value="nl-NL">NL</option>
+      <option value="pt-BR">PT · BR</option>
+      <option value="pl-PL">PL</option>
+      <option value="hi-IN">HI</option>
+      <option value="ja-JP">JA</option>
+      <option value="ko-KR">KO</option>
+      <option value="zh-CN">ZH</option>
+    </select>
+  </header>
+
+  <div class="banner" id="banner" role="status"></div>
+
+  <div class="rail">
+    <div class="cell state">
+      <div><b>Status</b></div>
+      <div style="display:flex;align-items:center;gap:7px"><i class="dot"></i><span id="status">Ready</span></div>
+    </div>
+    <div class="cell"><b>Elapsed</b><span id="clock">00:00</span></div>
+    <div class="cell"><b>Words</b><span id="words">0</span></div>
+  </div>
+
+  <section class="sheet">
+    <div class="sheet-head">
+      <b>Transcript</b>
+      <span class="chip" id="chip" hidden>Sample</span>
+    </div>
+    <textarea id="note" spellcheck="true" placeholder="Tap the red button and start talking. Everything you say lands here — edit it like any other note."></textarea>
+    <div id="interim" aria-live="polite"></div>
+  </section>
+
+  <div class="deck">
+  <div class="transport">
+    <button class="btn" id="undo" type="button" disabled>Undo</button>
+    <button class="rec" id="rec" type="button" aria-label="Start dictation"><span class="core"></span></button>
+    <button class="btn" id="copy" type="button">Copy</button>
+    <div class="rec-label" id="recLabel">Tap to record</div>
+  </div>
+
+  <p class="note-msg" id="msg"></p>
+  </div>
+
+  <div class="row">
+    <button class="btn" id="share" type="button">Share</button>
+    <button class="btn" id="para" type="button">¶ Break</button>
+    <button class="btn" id="clear" type="button">Clear</button>
+  </div>
+
+  <div class="opts">
+    <label class="toggle"><input type="checkbox" id="optCmd" checked> Spoken punctuation</label>
+    <label class="toggle"><input type="checkbox" id="optKeep" checked> Keep screen awake</label>
+  </div>
+
+  <details class="cmds">
+    <summary>Say these out loud</summary>
+    <dl>
+      <dt>full stop</dt><dd>.</dd>
+      <dt>comma</dt><dd>,</dd>
+      <dt>question mark</dt><dd>?</dd>
+      <dt>exclamation mark</dt><dd>!</dd>
+      <dt>colon / semicolon</dt><dd>: ;</dd>
+      <dt>open quote / close quote</dt><dd>" "</dd>
+      <dt>dash</dt><dd>—</dd>
+      <dt>new line</dt><dd>line break</dd>
+      <dt>new paragraph</dt><dd>blank line</dd>
+      <div class="rule"></div>
+      <dt>scratch that</dt><dd>deletes the last thing you said</dd>
+    </dl>
+  </details>
+
+  <footer>Recognition runs in your browser · Transcript stays on this device</footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var $ = function(id){ return document.getElementById(id); };
+  var note=$("note"), interim=$("interim"), statusEl=$("status"), clockEl=$("clock"),
+      wordsEl=$("words"), recBtn=$("rec"), recLabel=$("recLabel"), msg=$("msg"),
+      banner=$("banner"), chip=$("chip"), langSel=$("lang"),
+      optCmd=$("optCmd"), optKeep=$("optKeep");
+
+  var KEY="pocketDictaphone.v1";
+  var rec=null, wantOn=false, startedAt=0, elapsed=0, ticker=null, wake=null;
+  var restarts=[], undoStack=[], msgTimer=null, isSample=false;
+
+  /* ---------- storage ---------- */
+  function load(){
+    try{
+      var raw=localStorage.getItem(KEY);
+      if(!raw) return null;
+      return JSON.parse(raw);
+    }catch(e){ return null; }
+  }
+  var saveTimer=null;
+  function save(){
+    clearTimeout(saveTimer);
+    saveTimer=setTimeout(function(){
+      try{
+        localStorage.setItem(KEY, JSON.stringify({
+          text: isSample ? "" : note.value,
+          lang: langSel.value,
+          cmd: optCmd.checked,
+          keep: optKeep.checked
+        }));
+      }catch(e){}
+    },400);
+  }
+
+  /* ---------- text shaping ---------- */
+  var COMMANDS=[
+    [/\b(new paragraph|new para)\b/gi,"\n\n"],
+    [/\b(new line|newline|line break)\b/gi,"\n"],
+    [/\b(full stop|period|dot dot)\b/gi,"."],
+    [/\b(question mark)\b/gi,"?"],
+    [/\b(exclamation mark|exclamation point)\b/gi,"!"],
+    [/\b(semi colon|semicolon)\b/gi,";"],
+    [/\b(colon)\b/gi,":"],
+    [/\b(comma)\b/gi,","],
+    [/\b(open quote|quote unquote|close quote)\b/gi,'"'],
+    [/\b(dash|em dash)\b/gi," — "],
+    [/\b(ellipsis|dot dot dot)\b/gi,"…"]
+  ];
+
+  function applyCommands(s){
+    for(var i=0;i<COMMANDS.length;i++) s=s.replace(COMMANDS[i][0],COMMANDS[i][1]);
+    return s;
+  }
+
+  function tidy(s){
+    return s
+      .replace(/[ \t]+/g," ")
+      .replace(/[ \t]+([.,;:!?…])/g,"$1")
+      .replace(/([.,;:!?…])(?=[^\s.,;:!?…\n])/g,"$1 ")
+      .replace(/[ \t]*\n[ \t]*/g,"\n")
+      .replace(/\n{3,}/g,"\n\n")
+      .trim();
+  }
+
+  function capitaliseAfter(prev, s){
+    var open = /(^$|[.!?…]["')\]]?\s*$|\n\s*$)/.test(prev);
+    if(!open) return s;
+    return s.replace(/^([a-z])/, function(m,c){ return c.toUpperCase(); });
+  }
+
+  function append(raw){
+    var seg = optCmd.checked ? applyCommands(raw) : raw;
+    seg = tidy(seg);
+    if(!seg) return;
+
+    pushUndo();
+    var base = note.value;
+    var joiner = "";
+    if(base){
+      if(/\n$/.test(base) || /^\n/.test(seg)) joiner="";
+      else if(/^[.,;:!?…]/.test(seg)) joiner="";
+      else joiner=" ";
+    }
+    seg = capitaliseAfter(base, seg);
+    note.value = (base + joiner + seg).replace(/[ \t]+([.,;:!?…])/g,"$1").replace(/\n{3,}/g,"\n\n");
+    afterChange();
+    note.scrollTop = note.scrollHeight;
+  }
+
+  function scratchThat(){
+    if(!undoStack.length){ flash("Nothing to scratch"); return; }
+    note.value = undoStack.pop();
+    afterChange();
+    flash("Scratched");
+  }
+
+  function pushUndo(){
+    if(isSample){ isSample=false; chip.hidden=true; note.value=""; undoStack=[]; }
+    undoStack.push(note.value);
+    if(undoStack.length>40) undoStack.shift();
+    $("undo").disabled=false;
+  }
+
+  function afterChange(){
+    var w = note.value.trim() ? note.value.trim().split(/\s+/).length : 0;
+    wordsEl.textContent = String(w);
+    $("undo").disabled = undoStack.length===0;
+    save();
+  }
+
+  function flash(text, warn){
+    msg.textContent=text;
+    msg.className = "note-msg" + (warn ? " warn" : "");
+    clearTimeout(msgTimer);
+    msgTimer=setTimeout(function(){ msg.textContent=""; },3200);
+  }
+
+  function showBanner(title, body){
+    banner.innerHTML = "<b></b><span></span>";
+    banner.firstChild.textContent = title;
+    banner.lastChild.textContent = body;
+    banner.classList.add("show");
+  }
+
+  /* ---------- clock ---------- */
+  function fmt(ms){
+    var t=Math.floor(ms/1000), m=Math.floor(t/60), s=t%60;
+    return (m<10?"0":"")+m+":"+(s<10?"0":"")+s;
+  }
+  function startClock(){
+    startedAt=Date.now()-elapsed;
+    clearInterval(ticker);
+    ticker=setInterval(function(){
+      elapsed=Date.now()-startedAt;
+      clockEl.textContent=fmt(elapsed);
+    },500);
+  }
+  function stopClock(){ clearInterval(ticker); ticker=null; }
+
+  /* ---------- wake lock ---------- */
+  function keepAwake(){
+    if(!optKeep.checked || !("wakeLock" in navigator)) return;
+    navigator.wakeLock.request("screen").then(function(l){
+      wake=l;
+      l.addEventListener("release", function(){ wake=null; });
+    }).catch(function(){});
+  }
+  function releaseAwake(){
+    if(wake){ try{ wake.release(); }catch(e){} wake=null; }
+  }
+  document.addEventListener("visibilitychange", function(){
+    if(document.visibilityState==="visible" && wantOn) keepAwake();
+  });
+
+  /* ---------- recognition ---------- */
+  function setLive(on){
+    document.body.classList.toggle("live", on);
+    statusEl.textContent = on ? "Listening" : "Ready";
+    recBtn.setAttribute("aria-label", on ? "Stop dictation" : "Start dictation");
+    recLabel.textContent = on ? "Tap to stop" : "Tap to record";
+  }
+
+  function build(){
+    var r=new SR();
+    r.lang = langSel.value;
+    r.continuous = true;
+    r.interimResults = true;
+    r.maxAlternatives = 1;
+
+    r.onstart = function(){
+      document.body.classList.remove("err");
+      setLive(true);
+    };
+
+    r.onresult = function(e){
+      var live="";
+      for(var i=e.resultIndex; i<e.results.length; i++){
+        var txt=e.results[i][0].transcript;
+        if(e.results[i].isFinal){
+          if(/^\s*(scratch that|delete that)\s*[.!?]?\s*$/i.test(txt)) scratchThat();
+          else append(txt);
+        } else {
+          live += txt;
+        }
+      }
+      interim.textContent = live.trim();
+    };
+
+    r.onerror = function(e){
+      var code=e.error;
+      if(code==="not-allowed" || code==="service-not-allowed"){
+        wantOn=false;
+        document.body.classList.add("err");
+        statusEl.textContent="Blocked";
+        showBanner("Microphone is blocked",
+          "Allow microphone access for this page in your browser settings, then tap record again.");
+        flash("Microphone permission denied", true);
+      } else if(code==="audio-capture"){
+        wantOn=false;
+        statusEl.textContent="No mic";
+        flash("No microphone found", true);
+      } else if(code==="no-speech" || code==="aborted"){
+        /* normal on mobile — onend will restart */
+      } else {
+        flash("Recognition hiccup: "+code, true);
+      }
+    };
+
+    r.onend = function(){
+      interim.textContent="";
+      if(!wantOn){ finish(); return; }
+      var now=Date.now();
+      restarts.push(now);
+      restarts = restarts.filter(function(t){ return now-t < 4000; });
+      if(restarts.length > 6){
+        wantOn=false; finish();
+        flash("Mic kept dropping — tap record to resume", true);
+        return;
+      }
+      setTimeout(function(){
+        if(!wantOn) return;
+        try{ rec.start(); }
+        catch(err){
+          try{ rec=build(); rec.start(); }
+          catch(e2){ wantOn=false; finish(); flash("Could not restart the mic", true); }
+        }
+      }, 220);
+    };
+    return r;
+  }
+
+  function start(){
+    if(!SR) return;
+    wantOn=true; restarts=[];
+    banner.classList.remove("show");
+    try{
+      rec = build();
+      rec.start();
+    }catch(e){
+      wantOn=false;
+      flash("Could not start the mic", true);
+      return;
+    }
+    setLive(true);
+    startClock();
+    keepAwake();
+  }
+
+  function stop(){
+    wantOn=false;
+    if(rec){ try{ rec.stop(); }catch(e){} }
+    finish();
+  }
+
+  function finish(){
+    setLive(false);
+    stopClock();
+    releaseAwake();
+    interim.textContent="";
+    note.value = note.value.replace(/[ \t]+$/,"");
+    afterChange();
+  }
+
+  /* ---------- controls ---------- */
+  recBtn.addEventListener("click", function(){ wantOn ? stop() : start(); });
+
+  $("undo").addEventListener("click", function(){
+    if(!undoStack.length) return;
+    note.value = undoStack.pop();
+    afterChange();
+    flash("Undone");
+  });
+
+  $("para").addEventListener("click", function(){
+    pushUndo();
+    note.value = note.value.replace(/\s+$/,"") + "\n\n";
+    afterChange();
+    note.scrollTop = note.scrollHeight;
+  });
+
+  $("clear").addEventListener("click", function(){
+    if(!note.value.trim()){ flash("Already empty"); return; }
+    pushUndo();
+    note.value="";
+    elapsed=0; clockEl.textContent="00:00";
+    afterChange();
+    flash("Cleared — Undo brings it back");
+  });
+
+  function copyText(){
+    var text=note.value.trim();
+    if(!text){ flash("Nothing to copy"); return Promise.reject(); }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function(res,rej){
+      note.focus(); note.setSelectionRange(0, note.value.length);
+      try{ document.execCommand("copy") ? res() : rej(); }catch(e){ rej(e); }
+    });
+  }
+
+  $("copy").addEventListener("click", function(){
+    copyText().then(function(){ flash("Copied — paste it into Claude"); })
+              .catch(function(){ flash("Select the text and copy manually", true); });
+  });
+
+  $("share").addEventListener("click", function(){
+    var text=note.value.trim();
+    if(!text){ flash("Nothing to share"); return; }
+    if(navigator.share){
+      navigator.share({ text:text }).catch(function(){});
+    } else {
+      copyText().then(function(){ flash("No share sheet here — copied instead"); })
+                .catch(function(){ flash("Select the text and copy manually", true); });
+    }
+  });
+
+  note.addEventListener("input", function(){
+    if(isSample){ isSample=false; chip.hidden=true; }
+    afterChange();
+  });
+
+  langSel.addEventListener("change", function(){
+    save();
+    if(wantOn){ stop(); setTimeout(start, 300); flash("Switched to "+langSel.value); }
+  });
+  optCmd.addEventListener("change", save);
+  optKeep.addEventListener("change", function(){
+    save();
+    if(optKeep.checked && wantOn) keepAwake(); else releaseAwake();
+  });
+
+  /* ---------- boot ---------- */
+  var SAMPLE = "Note from the walk back: the demo landed, but they want the onboarding trimmed to three screens before the board sees it on the 14th.\n\nTwo things to chase — Priya on the pricing table, and whoever owns the export bug. Draft the follow-up tonight while it is fresh.";
+
+  var saved = load();
+  if(saved){
+    if(saved.lang) langSel.value = saved.lang;
+    if(typeof saved.cmd === "boolean") optCmd.checked = saved.cmd;
+    if(typeof saved.keep === "boolean") optKeep.checked = saved.keep;
+  }
+  if(saved && saved.text){
+    note.value = saved.text;
+  } else {
+    note.value = SAMPLE;
+    isSample = true;
+    chip.hidden = false;
+  }
+  afterChange();
+  $("undo").disabled = true;
+
+  if(!SR){
+    recBtn.disabled = true;
+    recBtn.style.opacity = ".4";
+    statusEl.textContent = "Unsupported";
+    recLabel.textContent = "Not available here";
+    showBanner("This browser can't listen",
+      "Speech recognition needs Safari on iOS or Chrome on Android. Open this page there and the record button lights up. You can still type and edit notes here.");
+  } else if(!window.isSecureContext){
+    showBanner("Needs a secure connection",
+      "Microphones only work over HTTPS. Open this page from its https:// link.");
+  }
+})();
+</script>
+</body>
+</html>
