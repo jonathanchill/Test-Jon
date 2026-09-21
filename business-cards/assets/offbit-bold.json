@@ -1,0 +1,24 @@
+{
+  "_note": "OffBit Bold letterforms sampled from the 1minus1 Creds Deck (Figma), 12-row cap height, 1 unit = 1/18.5 em. X = pixel on.",
+  "unitsPerEm": 18.5,
+  "rows": 12,
+  "gap": 1,
+  "glyphs": {
+    "J": [".....XX",".....XX",".....XX",".....XX",".....XX",".....XX",".....XX",".....XX","X....XX","XX..XXX","XXXXXX.",".XXXX.."],
+    "O": ["..XXXXXXX..",".XXX...XXX.",".XX.....XX.","XXX.....XXX","XX.......XX","XX.......XX","XX.......XX","XXX.....XXX",".XX.....XX.",".XXX...XXX.","..XXXXXXX..","...XXXXX..."],
+    "N": ["XXX.....XX","XXX.....XX","XXXX....XX","XXXXX...XX","XX.XX...XX","XX.XXX..XX","XX..XXX.XX","XX...XX.XX","XX...XXXXX","XX....XXXX","XX.....XXX","XX......XX"],
+    "A": ["....XXXX....","....XXXX....","...XX..XX...","...XX..XX...","...XX..XX...","..XX....XX..","..XX....XX..",".XXXXXXXXXX.",".XXXXXXXXXX.","XXX......XXX","XX........XX","XX........XX"],
+    "T": ["XXXXXXXXXX","....XX....","....XX....","....XX....","....XX....","....XX....","....XX....","....XX....","....XX....","....XX....","....XX....","....XX...."],
+    "H": ["XX.....XX","XX.....XX","XX.....XX","XX.....XX","XX.....XX","XXXXXXXXX","XXXXXXXXX","XX.....XX","XX.....XX","XX.....XX","XX.....XX","XX.....XX"],
+    "I": ["XX","XX","XX","XX","XX","XX","XX","XX","XX","XX","XX","XX"],
+    "L": ["XX......","XX......","XX......","XX......","XX......","XX......","XX......","XX......","XX......","XX......","XXXXXXXX","XXXXXXXX"],
+    "E": ["XXXXXXXXX","XX.......","XX.......","XX.......","XXXXXXXX.","XXXXXXXX.","XX.......","XX.......","XX.......","XX.......","XXXXXXXXX","XXXXXXXXX"],
+    "S": [".XXXXXXXX.","XXX....XXX","XX......XX","XXX.......",".XXXXXXX..","..XXXXXXX.",".......XXX","........XX","XX......XX","XXX....XXX",".XXXXXXXX.","..XXXXXX.."],
+    "U": ["XX.....XX","XX.....XX","XX.....XX","XX.....XX","XX.....XX","XX.....XX","XX.....XX","XX.....XX","XX.....XX","XXX...XXX",".XXXXXXX.","..XXXXX.."],
+    "C": [".XXXXXXXX.",".XX....XX.","XXX....XXX","XX......XX","XX........","XX........","XX........","XX......XX","XXX....XXX",".XX....XX.",".XXXXXXXX.","..XXXXXX.."],
+    "B": ["XXXXXXXX..","XX....XXX.","XX.....XX.","XX.....XX.","XX....XX..","XXXXXXXX..","XXXXXXXXX.","XX.....XXX","XX......XX","XX.....XXX","XXXXXXXXX.","XXXXXXXX.."],
+    "R": ["XXXXXXXXX.","XX.....XXX","XX......XX","XX......XX","XX.....XXX","XXXXXXXXX.","XXXXXXXX..","XX....XXX.","XX.....XXX","XX......XX","XX......XX","XX......XX"],
+    "D": ["XXXXXXXX..","XX....XXX.","XX.....XXX","XX......XX","XX......XX","XX......XX","XX......XX","XX......XX","XX.....XXX","XX....XXX.","XXXXXXXX..","XXXXXXX..."],
+    "K": ["XX.....XX","XX....XXX","XX...XXX.","XX..XXX..","XX.XXX...","XXXXX....","XXXX.....","XXXXX....","XX.XXX...","XX..XXX..","XX...XXX.","XX....XXX"]
+  }
+}
