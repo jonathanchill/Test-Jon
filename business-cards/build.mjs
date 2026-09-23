@@ -36,7 +36,7 @@ function box(svg) {
 function place(svg, x, y, h, color, extra = '') {
   const b = box(svg);
   const s = h / b.h;
-  return `<g transform="translate(${x} ${y}) scale(${s})" color="${color}" ${extra}>${inner(svg)}</g>`;
+  return `<g transform="translate(${x} ${y}) scale(${s})" ${extra}>${inner(svg).replace(/currentColor/g, color)}</g>`;
 }
 function widthAt(svg, h) { const b = box(svg); return b.w * (h / b.h); }
 
@@ -104,7 +104,7 @@ function siteText() {
 
 // ---------------------------------------------------------------- shared pieces
 const stairs = (fill, opacity) =>
-  `<g transform="scale(${W / 1607})" fill="${fill}" fill-opacity="${opacity}">${inner(A('stairs.svg'))}</g>`;
+  `<g transform="scale(${W / 1607})" opacity="${opacity}">${inner(A('stairs.svg')).replace(/currentColor/g, fill)}</g>`;
 
 const wordmark = (x, y, h, color) => place(A('wordmark.svg'), x, y, h, color);
 const checker = (x, y, h, color) => place(A('checker.svg'), x, y, h, color);
@@ -152,6 +152,10 @@ function pill(x, y, items, { bg = C.white, fg = C.ink, textH = 2.3, padX = 2, ga
 }
 
 const svgOpen = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}mm" height="${H}mm">`;
+// Figma-import variant: px sizing (10 px per mm) and the artwork split into layer chunks.
+const svgOpenPx = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W * 10}" height="${H * 10}">`;
+const chunks = { front: [], back: [] };
+const chunk = (side, name, markup) => { chunks[side].push({ name, svg: `${svgOpenPx}${markup}</svg>` }); return markup; };
 
 // ================================================================ FRONT
 function front() {
@@ -162,24 +166,23 @@ function front() {
   const x2 = R - name2.width * u2;                 // right-aligned, like "THIS IS 1MINUS1"
   const site = siteText();
 
-  return `${svgOpen}
-  <rect width="${W}" height="${H}" fill="${C.ink}"/>
-  ${stairs(C.white, 0.08)}
-  ${wordmark(L, T, 3.6, C.white)}
-  ${checker(R - 3.2, T + 0.9, 1.6, C.violet)}
-
-  <!-- JONATHAN — OffBit Bold, solid lime -->
-  <path transform="translate(${L} 15.6) scale(${u1})" d="${name1.d}" fill="${C.lime}" fill-rule="evenodd"/>
-  <!-- HILL — OffBit Bold, outlined (the deck's 'THIS IS 1MINUS1' treatment) -->
-  <path transform="translate(${x2} 28.6) scale(${u2})" d="${name2.d}" fill="none" stroke="${C.lime}" stroke-width="${0.56 / u2}" stroke-linejoin="miter"/>
-
-  ${smiley(23.5, 36.4, 7.6, -16)}
-
-  <!-- caption row: checker + FOUNDER AND CEO (Neue Power Bold) -->
-  ${checker(L, B - 2.0, 1.4, C.violet)}
+  chunks.front = [];
+  const bg = chunk('front', 'Background', `<rect width="${W}" height="${H}" fill="${C.ink}"/>${stairs(C.white, 0.08)}`);
+  const brand = chunk('front', 'Wordmark + checker', `${wordmark(L, T, 3.6, C.white)}${checker(R - 3.2, T + 0.9, 1.6, C.violet)}`);
+  const name = chunk('front', 'Name — OffBit Bold', `<path transform="translate(${L} 15.6) scale(${u1})" d="${name1.d}" fill="${C.lime}" fill-rule="evenodd"/>
+  <path transform="translate(${x2} 28.6) scale(${u2})" d="${name2.d}" fill="none" stroke="${C.lime}" stroke-width="${0.56 / u2}" stroke-linejoin="miter"/>`);
+  const sticker = chunk('front', 'Smiley sticker', smiley(23.5, 36.4, 7.6, -16));
+  const caption = chunk('front', 'Caption + URL', `${checker(L, B - 2.0, 1.4, C.violet)}
   ${place(A('text-founder-and-ceo.svg'), L + 4.2, B - 2.35, 2.1, C.white)}
-  <!-- 1minus1.com -->
-  ${place(site, R - widthAt(site, 2.1), B - 2.35, 2.1, C.lime)}
+  ${place(site, R - widthAt(site, 2.1), B - 2.35, 2.1, C.lime)}`);
+  return `${svgOpen}
+  ${bg}
+  ${brand}
+  <!-- JONATHAN solid / HILL outlined — OffBit Bold, the deck's title treatment -->
+  ${name}
+  ${sticker}
+  <!-- caption row: checker + FOUNDER AND CEO (Neue Power Bold) + 1minus1.com -->
+  ${caption}
 </svg>`;
 }
 
@@ -197,21 +200,25 @@ function back() {
   const r4 = pill(L, y, [{ svg: site }], { bg: C.violet, fg: C.white });
   rows.push(r4.markup);
 
+  chunks.back = [];
+  const bg = chunk('back', 'Background', `<rect width="${W}" height="${H}" fill="${C.lime}"/>${stairs(C.white, 0.26)}`);
+  const brand = chunk('back', 'Wordmark + checker + heading', `${wordmark(L, T, 3.6, C.ink)}${checker(R - 3.2, T + 0.9, 1.6, C.ink)}
+  ${place(A('text-get-in-touch.svg'), L, 16.3, 3.3, C.ink)}`);
+  const p1 = chunk('back', 'Pill — name / role', rows[0]);
+  const p2 = chunk('back', 'Pill — email', rows[1]);
+  const p3 = chunk('back', 'Pill — phone', rows[2]);
+  const p4 = chunk('back', 'Pill — website', rows[3]);
+  const stickers = chunk('back', 'Stickers', `<g transform="translate(52.5 15.2) rotate(-4)">${place(A('bits-sticker.svg').replace('#CAFF60', C.ink), 0, 0, 5.9, C.ink)}</g>
+  ${ovalSticker(70.5, 44.2, 13.5, 7.6, -14)}`);
   return `${svgOpen}
-  <rect width="${W}" height="${H}" fill="${C.lime}"/>
-  ${stairs(C.white, 0.26)}
-  ${wordmark(L, T, 3.6, C.ink)}
-  ${checker(R - 3.2, T + 0.9, 1.6, C.ink)}
-
-  <!-- GET IN TOUCH (Neue Power Bold) -->
-  ${place(A('text-get-in-touch.svg'), L, 16.3, 3.3, C.ink)}
-
-  ${rows.join('\n  ')}
-
-  <!-- bits sticker (pixel smileys) — recoloured to the deck's dark card -->
-  <g transform="translate(52.5 15.2) rotate(-4)">${place(A('bits-sticker.svg').replace('#CAFF60', C.ink), 0, 0, 5.9, C.ink)}</g>
-
-  ${ovalSticker(70.5, 44.2, 13.5, 7.6, -14)}
+  ${bg}
+  ${brand}
+  ${p1}
+  ${p2}
+  ${p3}
+  ${p4}
+  <!-- bits sticker (pixel smileys, recoloured to the deck's dark card) + oval 1minus1 sticker -->
+  ${stickers}
 </svg>`;
 }
 
@@ -220,6 +227,7 @@ const out = path.join(here, 'output');
 fs.mkdirSync(out, { recursive: true });
 fs.writeFileSync(path.join(here, 'front.svg'), front());
 fs.writeFileSync(path.join(here, 'back.svg'), back());
+fs.writeFileSync(path.join(out, 'figma-chunks.json'), JSON.stringify(chunks));
 
 fs.writeFileSync(path.join(here, 'index.html'), `<!DOCTYPE html>
 <html lang="en">

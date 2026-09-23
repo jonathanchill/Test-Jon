@@ -1,7 +1,11 @@
 # Jonathan Hill — 1minus1 business card
 
 Front and back artwork for Jonathan Hill's business card, built from the 1minus1 brand
-system as used in the **Creds Deck** Figma file (`figma.com/slides/5cBnjK3pkcCJiD3BRO7M2L`).
+system as used in the **Creds Deck** Figma file (`figma.com/slides/5cBnjK3pkcCJiD3BRO7M2L`)
+and checked against the **Rebrand** master file.
+
+The card also lives in Figma as frame **14 Business card** in the Rebrand file
+(`figma.com/file/EVm36qDtsmDkTBaMFTQAX3?node-id=58-2`), as editable vector groups for each side.
 
 | Front | Back |
 |---|---|
@@ -46,4 +50,5 @@ node render.mjs                # writes output/*.png and the print PDF (needs Pl
 ```
 
 `index.html` is a preview page showing both sides with the trim line; printing it from a
-browser also produces the two-page PDF.
+browser also produces the two-page PDF. `output/figma-chunks.json` holds the same artwork split
+into layer chunks sized for importing into Figma (`figma.createNodeFromSvg`).
