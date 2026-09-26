@@ -73,6 +73,12 @@ function check(label, condition, detail) {
     check('badges carry a tooltip explaining the call', /Judged by/.test(pills[0].title || ''));
     // Rows 1 and 2 are not open anywhere on the page, so they can only have been
     // judged from the subject and snippet.
+    const linkedin = pills.find((p) => /just messaged you/.test(p.subject));
+    check('notification mail is badged AUTO, not HUMAN', /AUTO/.test(linkedin.text || ''), linkedin.text);
+    check('not every row gets the same badge',
+      new Set(pills.map((p) => (p.text || '').split(' ')[0])).size >= 3,
+      pills.map((p) => p.text).join(' | '));
+
     check('badges for unopened rows say they only saw the preview',
       pills.slice(0, 2).every((p) => /ml-preview/.test(p.cls || '')),
       pills.slice(0, 2).map((p) => p.cls).join(' | '));
@@ -93,10 +99,26 @@ function check(label, condition, detail) {
 
     // Opening the message upgrades the row it came from.
     await page.waitForTimeout(800);
-    const upgraded = await page.$eval('tr.zA:nth-child(3) .ml-pill', (n) => n.className);
+    const upgraded = await page.$$eval('tr.zA', (rows) => {
+      const row = rows.find((r) => /Unlocking the full potential/.test(r.textContent));
+      const pill = row && row.querySelector('.ml-pill');
+      return pill ? pill.className : 'no pill';
+    });
     check('the matching list row upgrades to the full-message verdict', /ml-full/.test(upgraded), upgraded);
 
     check('nothing was sent to the Anthropic API without a key', apiCalls === 0, apiCalls + ' calls');
+
+    // Gmail rebuilds row contents constantly; a badge wiped that way used to
+    // never come back, because the row was still marked as already done.
+    await page.evaluate(() => {
+      document.querySelectorAll('tr.zA .ml-pill').forEach((n) => n.remove());
+      document.querySelector('tr.zA .y6').appendChild(document.createTextNode(''));
+    });
+    await page.waitForTimeout(1500);
+    const repainted = await page.$$eval('tr.zA', (rows) =>
+      rows.filter((r) => r.querySelector('.ml-pill')).length);
+    check('badges come back after Gmail re-renders a row', repainted === pills.length,
+      repainted + '/' + pills.length + ' repainted');
   } finally {
     await context.close();
     fs.rmSync(profile, { recursive: true, force: true });

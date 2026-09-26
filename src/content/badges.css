@@ -22,6 +22,7 @@
 .ml-pill.ml-ai      { background: #8430ce; }
 .ml-pill.ml-mixed   { background: #b06000; }
 .ml-pill.ml-human   { background: #137333; }
+.ml-pill.ml-auto    { background: #1a56b0; }
 .ml-pill.ml-unclear { background: #80868b; }
 
 /* ---------------------------------------------------------------- the card */
@@ -41,6 +42,7 @@
 .ml-card.ml-ai      { border-left-color: #8430ce; background: #f7f1fd; }
 .ml-card.ml-mixed   { border-left-color: #b06000; background: #fdf5ec; }
 .ml-card.ml-human   { border-left-color: #137333; background: #f1f8f3; }
+.ml-card.ml-auto    { border-left-color: #1a56b0; background: #eef3fb; }
 .ml-card.ml-unclear { border-left-color: #80868b; }
 .ml-card.ml-pending { color: #5f6368; font-style: italic; }
 
@@ -65,6 +67,7 @@
 .ml-chip.ml-ai      { background: #8430ce; }
 .ml-chip.ml-mixed   { background: #b06000; }
 .ml-chip.ml-human   { background: #137333; }
+.ml-chip.ml-auto    { background: #1a56b0; }
 .ml-chip.ml-unclear { background: #80868b; }
 
 .ml-headline { font-weight: 500; flex: 1 1 auto; }
@@ -102,6 +105,7 @@
 .ml-fg-spam  { color: #c5221f; }
 .ml-fg-ai    { color: #8430ce; }
 .ml-fg-human { color: #137333; }
+.ml-fg-auto  { color: #1a56b0; }
 .ml-fg-ok    { color: #5f6368; }
 
 .ml-bar {
@@ -118,6 +122,7 @@
 .ml-fill-ok    { background: #b7bfc6; }
 .ml-fill-ai    { background: #8430ce; }
 .ml-fill-human { background: #137333; }
+.ml-fill-auto  { background: #1a56b0; }
 
 .ml-pct { font-variant-numeric: tabular-nums; color: #202124; }
 
@@ -134,6 +139,7 @@
   .ml-card.ml-ai    { background: #241a2e; }
   .ml-card.ml-mixed { background: #2c2317; }
   .ml-card.ml-human { background: #1a2620; }
+  .ml-card.ml-auto  { background: #17202e; }
   .ml-recheck { background: #292a2d; border-color: #5f6368; color: #8ab4f8; }
   .ml-recheck:hover { background: #35363a; }
   .ml-bar { background: #3c4043; }

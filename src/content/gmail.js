@@ -105,6 +105,8 @@
         return { text: 'AI+H', cls: 'ml-mixed', confidence: result.authorship.confidence };
       case 'human':
         return { text: 'HUMAN', cls: 'ml-human', confidence: result.authorship.confidence };
+      case 'automated':
+        return { text: 'AUTO', cls: 'ml-auto', confidence: result.authorship.confidence };
       default:
         return { text: '?', cls: 'ml-unclear', confidence: result.authorship.confidence };
     }
@@ -122,7 +124,13 @@
   }
 
   function authorshipWord(verdict) {
-    return { ai: 'AI', human: 'a human', mixed: 'a human, AI-polished', unclear: 'not clear' }[verdict] || verdict;
+    return {
+      ai: 'AI',
+      human: 'a human',
+      mixed: 'a human, AI-polished',
+      automated: 'a machine (notification mail)',
+      unclear: 'not clear',
+    }[verdict] || verdict;
   }
 
   function source(result) {
@@ -196,8 +204,12 @@
     const label = labelFor(result);
     const isSpam = result.spam.verdict === 'spam';
     const author = result.authorship.verdict;
-    const authorAnswer = { ai: 'yes', mixed: 'partly', human: 'no', unclear: 'cannot tell' }[author] || author;
-    const authorFill = author === 'ai' || author === 'mixed' ? 'ai' : author === 'human' ? 'human' : 'ok';
+    const authorAnswer = {
+      ai: 'AI', mixed: 'human + AI', human: 'a human', automated: 'a machine', unclear: 'cannot tell',
+    }[author] || author;
+    const authorFill = {
+      ai: 'ai', mixed: 'ai', human: 'human', automated: 'auto', unclear: 'ok',
+    }[author] || 'ok';
 
     card.className = CARD + ' ' + label.cls;
     card.innerHTML =
@@ -211,7 +223,7 @@
       '</div>' +
       '<div class="ml-metrics">' +
         metric('Spam?', isSpam ? 'yes' : 'no', result.spam.confidence, isSpam ? 'spam' : 'ok') +
-        metric('AI-written?', authorAnswer, result.authorship.confidence, authorFill) +
+        metric('Written by', authorAnswer, result.authorship.confidence, authorFill) +
       '</div>' +
       (result.reason ? '<div class="ml-reason">' + escapeHtml(result.reason) + '</div>' : '') +
       '<div class="ml-source">' + escapeHtml(source(result)) + (result.note ? ' — ' + escapeHtml(result.note) : '') + '</div>';
@@ -257,7 +269,8 @@
     const email = extractOpenMessage(bodyEl);
     if (!email) return;
     const key = keyOf(email) + ':' + hash(email.body.slice(0, 200));
-    if (!force && bodyEl.dataset.mlKey === key) return;
+    const painted = bodyEl.parentElement && bodyEl.parentElement.querySelector(':scope > .' + CARD);
+    if (!force && bodyEl.dataset.mlKey === key && painted) return;
     bodyEl.dataset.mlKey = key;
 
     renderCard(bodyEl, null);
@@ -288,7 +301,11 @@
       const email = extractRow(row);
       if (!email) continue;
       const key = keyOf(email) + ':' + hash(email.subject + email.snippet);
-      if (row.dataset.mlKey === key) continue;
+      // Gmail re-renders row contents constantly (hover, read/unread, stars),
+      // which destroys the pill. Repaint whenever it has gone missing, not just
+      // when the row is new - otherwise a badge vanishes and never comes back.
+      // Re-asking is free: the verdict is already cached in the worker.
+      if (row.dataset.mlKey === key && row.querySelector(':scope .' + PILL)) continue;
       row.dataset.mlKey = key;
 
       renderRowPill(row, null);

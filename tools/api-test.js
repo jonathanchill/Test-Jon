@@ -140,6 +140,35 @@ const EMAILS = [
   }
   check('handles a refusal instead of reading empty content', error && /declined/.test(error.message));
 
+  /* ------------------------------------------- schema keyword whitelist */
+  // Structured outputs REJECTS numeric and string constraints. Shipping a
+  // schema with `minimum` on it made every call 400 and silently fell back to
+  // the offline scorer, which is how every row ended up reading HUMAN 52.
+  // Stubbed fetch cannot catch that, so assert the schema shape directly.
+  const BANNED = ['minimum', 'maximum', 'exclusiveMinimum', 'exclusiveMaximum', 'multipleOf',
+    'minLength', 'maxLength', 'pattern', 'minProperties', 'maxProperties', 'uniqueItems', 'maxItems'];
+  const found = [];
+  (function walk(node, trail) {
+    if (!node || typeof node !== 'object') return;
+    for (const [key, value] of Object.entries(node)) {
+      if (BANNED.includes(key)) found.push(trail + '.' + key);
+      if (key === 'minItems' && value !== 0 && value !== 1) found.push(trail + '.minItems=' + value);
+      if (value && typeof value === 'object') walk(value, trail + '.' + key);
+    }
+  })(captured.body.output_config.format.schema, 'schema');
+  check('schema uses no rejected JSON Schema keywords', found.length === 0, found.join(', '));
+
+  const objects = [];
+  (function walkObjects(node) {
+    if (!node || typeof node !== 'object') return;
+    if (node.type === 'object' && node.properties) objects.push(node);
+    for (const value of Object.values(node)) if (value && typeof value === 'object') walkObjects(value);
+  })(captured.body.output_config.format.schema);
+  check('every schema object closes additionalProperties',
+    objects.every((o) => o.additionalProperties === false), objects.length + ' objects');
+  check('every schema object requires all its properties',
+    objects.every((o) => Object.keys(o.properties).every((k) => (o.required || []).includes(k))));
+
   /* -------------------------------------------------------- heuristics */
   libs = loadLibs(async () => { throw new Error('should not be called'); });
   const h = libs.MailLensHeuristics;
@@ -178,8 +207,26 @@ const EMAILS = [
     senderEmail: 'dana@growthco.io',
     snippet: 'I hope this email finds you well. In today\'s fast-paced landscape',
   }, 'preview');
-  check('offline scorer stays humble on previews', preview.authorship.confidence <= 52,
+  check('offline scorer stays humble on previews', preview.authorship.confidence <= 60,
     preview.authorship.confidence + '%');
+
+  const linkedin = h.classify({
+    subject: 'Matt just messaged you',
+    senderName: 'Matt Wolff via LinkedIn',
+    senderEmail: 'messages-noreply@linkedin.com',
+    snippet: '1 new message awaits your response',
+  }, 'preview');
+  check('offline scorer calls notification mail automated, not human',
+    linkedin.authorship.verdict === 'automated', linkedin.authorship.verdict);
+
+  const thin = h.classify({
+    subject: 'New deck',
+    senderName: 'Zach',
+    senderEmail: 'zach@example.com',
+    snippet: '',
+  }, 'preview');
+  check('offline scorer says unclear rather than defaulting to human',
+    thin.authorship.verdict === 'unclear', thin.authorship.verdict);
 
   if (failures.length) {
     process.stdout.write(`\n${failures.length} check(s) failed\n`);

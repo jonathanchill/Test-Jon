@@ -20,8 +20,9 @@
     </section>
 
     <section>
-      <h2>Claude API key</h2>
-      <p class="hint">Create one at <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noreferrer">console.anthropic.com</a>. Without a key the extension still works, using its built-in offline scoring — which is noticeably rougher.</p>
+      <h2>Claude API key <span class="tag">optional</span></h2>
+      <p class="hint">Mail Lens runs fully offline by default — no account, no key, no cost, and nothing leaves your machine. A key only sharpens one call: telling human writing from AI writing in a message you open. Spam and automated mail are judged offline either way.</p>
+      <p class="hint">If you want it: keys come from the <a href="https://platform.claude.com/settings/keys" target="_blank" rel="noreferrer">Claude Console</a>, which is billed separately from any Claude.ai Pro or Team subscription.</p>
       <div class="row">
         <input type="password" id="apiKey" placeholder="sk-ant-..." autocomplete="off" spellcheck="false">
         <button id="toggleKey" type="button" class="ghost">Show</button>
@@ -47,16 +48,16 @@
       <label class="row">
         <span class="lbl">Rows in the message list</span>
         <select id="listMode">
-          <option value="api">Ask Claude (subject + preview text)</option>
-          <option value="heuristics">Offline scoring only — free</option>
+          <option value="heuristics">Offline — free, nothing sent</option>
+          <option value="api">Ask Claude (needs a key)</option>
           <option value="off">Don't badge the list</option>
         </select>
       </label>
       <label class="row">
         <span class="lbl">A message you open</span>
         <select id="openMode">
-          <option value="api">Ask Claude (full message)</option>
-          <option value="heuristics">Offline scoring only — free</option>
+          <option value="heuristics">Offline — free, nothing sent</option>
+          <option value="api">Ask Claude (needs a key)</option>
         </select>
       </label>
       <label class="row switch">
@@ -67,7 +68,7 @@
         <span class="lbl">Daily API call cap</span>
         <input type="number" id="dailyCallLimit" min="0" max="10000" step="10">
       </label>
-      <p class="hint">List rows are sent in batches of eight per API call, and only rows you actually scroll past are checked. Every verdict is cached for 30 days, so each message costs you one check.</p>
+      <p class="hint">In offline mode nothing is sent anywhere and there is no cost or limit. In Claude mode, rows are batched eight per call, only rows you scroll past are checked, and every verdict is cached for 30 days.</p>
     </section>
 
     <section>
@@ -80,8 +81,9 @@
 
     <section class="caveat">
       <h2>How much to trust it</h2>
-      <p>Spam detection is reliable enough to act on. <strong>AI-authorship detection is not a solved problem</strong> — no detector, this one included, can prove text was machine-written. Fluent, well-organised writing by a careful human is the common false positive, and a light human edit defeats detection entirely. Read the percentage as the strength of a hunch, not a measurement, and treat a badge on someone's mail as a prompt to look closer rather than a verdict about them.</p>
-      <p>Mail Lens reads what Gmail has already drawn on screen. It sends the sender, subject and message text of the mail you look at to the Anthropic API when a Claude mode is on, and nowhere else. Turn either mode to offline scoring to stop that.</p>
+      <p><strong>SPAM and AUTO are the reliable badges.</strong> Junk has blunt tells, and automated mail announces itself in the sender address and footer — offline scoring handles both well.</p>
+      <p><strong>HUMAN vs AI is the weak one</strong>, and offline it is weaker still. No detector can prove text was machine-written. Fluent writing by a careful human is the common false positive, a light human edit defeats detection entirely, and from a one-line preview there is usually nothing to go on — which is why you will see <strong>?</strong> a lot, and should. Read the percentage as the strength of a hunch, not a measurement, and treat a badge on someone's mail as a prompt to look closer rather than a verdict about them.</p>
+      <p>Mail Lens reads what Gmail has already drawn on screen. On the default offline setting that text never leaves your browser. Only if you switch a mode to Claude is the sender, subject and message text of the mail you look at sent to the Anthropic API — and nowhere else, ever.</p>
     </section>
 
     <p id="saved" class="saved" hidden>Saved</p>

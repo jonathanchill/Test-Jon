@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Mail Lens \u2014 Spam & AI Detector for Gmail",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Flags every Gmail message as Spam, AI-written or Human \u2014 inline in the message list and at the top of the open message.",
   "permissions": [
     "storage"

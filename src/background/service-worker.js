@@ -14,8 +14,10 @@ const DEFAULT_SETTINGS = {
   enabled: true,
   apiKey: '',
   model: 'claude-opus-5',
-  listMode: 'api', // 'api' | 'heuristics' | 'off' - how message-list rows are judged
-  openMode: 'api', // 'api' | 'heuristics' - how an opened message is judged
+  // Offline is the default: the extension is fully useful with no API key and
+  // no account. A key upgrades the human-vs-AI call; it is never required.
+  listMode: 'heuristics', // 'api' | 'heuristics' | 'off' - how message-list rows are judged
+  openMode: 'heuristics', // 'api' | 'heuristics' - how an opened message is judged
   showCleanBadge: true, // show a badge even when a mail is plain human, not spam
   dailyCallLimit: 400,
 };
@@ -89,7 +91,7 @@ function cachePut(keys, result) {
 function normalizeVerdict(raw, level, engine) {
   const clamp = self.MailLensUtil.clamp;
   const spamVerdict = raw && raw.spam && raw.spam.verdict === 'spam' ? 'spam' : 'not_spam';
-  const allowed = ['ai', 'human', 'mixed', 'unclear'];
+  const allowed = ['ai', 'human', 'mixed', 'automated', 'unclear'];
   const authorship = raw && raw.authorship && allowed.includes(raw.authorship.verdict)
     ? raw.authorship.verdict
     : 'unclear';
@@ -224,7 +226,11 @@ async function classifyEmail(email, force) {
 
   let promise;
   if (mode === 'heuristics' || !settings.apiKey) {
-    const note = settings.apiKey ? null : 'No API key set - using offline scoring.';
+    // Offline is a chosen mode, not a failure - only say something when the
+    // user asked for Claude and there is no key to do it with.
+    const note = mode === 'api' && !settings.apiKey
+      ? 'Set to ask Claude, but no API key is configured.'
+      : null;
     const result = heuristicVerdict(trimmed, note);
     cachePut(keys, result);
     promise = Promise.resolve(result);
