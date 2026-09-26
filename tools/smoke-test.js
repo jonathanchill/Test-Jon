@@ -12,7 +12,9 @@ const path = require('path');
 const os = require('os');
 const { chromium } = require('playwright');
 
-const ROOT = path.join(__dirname, '..');
+// EXTENSION_DIR lets this run against an unpacked build out of dist/ rather
+// than the repo itself, so the shipped zip gets tested and not just the source.
+const ROOT = process.env.EXTENSION_DIR || path.join(__dirname, '..');
 const FIXTURE = fs.readFileSync(path.join(__dirname, 'fixture-gmail.html'), 'utf8');
 
 const failures = [];

@@ -7,7 +7,8 @@
     "test": "node tools/api-test.js && node tools/smoke-test.js",
     "test:unit": "node tools/api-test.js",
     "test:browser": "node tools/smoke-test.js",
-    "icons": "node tools/make-icons.js"
+    "icons": "node tools/make-icons.js",
+    "build": "bash tools/build.sh"
   },
   "devDependencies": {
     "playwright": "^1.62.1"

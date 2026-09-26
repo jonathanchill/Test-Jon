@@ -29,13 +29,22 @@ Open one and you get the reasoning:
 
 ## Install
 
-1. Clone or download this folder.
+1. Get the files onto your machine — either clone this repo, or download
+   `mail-lens-1.0.0.zip` and unzip it somewhere permanent (Chrome reads the
+   folder every time it starts, so don't leave it in Downloads or the Trash).
 2. Go to `chrome://extensions` and switch on **Developer mode** (top right).
-3. Click **Load unpacked** and pick this folder.
+3. Click **Load unpacked** and pick the folder containing `manifest.json`.
 4. The settings page opens. Paste an
    [Anthropic API key](https://console.anthropic.com/settings/keys) and press
    **Test**.
-5. Open Gmail. Badges appear as rows scroll into view.
+5. Open Gmail and hard-refresh (Cmd/Ctrl + Shift + R). Badges appear as rows
+   scroll into view.
+
+Works in Chrome, Edge, Brave, Arc and Opera — anything Chromium-based. Not
+Safari or Firefox. If your browser is managed by your employer, Developer mode
+may be blocked by policy; `chrome://policy` will say so.
+
+To rebuild the zip after changing anything: `npm run build` → `dist/`.
 
 The extension works with no API key at all — it falls back to a built-in offline
 scorer. That scorer is rougher, and says so on every verdict it produces.
