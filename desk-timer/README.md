@@ -1,8 +1,9 @@
 # Desk Timer
 
-A plain timer for the Mac that stays on top of Ableton, Logic or anything else.
-It shows white digits on black with no colour. It can count up or count down,
-sound an alarm, and beep at intervals you choose.
+A Mac timer that stays on top of Ableton, Logic or anything else. It's drawn as an
+old-school seven-segment LED clock: white segments on black, with the unlit segments
+showing faintly behind the lit ones. It can count up or count down, sound an alarm,
+and beep at intervals you choose.
 
 ## Setup (once)
 
@@ -25,27 +26,31 @@ developer" warning.
 
 ## Using it
 
-- **Count up** or **Count down**. Pick one before pressing Start.
-- **Length** (count down): hours and minutes, with no cap. `4` h `0` m and
-  `0` h `240` m both give four hours.
-- **Alarm at** (count up, optional): sounds once when you reach that time. The
-  timer keeps counting afterwards.
-- **Beep every N min** (either mode, optional): one short "ping" every N minutes
-  of running time, counted from when you pressed Start. Time spent paused doesn't count.
-- **Start / Pause / Resume** and **Reset**.
-- When an alarm goes off, the chime plays 4 times and the digits flip to black on
-  white until you click them or press Esc. A finished countdown sits at
-  0:00:00 until you press Reset.
-- The settings hide while the timer runs, so the digits can fill the window. Drag
-  the window edge to make it as big as you like. It reopens where you left it and
-  remembers your last settings.
+**Setup screen** (shown at launch and after Reset):
+- **▼ COUNT DOWN / ▲ COUNT UP** switch at the top.
+- Set the time on the clock face. ▲/▼ above and below the digits change the hours
+  by 1 and the minutes by 5. To type an exact number, click the digits (a bar
+  appears under them), type, then press Return, or Tab to move from hours to minutes.
+  You can go up to 99 hours 59 minutes.
+- In count up, the same digits set **Alarm at**. Its switch turns the alarm on or
+  off. The alarm sounds once and the clock keeps counting.
+- **Beep every**: switch, then −/+ in 5-minute steps, or click the digits to type
+  any number of minutes. One short ping every N minutes of running time. Time spent
+  paused doesn't count.
+- **START**, or press Space or Return.
 
-Keyboard shortcuts (while the timer window is focused): **Space** starts, pauses and
-resumes, **R** resets, **Esc** clears an alarm, and **⌘Q** quits.
+**Running screen**: large digits with indicator lamps underneath (▼ DOWN, ▲ UP,
+ALARM, BEEP, PAUSED). Pausing dims the digits and switches the colons off. When an
+alarm goes off, the chime plays 4 times and the display lights up white with black
+digits until you click it or press Esc. Drag the window edge to make the digits
+bigger. The setup and running screens each remember their own window size, and the
+app remembers your last settings.
 
-There's no Dock icon. Use the small timer icon in the menu bar to bring the window
-back if you close it, or to quit. Closing the window doesn't stop a running timer,
-and an alarm brings the window back.
+Keyboard shortcuts: **Space** starts, pauses and resumes, **R** resets, **Esc**
+clears an alarm, and **⌘Q** quits.
+
+**Closing the window (the red button) quits the app.** There's no Dock icon. The
+small timer icon in the menu bar can also bring the window forward, or quit.
 
 ## Why a native Mac app
 
@@ -58,15 +63,15 @@ Always-on-top was the requirement that decided it:
 | HTML page in a browser | No. Pages can't set their window's level. Picture-in-Picture floats, but browsers only reliably allow it for video, and they close it or refuse to open it without a click, which is what you ran into. |
 | Chrome extension | No. An extension popup closes as soon as focus leaves it. That's built into Chrome and can't be changed. |
 
-The app is a single Swift file (`DeskTimer.swift`) with no dependencies.
+The app is a single Swift file (`DeskTimer.swift`) with no dependencies. The label
+font, Share Tech Mono, is bundled from `Resources/` under its open font licence
+(`Resources/OFL.txt`).
 
 ## Limits to know about
 
-- **Not yet run on a real Mac.** This was written on a Linux machine where macOS
-  can't be built or run, so the first `./build.sh` is also the first compile. If it
-  reports an error, paste it back and it'll be a quick fix.
-- **Calibri** only comes with Microsoft Office, so it may not be installed.
-  If it isn't, the timer uses the Mac's system font (San Francisco).
+- **Built without a Mac to test on.** This code is written on a Linux machine, so
+  each change is first compiled when you run `./build.sh`. If it reports an error,
+  paste it back.
 - **Where the sound comes out.** Chimes play through the Mac's output device (System
   Settings → Sound), which isn't necessarily the audio interface Ableton or Logic uses.
   They follow the Mac's volume, not the DAW's.

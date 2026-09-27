@@ -1,33 +1,41 @@
-// Desk Timer: a plain, always-on-top count-up / count-down timer for macOS.
+// Desk Timer: an always-on-top count-up / count-down timer for macOS,
+// drawn as an old-school seven-segment LED clock.
 // Build with ./build.sh (needs the Xcode Command Line Tools).
 
 import AppKit
+import Combine
+import CoreText
 import SwiftUI
 
 // MARK: - Timer model
 
 enum Mode: String { case up, down }
 enum RunState { case idle, running, paused, finished }
+enum EditField { case hours, minutes, interval }
 
 @MainActor
 final class TimerModel: NSObject, ObservableObject {
-    // Settings, remembered between launches. Kept as text so the fields can hold
-    // anything while typing; parsed leniently when a run starts.
+    // Settings, remembered between launches. All in whole minutes.
     @Published var mode: Mode = .down { didSet { save() } }
-    @Published var downHours = "1" { didSet { save() } }
-    @Published var downMinutes = "0" { didSet { save() } }
+    @Published var downMinutes = 60 { didSet { save() } }     // countdown length
     @Published var targetOn = false { didSet { save() } }
-    @Published var targetHours = "2" { didSet { save() } }
-    @Published var targetMinutes = "0" { didSet { save() } }
+    @Published var targetMinutes = 120 { didSet { save() } }  // count-up alarm
     @Published var intervalOn = false { didSet { save() } }
-    @Published var intervalMinutes = "30" { didSet { save() } }
+    @Published var intervalMinutes = 30 { didSet { save() } }
 
     @Published private(set) var state: RunState = .idle
     @Published private(set) var shownSeconds = 0
     @Published private(set) var alarmActive = false
 
+    /// Which setup digits are being typed into, and what's been typed so far.
+    @Published private(set) var editing: EditField?
+    @Published private(set) var editBuffer = ""
+
     /// Called when an alarm fires, so the window can bring itself forward.
     var onAlarm: (() -> Void)?
+
+    static let maxMinutes = 99 * 60 + 59
+    static let maxInterval = 999
 
     // Values frozen when a run starts.
     private(set) var runMode: Mode = .down
@@ -57,13 +65,11 @@ final class TimerModel: NSObject, ObservableObject {
         loading = true
         let d = UserDefaults.standard
         if let m = d.string(forKey: "mode").flatMap(Mode.init(rawValue:)) { mode = m }
-        downHours = d.string(forKey: "downHours") ?? downHours
-        downMinutes = d.string(forKey: "downMinutes") ?? downMinutes
+        if let v = d.object(forKey: "downTotal") as? Int { downMinutes = v }
+        if let v = d.object(forKey: "targetTotal") as? Int { targetMinutes = v }
+        if let v = d.object(forKey: "intervalTotal") as? Int { intervalMinutes = v }
         targetOn = d.bool(forKey: "targetOn")
-        targetHours = d.string(forKey: "targetHours") ?? targetHours
-        targetMinutes = d.string(forKey: "targetMinutes") ?? targetMinutes
         intervalOn = d.bool(forKey: "intervalOn")
-        intervalMinutes = d.string(forKey: "intervalMinutes") ?? intervalMinutes
         loading = false
     }
 
@@ -71,62 +77,149 @@ final class TimerModel: NSObject, ObservableObject {
         guard !loading else { return }
         let d = UserDefaults.standard
         d.set(mode.rawValue, forKey: "mode")
-        d.set(downHours, forKey: "downHours")
-        d.set(downMinutes, forKey: "downMinutes")
+        d.set(downMinutes, forKey: "downTotal")
+        d.set(targetMinutes, forKey: "targetTotal")
+        d.set(intervalMinutes, forKey: "intervalTotal")
         d.set(targetOn, forKey: "targetOn")
-        d.set(targetHours, forKey: "targetHours")
-        d.set(targetMinutes, forKey: "targetMinutes")
         d.set(intervalOn, forKey: "intervalOn")
-        d.set(intervalMinutes, forKey: "intervalMinutes")
     }
 
-    // MARK: Settings as numbers
+    // MARK: Setup
 
-    private static func number(_ text: String) -> Int {
-        Int(String(text.filter { $0.isNumber }.prefix(4))) ?? 0
+    /// The time the big setup digits show: the countdown length, or the
+    /// count-up alarm time. Changing the alarm time switches the alarm on.
+    var setupMinutes: Int {
+        get { mode == .down ? downMinutes : targetMinutes }
+        set {
+            let v = min(max(newValue, 0), Self.maxMinutes)
+            if mode == .down {
+                downMinutes = v
+            } else {
+                targetMinutes = v
+                targetOn = true
+            }
+        }
     }
 
-    var durationSetting: Int { Self.number(downHours) * 3600 + Self.number(downMinutes) * 60 }
-    var targetSetting: Int { Self.number(targetHours) * 3600 + Self.number(targetMinutes) * 60 }
-    var intervalSetting: Int { Self.number(intervalMinutes) * 60 }
+    func setMode(_ m: Mode) {
+        commitEdit()
+        mode = m
+    }
+
+    func stepHours(_ direction: Int) {
+        commitEdit()
+        setupMinutes += 60 * direction
+    }
+
+    /// Minutes move in 5s; a typed odd value snaps to the next 5 either way.
+    func stepMinutes(_ direction: Int) {
+        commitEdit()
+        let m = setupMinutes
+        setupMinutes = direction > 0 ? (m / 5 + 1) * 5 : (m % 5 == 0 ? m - 5 : m / 5 * 5)
+    }
+
+    func stepInterval(_ direction: Int) {
+        commitEdit()
+        let v = intervalMinutes
+        let next: Int
+        if direction > 0 {
+            next = v < 5 ? 5 : (v / 5 + 1) * 5
+        } else {
+            next = v <= 5 ? v - 1 : (v % 5 == 0 ? v - 5 : v / 5 * 5)
+        }
+        intervalMinutes = min(max(next, 1), Self.maxInterval)
+        intervalOn = true
+    }
+
+    // Typing into the digits: click them, type, then Return / Tab / click away.
+
+    func beginEdit(_ field: EditField) {
+        commitEdit()
+        editing = field
+        editBuffer = ""
+    }
+
+    func typeDigit(_ c: Character) {
+        guard let field = editing else { return }
+        let maxLength = field == .interval ? 3 : 2
+        if editBuffer.count < maxLength { editBuffer.append(c) }
+    }
+
+    func backspace() {
+        if !editBuffer.isEmpty { editBuffer.removeLast() }
+    }
+
+    func cancelEdit() {
+        editing = nil
+        editBuffer = ""
+    }
+
+    func commitEdit() {
+        guard let field = editing else { return }
+        if let n = Int(editBuffer) {
+            switch field {
+            case .hours: setupMinutes = n * 60 + setupMinutes % 60
+            case .minutes: setupMinutes = setupMinutes / 60 * 60 + n // 90 min carries into the hour
+            case .interval:
+                intervalMinutes = min(max(n, 1), Self.maxInterval)
+                intervalOn = true
+            }
+        }
+        cancelEdit()
+    }
+
+    /// Tab: hours → minutes → done.
+    func tabEdit() {
+        let next: EditField? = editing == .hours ? .minutes : nil
+        commitEdit()
+        if let next { beginEdit(next) }
+    }
+
+    private func editText(_ field: EditField, width: Int) -> String? {
+        guard editing == field else { return nil }
+        return String(repeating: " ", count: max(0, width - editBuffer.count)) + editBuffer
+    }
+
+    var hoursText: String {
+        editText(.hours, width: 2) ?? String(format: "%2d", setupMinutes / 60)
+    }
+
+    var minutesText: String {
+        editText(.minutes, width: 2) ?? String(format: "%02d", setupMinutes % 60)
+    }
+
+    var intervalText: String {
+        editText(.interval, width: 3) ?? String(format: "%3d", intervalMinutes)
+    }
 
     // MARK: Display
 
-    var displaySeconds: Int {
-        if state == .idle { return mode == .down ? durationSetting : 0 }
-        return shownSeconds
-    }
-
-    var displayText: String { Self.format(displaySeconds) }
+    var displayText: String { Self.format(shownSeconds) }
 
     static func format(_ seconds: Int) -> String {
         String(format: "%d:%02d:%02d", seconds / 3600, seconds % 3600 / 60, seconds % 60)
     }
 
-    var statusText: String {
-        var parts: [String] = []
-        switch state {
-        case .paused: parts.append("Paused")
-        case .finished: parts.append("Time's up")
-        default: break
-        }
-        if runMode == .down {
-            parts.append("counting down from \(Self.format(Int(runDuration)))")
-        } else {
-            parts.append("counting up")
-            if runTarget > 0 { parts.append("alarm at \(Self.format(Int(runTarget)))") }
-        }
-        if runInterval > 0 { parts.append("beep every \(Int(runInterval / 60)) min") }
-        let text = parts.joined(separator: " · ")
-        return text.prefix(1).uppercased() + text.dropFirst()
+    /// The small line under the display, bottom left.
+    var statusLine: String {
+        if alarmActive { return "CLICK OR ESC TO SILENCE" }
+        if state == .finished { return "TIME UP" }
+        if runMode == .down { return "FROM " + Self.format(Int(runDuration)) }
+        if runTarget > 0 { return "ALARM AT " + Self.format(Int(runTarget)) }
+        return "COUNTING UP"
     }
 
-    var primaryLabel: String {
-        switch state {
-        case .idle, .finished: return "Start"
-        case .running: return "Pause"
-        case .paused: return "Resume"
-        }
+    /// The indicator lamps under the digits: label and whether it's lit.
+    var indicators: [(String, Bool)] {
+        let beep = runInterval > 0 ? "BEEP \(Int(runInterval / 60))" : "BEEP"
+        let last = (alarmActive || state == .finished) ? "TIME UP" : "PAUSED"
+        return [
+            ("▼ DOWN", runMode == .down),
+            ("▲ UP", runMode == .up),
+            ("ALARM", runTarget > 0),
+            (beep, runInterval > 0),
+            (last, state == .paused || alarmActive || state == .finished),
+        ]
     }
 
     // MARK: Controls
@@ -143,17 +236,19 @@ final class TimerModel: NSObject, ObservableObject {
 
     func start() {
         guard state == .idle else { return }
-        if mode == .down && durationSetting == 0 {
+        commitEdit()
+        if mode == .down && downMinutes == 0 {
             NSSound.beep()
             return
         }
         runMode = mode
-        runDuration = TimeInterval(durationSetting)
-        runTarget = (mode == .up && targetOn) ? TimeInterval(targetSetting) : 0
-        runInterval = intervalOn ? TimeInterval(intervalSetting) : 0
+        runDuration = TimeInterval(downMinutes * 60)
+        runTarget = (mode == .up && targetOn && targetMinutes > 0) ? TimeInterval(targetMinutes * 60) : 0
+        runInterval = intervalOn ? TimeInterval(intervalMinutes * 60) : 0
         accumulated = 0
         targetFired = false
         intervalsBeeped = 0
+        shownSeconds = mode == .down ? Int(runDuration) : 0
         run()
     }
 
@@ -287,185 +382,446 @@ final class TimerModel: NSObject, ObservableObject {
 
 // MARK: - Look
 
-enum Look {
-    /// Calibri if it's installed (it ships with Microsoft Office), otherwise the
-    /// system font. Digits are forced to fixed width so the display doesn't jitter.
-    static let family: String? = NSFont(name: "Calibri", size: 12) != nil ? "Calibri" : nil
-
-    static func font(_ size: CGFloat) -> Font {
-        if let family { return Font.custom(family, size: size).monospacedDigit() }
-        return Font.system(size: size).monospacedDigit()
+extension Color {
+    init(hex: UInt32) {
+        self.init(red: Double((hex >> 16) & 0xFF) / 255,
+                  green: Double((hex >> 8) & 0xFF) / 255,
+                  blue: Double(hex & 0xFF) / 255)
     }
-
-    static let dim = Color.white.opacity(0.55)
 }
 
-struct BoxButton: ButtonStyle {
-    var selected = false
+enum Theme {
+    static let lit = Color(hex: 0xF4F4F0)        // lit segments, selected keys
+    static let ghost = Color.white.opacity(0.07) // unlit segments
+    static let glow = Color.white.opacity(0.30)
+    static let lampOff = Color.white.opacity(0.18)
+    static let text = Color(hex: 0xE8E8E4)
+    static let dim = Color(hex: 0x8C8C88)
+    static let hint = Color(hex: 0x6E6E6A)
+    static let panel = Color(hex: 0x060606)
+    static let panelBorder = Color(hex: 0x1C1C1C)
+    static let key = Color(hex: 0x0D0D0D)
+    static let keyPressed = Color(hex: 0x1A1A1A)
+    static let keyBorder = Color(hex: 0x2E2E2E)
+    static let ink = Color(hex: 0x0A0A0A)        // digits on the lit alarm panel
+
+    /// Share Tech Mono ships inside the app (Contents/Resources); Menlo if it's missing.
+    static let labelFontName: String = {
+        if let url = Bundle.main.url(forResource: "ShareTechMono-Regular", withExtension: "ttf") {
+            CTFontManagerRegisterFontsForURL(url as CFURL, .process, nil)
+        }
+        return NSFont(name: "ShareTechMono-Regular", size: 12) != nil ? "ShareTechMono-Regular" : "Menlo"
+    }()
+
+    static func font(_ size: CGFloat) -> Font { Font.custom(labelFontName, size: size) }
+}
+
+// MARK: - Seven-segment digits
+
+// Shapes in design units: a digit cell is 70 × 104, a colon cell 24 × 104,
+// everything slanted 5° like a real LED clock face.
+private func points(_ v: [CGFloat]) -> [CGPoint] {
+    stride(from: 0, to: v.count, by: 2).map { CGPoint(x: v[$0], y: v[$0 + 1]) }
+}
+
+private let segmentShapes: [(Character, [CGPoint])] = [
+    ("a", points([8, 6, 13, 1, 47, 1, 52, 6, 47, 11, 13, 11])),
+    ("b", points([54, 8, 59, 13, 59, 45, 54, 50, 49, 45, 49, 13])),
+    ("c", points([54, 54, 59, 59, 59, 91, 54, 96, 49, 91, 49, 59])),
+    ("d", points([8, 98, 13, 93, 47, 93, 52, 98, 47, 103, 13, 103])),
+    ("e", points([6, 54, 11, 59, 11, 91, 6, 96, 1, 91, 1, 59])),
+    ("f", points([6, 8, 11, 13, 11, 45, 6, 50, 1, 45, 1, 13])),
+    ("g", points([8, 52, 13, 47, 47, 47, 52, 52, 47, 57, 13, 57])),
+]
+
+private let colonDots: [[CGPoint]] = [
+    points([7, 29, 17, 29, 17, 39, 7, 39]),
+    points([7, 67, 17, 67, 17, 77, 7, 77]),
+]
+
+private let digitSegments: [Character: String] = [
+    "0": "abcdef", "1": "bc", "2": "abged", "3": "abgcd", "4": "fgbc",
+    "5": "afgcd", "6": "afgedc", "7": "abc", "8": "abcdefg", "9": "abcdfg",
+    "-": "g", " ": "",
+]
+
+private let slant: CGFloat = 0.0875 // tan 5°
+
+/// Draws text ("1:23:45", " 1", "30") as seven-segment digits, as large as fits,
+/// centred. Unlit segments show faintly behind the lit ones.
+struct SegmentText: View {
+    let text: String
+    var lit: Color = Theme.lit
+    var ghost: Color = Theme.ghost
+    var glow: Color? = Theme.glow
+    var colonOn = true
+
+    static func gap(_ h: CGFloat) -> CGFloat { max(2, (h * 0.05).rounded()) }
+
+    static func width(of text: String, height h: CGFloat) -> CGFloat {
+        let s = h / 104
+        var cells: CGFloat = 0
+        for ch in text { cells += (ch == ":" ? CGFloat(24) : CGFloat(70)) * s }
+        return cells + gap(h) * CGFloat(max(0, text.count - 1))
+    }
+
+    static func fittingHeight(for text: String, in size: CGSize) -> CGFloat {
+        guard !text.isEmpty, size.width > 0, size.height > 0 else { return 0 }
+        var h = min(size.height, size.width / (width(of: text, height: 100) / 100))
+        while h > 1 && width(of: text, height: h) > size.width { h -= 1 }
+        return max(h, 0)
+    }
+
+    var body: some View {
+        GeometryReader { geo in
+            let h = Self.fittingHeight(for: text, in: geo.size)
+            Canvas { ctx, size in
+                Self.draw(text, height: h, in: size, context: &ctx,
+                          lit: lit, ghost: ghost, colonOn: colonOn)
+            }
+            .shadow(color: glow ?? .clear, radius: glow == nil ? 0 : max(2, h * 0.07))
+        }
+        .accessibilityElement()
+        .accessibilityLabel(text.trimmingCharacters(in: .whitespaces))
+    }
+
+    private static func draw(_ text: String, height h: CGFloat, in size: CGSize,
+                             context ctx: inout GraphicsContext,
+                             lit: Color, ghost: Color, colonOn: Bool) {
+        let s = h / 104
+        let gap = Self.gap(h)
+        var x = (size.width - width(of: text, height: h)) / 2
+        let y = (size.height - h) / 2
+        for ch in text {
+            if ch == ":" {
+                for dot in colonDots {
+                    ctx.fill(shape(dot, x: x, y: y, scale: s, pad: 6), with: .color(colonOn ? lit : ghost))
+                }
+                x += 24 * s + gap
+            } else {
+                let on = digitSegments[ch] ?? ""
+                for (name, pts) in segmentShapes {
+                    ctx.fill(shape(pts, x: x, y: y, scale: s, pad: 10),
+                             with: .color(on.contains(name) ? lit : ghost))
+                }
+                x += 70 * s + gap
+            }
+        }
+    }
+
+    private static func shape(_ pts: [CGPoint], x: CGFloat, y: CGFloat,
+                              scale s: CGFloat, pad: CGFloat) -> Path {
+        var path = Path()
+        for (i, p) in pts.enumerated() {
+            let q = CGPoint(x: x + (p.x - slant * p.y + pad) * s, y: y + p.y * s)
+            if i == 0 { path.move(to: q) } else { path.addLine(to: q) }
+        }
+        path.closeSubpath()
+        return path
+    }
+}
+
+// MARK: - Controls
+
+/// The hardware-style keys: dark with a thin border, or filled white.
+struct KeyStyle: ButtonStyle {
+    var filled = false
+    var height: CGFloat = 40
+    var width: CGFloat? = nil
+    var fullWidth = false
+    var fontSize: CGFloat = 13
 
     func makeBody(configuration: Configuration) -> some View {
-        BoxButtonBody(configuration: configuration, selected: selected)
+        KeyBody(configuration: configuration, style: self)
     }
 }
 
-private struct BoxButtonBody: View {
+private struct KeyBody: View {
     let configuration: ButtonStyleConfiguration
-    let selected: Bool
+    let style: KeyStyle
     @Environment(\.isEnabled) private var isEnabled
 
     var body: some View {
-        let filled = selected || configuration.isPressed
+        let pressed = configuration.isPressed
+        let fill: Color = style.filled
+            ? (pressed ? Color(hex: 0xCFCFCB) : Theme.lit)
+            : (pressed ? Theme.keyPressed : Theme.key)
+        let border: Color = style.filled ? Theme.lit : (isEnabled ? Theme.keyBorder : Color(hex: 0x1E1E1E))
+        let fg: Color = !isEnabled ? Color(hex: 0x5A5A58) : (style.filled ? .black : Theme.text)
         configuration.label
-            .font(Look.font(15))
-            .foregroundColor(filled ? .black : .white)
-            .padding(.vertical, 6)
-            .padding(.horizontal, 14)
-            .frame(minWidth: 84)
-            .background(filled ? Color.white : Color.black)
-            .overlay(Rectangle().stroke(Color.white, lineWidth: 1))
+            .font(Theme.font(style.fontSize))
+            .foregroundColor(fg)
+            .padding(.horizontal, style.width == nil && !style.fullWidth ? 20 : 0)
+            .frame(width: style.width, height: style.height)
+            .frame(maxWidth: style.fullWidth ? .infinity : nil)
+            .background(RoundedRectangle(cornerRadius: 6).fill(fill))
+            .overlay(RoundedRectangle(cornerRadius: 6).stroke(border, lineWidth: 1))
             .contentShape(Rectangle())
-            .opacity(isEnabled ? 1 : 0.35)
     }
 }
 
-struct CheckBox: View {
+/// One half of the COUNT DOWN / COUNT UP switch.
+private struct ModeStyle: ButtonStyle {
+    let selected: Bool
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(Theme.font(13))
+            .foregroundColor(selected ? .black : Theme.dim)
+            .frame(maxWidth: .infinity, minHeight: 44, maxHeight: 44)
+            .background(selected ? Theme.lit : (configuration.isPressed ? Theme.keyPressed : Theme.key))
+            .contentShape(Rectangle())
+    }
+}
+
+/// A square-cornered slide switch.
+struct SlideSwitch: View {
     @Binding var isOn: Bool
-    let title: String
+    let label: String
 
     var body: some View {
         Button {
             isOn.toggle()
         } label: {
-            HStack(spacing: 8) {
-                Rectangle()
-                    .fill(isOn ? Color.white : Color.black)
-                    .frame(width: 12, height: 12)
-                    .overlay(Rectangle().stroke(Color.white, lineWidth: 1))
-                Text(title)
+            ZStack(alignment: isOn ? Alignment.trailing : Alignment.leading) {
+                RoundedRectangle(cornerRadius: 4).fill(isOn ? Theme.lit : Color(hex: 0x141414))
+                RoundedRectangle(cornerRadius: 4).stroke(isOn ? Theme.lit : Color(hex: 0x3A3A3A), lineWidth: 1)
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(isOn ? Color.black : Color(hex: 0x6A6A66))
+                    .frame(width: 16, height: 16)
+                    .padding(3)
             }
+            .frame(width: 44, height: 24)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .font(Look.font(15))
-        .foregroundColor(.white)
+        .accessibilityLabel(label)
+        .accessibilityValue(isOn ? "On" : "Off")
     }
 }
 
-struct NumberField: View {
-    @Binding var text: String
-
-    var body: some View {
-        TextField("0", text: $text)
-            .textFieldStyle(.plain)
-            .font(Look.font(15))
-            .foregroundColor(.white)
-            .multilineTextAlignment(.center)
-            .frame(width: 44)
-            .padding(.vertical, 3)
-            .overlay(Rectangle().stroke(Look.dim, lineWidth: 1))
+extension View {
+    /// The recessed dark display panel.
+    func panel(_ fill: Color = Theme.panel, border: Color = Theme.panelBorder) -> some View {
+        background(RoundedRectangle(cornerRadius: 8).fill(fill))
+            .overlay(RoundedRectangle(cornerRadius: 8).stroke(border, lineWidth: 1))
     }
 }
 
-// MARK: - Views
+private func caps(_ s: String, tracking: CGFloat = 3) -> Text {
+    Text(s).tracking(tracking)
+}
 
-struct ContentView: View {
+// MARK: - Running screen
+
+struct RunView: View {
     @ObservedObject var model: TimerModel
 
     var body: some View {
         VStack(spacing: 14) {
             display
-            if model.state == .idle {
-                SettingsPanel(model: model)
-            } else {
-                Text(model.statusText)
-                    .font(Look.font(13))
-                    .foregroundColor(Look.dim)
+            HStack(spacing: 12) {
+                caps(model.statusLine, tracking: 2)
+                    .font(Theme.font(12))
+                    .foregroundColor(Theme.dim)
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
-            }
-            HStack(spacing: 10) {
-                Button(model.primaryLabel) { model.toggle() }
-                    .buttonStyle(BoxButton())
-                    .disabled(model.state == .finished)
-                Button("Reset") { model.reset() }
-                    .buttonStyle(BoxButton())
-                    .disabled(model.state == .idle)
+                Spacer(minLength: 0)
+                primaryKey
+                Button { model.reset() } label: { caps("RESET") }
+                    .buttonStyle(KeyStyle())
             }
         }
-        .padding(.horizontal, 18)
-        .padding(.top, 28) // clear of the (transparent) title bar
-        .padding(.bottom, 16)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.black)
     }
 
-    /// The big digits. Turns white-on-black into black-on-white while an alarm
-    /// is showing; click it (or press Esc) to clear.
-    private var display: some View {
-        GeometryReader { geo in
-            Text(model.displayText)
-                .font(Look.font(max(1, min(geo.size.height * 0.85, geo.size.width * 0.28))))
-                .foregroundColor(model.alarmActive ? .black : .white)
-                .lineLimit(1)
-                .minimumScaleFactor(0.2)
-                .frame(width: geo.size.width, height: geo.size.height)
-                .background(model.alarmActive ? Color.white : Color.black)
-                .contentShape(Rectangle())
-                .onTapGesture { model.dismissAlarm() }
+    @ViewBuilder private var primaryKey: some View {
+        switch model.state {
+        case .running:
+            Button { model.pause() } label: { caps("PAUSE") }.buttonStyle(KeyStyle())
+        case .paused:
+            Button { model.toggle() } label: { caps("RESUME") }.buttonStyle(KeyStyle(filled: true))
+        default:
+            Button {} label: { caps("START") }.buttonStyle(KeyStyle()).disabled(true)
         }
-        .frame(minHeight: 60)
+    }
+
+    /// The digits and indicator lamps. While an alarm is showing the panel lights
+    /// up white with black digits; clicking it (or Esc) silences it.
+    private var display: some View {
+        let alarm = model.alarmActive
+        let paused = model.state == .paused
+        return VStack(spacing: 16) {
+            SegmentText(text: model.displayText,
+                        lit: alarm ? Theme.ink : Theme.lit,
+                        ghost: alarm ? Color.black.opacity(0.08) : Theme.ghost,
+                        glow: (alarm || paused) ? nil : Theme.glow,
+                        colonOn: !paused)
+                .opacity(paused ? 0.5 : 1)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            HStack(spacing: 22) {
+                ForEach(model.indicators.indices, id: \.self) { i in
+                    let lamp = model.indicators[i]
+                    caps(lamp.0, tracking: 2)
+                        .foregroundColor(lamp.1 ? (alarm ? Theme.ink : Theme.lit)
+                                                : (alarm ? Color.black.opacity(0.2) : Theme.lampOff))
+                        .lineLimit(1)
+                }
+            }
+            .font(Theme.font(12))
+            .minimumScaleFactor(0.6)
+        }
+        .padding(16)
+        .panel(alarm ? Theme.lit : Theme.panel, border: alarm ? Theme.lit : Theme.panelBorder)
+        .shadow(color: alarm ? Theme.glow : .clear, radius: 20)
+        .contentShape(Rectangle())
+        .onTapGesture { model.dismissAlarm() }
     }
 }
 
-struct SettingsPanel: View {
+// MARK: - Setup screen
+
+struct SetupView: View {
     @ObservedObject var model: TimerModel
 
-    private let labelWidth: CGFloat = 120
+    private let bigDigits: CGFloat = 96
+    private let smallDigits: CGFloat = 30
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 10) {
-                Button("Count up") { model.mode = .up }
-                    .buttonStyle(BoxButton(selected: model.mode == .up))
-                Button("Count down") { model.mode = .down }
-                    .buttonStyle(BoxButton(selected: model.mode == .down))
-            }
-            if model.mode == .down {
-                HStack(spacing: 6) {
-                    Text("Length")
-                        .padding(.leading, 20)
-                        .frame(width: labelWidth, alignment: .leading)
-                    NumberField(text: $model.downHours)
-                    Text("h")
-                    NumberField(text: $model.downMinutes)
-                    Text("m")
+        VStack(spacing: 16) {
+            modeSwitch
+            timePanel
+            beepRow
+            Button { model.start() } label: { caps("START", tracking: 6) }
+                .buttonStyle(KeyStyle(filled: true, height: 52, fullWidth: true, fontSize: 16))
+        }
+        .contentShape(Rectangle())
+        .onTapGesture { model.commitEdit() } // clicking away finishes typing
+    }
+
+    private var modeSwitch: some View {
+        HStack(spacing: 0) {
+            Button { model.setMode(.down) } label: { caps("▼ COUNT DOWN") }
+                .buttonStyle(ModeStyle(selected: model.mode == .down))
+            Rectangle().fill(Theme.keyBorder).frame(width: 1, height: 44)
+            Button { model.setMode(.up) } label: { caps("▲ COUNT UP") }
+                .buttonStyle(ModeStyle(selected: model.mode == .up))
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 6))
+        .overlay(RoundedRectangle(cornerRadius: 6).stroke(Theme.keyBorder, lineWidth: 1))
+    }
+
+    private var timePanel: some View {
+        let countUp = model.mode == .up
+        return VStack(spacing: 10) {
+            HStack {
+                if countUp {
+                    SlideSwitch(isOn: $model.targetOn, label: "Alarm at")
+                    caps("ALARM AT", tracking: 2).foregroundColor(Theme.text).padding(.leading, 4)
+                } else {
+                    caps("LENGTH", tracking: 2)
                 }
+                Spacer()
+                caps("HRS : MIN", tracking: 2)
+            }
+            .font(Theme.font(12))
+            .foregroundColor(Theme.dim)
+
+            HStack(spacing: 12) {
+                digitColumn(.hours, text: model.hoursText,
+                            up: { model.stepHours(1) }, down: { model.stepHours(-1) },
+                            upLabel: "Add an hour", downLabel: "Remove an hour")
+                SegmentText(text: ":")
+                    .frame(width: SegmentText.width(of: ":", height: bigDigits), height: bigDigits)
+                digitColumn(.minutes, text: model.minutesText,
+                            up: { model.stepMinutes(1) }, down: { model.stepMinutes(-1) },
+                            upLabel: "Add 5 minutes", downLabel: "Remove 5 minutes")
+            }
+            .opacity(countUp && !model.targetOn ? 0.4 : 1)
+
+            caps(countUp ? "SOUNDS ONCE · THE CLOCK KEEPS COUNTING"
+                          : "CLICK THE DIGITS TO TYPE · UP TO 99 HOURS", tracking: 2)
+                .font(Theme.font(11))
+                .foregroundColor(Theme.hint)
+        }
+        .padding(.vertical, 16)
+        .padding(.horizontal, 20)
+        .panel()
+    }
+
+    private func digitColumn(_ field: EditField, text: String,
+                             up: @escaping () -> Void, down: @escaping () -> Void,
+                             upLabel: String, downLabel: String) -> some View {
+        VStack(spacing: 8) {
+            Button(action: up) { Image(systemName: "chevron.up") }
+                .buttonStyle(KeyStyle(height: 28, width: 120))
+                .accessibilityLabel(upLabel)
+            editableDigits(field, text: text, height: bigDigits, sample: "88")
+            Button(action: down) { Image(systemName: "chevron.down") }
+                .buttonStyle(KeyStyle(height: 28, width: 120))
+                .accessibilityLabel(downLabel)
+        }
+    }
+
+    /// Digits you can click to type into; a bar underneath shows which is active.
+    private func editableDigits(_ field: EditField, text: String,
+                                height: CGFloat, sample: String) -> some View {
+        let active = model.editing == field
+        return SegmentText(text: text)
+            .frame(width: SegmentText.width(of: sample, height: height), height: height)
+            .padding(.bottom, 6)
+            .overlay(Rectangle()
+                        .fill(active ? Theme.lit : Color.clear)
+                        .frame(height: 2),
+                     alignment: .bottom)
+            .contentShape(Rectangle())
+            .onTapGesture { model.beginEdit(field) }
+    }
+
+    private var beepRow: some View {
+        HStack(spacing: 14) {
+            SlideSwitch(isOn: $model.intervalOn, label: "Beep every")
+            caps("BEEP EVERY")
+                .font(Theme.font(13))
+                .foregroundColor(model.intervalOn ? Theme.text : Theme.dim)
+            Spacer(minLength: 0)
+            HStack(spacing: 14) {
+                Button { model.stepInterval(-1) } label: { Image(systemName: "minus") }
+                    .buttonStyle(KeyStyle(height: 32, width: 32))
+                    .accessibilityLabel("Shorter interval")
+                editableDigits(.interval, text: model.intervalText, height: smallDigits, sample: "888")
+                caps("MIN", tracking: 2)
+                    .font(Theme.font(12))
+                    .foregroundColor(Theme.dim)
+                Button { model.stepInterval(1) } label: { Image(systemName: "plus") }
+                    .buttonStyle(KeyStyle(height: 32, width: 32))
+                    .accessibilityLabel("Longer interval")
+            }
+            .opacity(model.intervalOn ? 1 : 0.4)
+        }
+        .padding(.vertical, 10)
+        .padding(.horizontal, 16)
+        .panel()
+    }
+}
+
+// MARK: - Window content
+
+struct ContentView: View {
+    @ObservedObject var model: TimerModel
+
+    var body: some View {
+        Group {
+            if model.state == .idle {
+                SetupView(model: model)
             } else {
-                HStack(spacing: 6) {
-                    CheckBox(isOn: $model.targetOn, title: "Alarm at")
-                        .frame(width: labelWidth, alignment: .leading)
-                    Group {
-                        NumberField(text: $model.targetHours)
-                        Text("h")
-                        NumberField(text: $model.targetMinutes)
-                        Text("m")
-                    }
-                    .opacity(model.targetOn ? 1 : 0.4)
-                }
-            }
-            HStack(spacing: 6) {
-                CheckBox(isOn: $model.intervalOn, title: "Beep every")
-                    .frame(width: labelWidth, alignment: .leading)
-                Group {
-                    NumberField(text: $model.intervalMinutes)
-                    Text("min")
-                }
-                .opacity(model.intervalOn ? 1 : 0.4)
+                RunView(model: model)
             }
         }
-        .font(Look.font(15))
-        .foregroundColor(.white)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 20)
+        .padding(.top, 34) // clear of the (transparent) title bar
+        .padding(.bottom, 20)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.black)
     }
 }
 
@@ -490,14 +846,20 @@ final class TimerPanel: NSPanel {
 }
 
 @MainActor
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private let model = TimerModel()
     private var panel: TimerPanel!
     private var statusItem: NSStatusItem!
+    private var cancellables = Set<AnyCancellable>()
+    private var showingSetup: Bool?
+
+    // Setup and running screens each keep their own window size.
+    private static let setupSize = NSSize(width: 560, height: 530)
+    private static let runSize = NSSize(width: 560, height: 300)
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         let panel = TimerPanel(
-            contentRect: NSRect(x: 0, y: 0, width: 440, height: 300),
+            contentRect: NSRect(origin: .zero, size: Self.setupSize),
             styleMask: [.titled, .closable, .resizable, .fullSizeContentView],
             backing: .buffered, defer: false)
         panel.title = "Desk Timer"
@@ -507,7 +869,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         panel.appearance = NSAppearance(named: .darkAqua)
         panel.isMovableByWindowBackground = true
         panel.isReleasedWhenClosed = false
-        panel.minSize = NSSize(width: 260, height: 170)
+        panel.delegate = self
 
         // The always-on-top part:
         //  - status-bar level sits above normal windows *and* other apps' floating
@@ -520,7 +882,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         let host = FirstClickHostingView(rootView: ContentView(model: model))
         if #available(macOS 13.0, *) {
-            host.sizingOptions = [.minSize] // don't resize the window as content changes
+            host.sizingOptions = [] // the window sizes itself per screen, below
         }
         panel.contentView = host
         panel.keyHandler = { [weak self] event in self?.handleKey(event) ?? false }
@@ -530,13 +892,38 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.panel = panel
 
         model.onAlarm = { [weak self] in self?.panel.orderFrontRegardless() }
+        model.$state
+            .map { $0 == .idle }
+            .removeDuplicates()
+            .sink { [weak self] idle in self?.switchLayout(toSetup: idle) }
+            .store(in: &cancellables)
 
         setUpStatusItem()
         showTimer()
     }
 
+    /// Resize between the tall setup screen and the short running screen, keeping
+    /// the window's top-left corner where it is. Each remembers its own size.
+    private func switchLayout(toSetup setup: Bool) {
+        rememberSize()
+        showingSetup = setup
+        panel.contentMinSize = setup ? NSSize(width: 480, height: 510) : NSSize(width: 420, height: 180)
+        let stored = UserDefaults.standard.string(forKey: setup ? "setupSize" : "runSize")
+        let content = stored.map(NSSizeFromString) ?? (setup ? Self.setupSize : Self.runSize)
+        let size = panel.frameRect(forContentRect: NSRect(origin: .zero, size: content)).size
+        let old = panel.frame
+        let frame = NSRect(x: old.minX, y: old.maxY - size.height, width: size.width, height: size.height)
+        panel.setFrame(frame, display: true, animate: panel.isVisible)
+    }
+
+    private func rememberSize() {
+        guard let setup = showingSetup else { return }
+        let content = panel.contentRect(forFrameRect: panel.frame).size
+        UserDefaults.standard.set(NSStringFromSize(content), forKey: setup ? "setupSize" : "runSize")
+    }
+
     /// No Dock icon (that's what lets the window sit over full-screen apps), so a
-    /// small menu bar icon brings the window back if it's closed, and quits.
+    /// small menu bar icon can bring the window forward, and quits.
     private func setUpStatusItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         if let button = statusItem.button {
@@ -558,37 +945,58 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.activate(ignoringOtherApps: true)
     }
 
+    // The close button quits the app. With no Dock icon, a closed window would
+    // otherwise leave the app running with nothing on screen.
+    func windowWillClose(_ notification: Notification) {
+        NSApp.terminate(nil)
+    }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        rememberSize()
+    }
+
     /// Space: start / pause / resume. Esc: clear alarm. R: reset. ⌘Q: quit.
-    /// There's no menu bar, so the usual editing shortcuts are wired up here too.
+    /// While typing into the setup digits: 0–9, Delete, Tab, Return, Esc.
     private func handleKey(_ event: NSEvent) -> Bool {
         let mods = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
         let key = event.charactersIgnoringModifiers?.lowercased() ?? ""
 
         if mods.contains(.command) {
-            switch key {
-            case "q": NSApp.terminate(nil); return true
-            case "x": return NSApp.sendAction(#selector(NSText.cut(_:)), to: nil, from: nil)
-            case "c": return NSApp.sendAction(#selector(NSText.copy(_:)), to: nil, from: nil)
-            case "v": return NSApp.sendAction(#selector(NSText.paste(_:)), to: nil, from: nil)
-            case "a": return NSApp.sendAction(#selector(NSText.selectAll(_:)), to: nil, from: nil)
-            default: return false
+            if key == "q" {
+                NSApp.terminate(nil)
+                return true
             }
+            return false
         }
         if !mods.isDisjoint(with: [.control, .option]) { return false }
 
-        // The setting fields only take numbers, so these keys are never needed
-        // for typing and work even while a field has the cursor.
+        if model.editing != nil {
+            switch event.keyCode {
+            case 36, 76: model.commitEdit()                  // Return, Enter
+            case 48: model.tabEdit()                         // Tab
+            case 51, 117: model.backspace()                  // Delete
+            case 53: model.cancelEdit()                      // Esc
+            case 49: model.commitEdit(); model.toggle()      // Space
+            default:
+                if let c = event.characters?.first, ("0"..."9").contains(c) {
+                    model.typeDigit(c)
+                }
+            }
+            return true
+        }
+
         switch event.keyCode {
-        case 49: // space
-            panel.makeFirstResponder(nil)
+        case 49: // Space
             model.toggle()
             return true
-        case 53: // escape
+        case 36, 76: // Return starts from the setup screen
+            if model.state == .idle { model.start() }
+            return true
+        case 53: // Esc
             model.dismissAlarm()
             return true
         default:
             if key == "r" {
-                panel.makeFirstResponder(nil)
                 model.reset()
                 return true
             }

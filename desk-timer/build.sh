@@ -13,8 +13,9 @@ fi
 
 APP="Desk Timer.app"
 rm -rf "$APP"
-mkdir -p "$APP/Contents/MacOS"
+mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp Info.plist "$APP/Contents/Info.plist"
+cp Resources/* "$APP/Contents/Resources/"
 
 swiftc -O -parse-as-library \
   -target "$(uname -m)-apple-macos12.0" \
