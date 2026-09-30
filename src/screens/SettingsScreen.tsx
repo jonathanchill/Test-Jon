@@ -2,6 +2,7 @@ import { type ChangeEvent, useState } from 'react';
 import { allItems } from '../content/loader';
 import { getState, mergeStates, parseState, resetAll, serialise, setSettings, setState, useProgress } from '../engine/progress';
 import { href } from '../router';
+import { SpeedControl, VoiceNotice } from '../ui/Speaker';
 
 export function SettingsScreen() {
   const state = useProgress();
@@ -60,6 +61,20 @@ export function SettingsScreen() {
             Show vulgar items <span className="muted">({vulgarCount} in the content, hidden by default)</span>
           </span>
         </label>
+      </section>
+
+      <section>
+        <h2>Audio</h2>
+        <VoiceNotice />
+        <p className="muted">Playback speed for every listen button, dictation and shadowing. Native is faster than the fastest preset.</p>
+        <SpeedControl />
+        <label className="toggle">
+          <input type="checkbox" checked={state.settings.audioOnly} onChange={(e) => setSettings({ audioOnly: e.target.checked })} />
+          <span>
+            Audio-only mode <span className="muted">(French prompts are spoken, not shown, until you answer; good with your eyes closed)</span>
+          </span>
+        </label>
+        <p className="muted">Press <kbd>P</kbd> during any drill to hear the French again.</p>
       </section>
 
       <section>

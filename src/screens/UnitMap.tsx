@@ -54,7 +54,7 @@ export function UnitMap() {
                   {stats.inBank > 0 && <> · {stats.inBank} in mistake bank</>}
                 </p>
               ) : (
-                <p className="unit-stats muted">arrives with the audio milestone</p>
+                <p className="unit-stats muted">not yet added</p>
               )}
             </>
           );

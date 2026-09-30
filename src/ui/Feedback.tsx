@@ -1,5 +1,6 @@
 import type { CheckResult } from '../engine/answerCheck';
 import type { Item } from '../content/types';
+import { Speaker } from './Speaker';
 import { CheckMarker } from './Tags';
 
 export function Feedback({ result, expected, item }: { result: CheckResult; expected: string; item: Item }) {
@@ -13,7 +14,7 @@ export function Feedback({ result, expected, item }: { result: CheckResult; expe
         </p>
       )}
       <p className="feedback-full">
-        <span className="fr">{item.fr}</span> <span className="muted">{item.en}</span>
+        {item.tts && <Speaker text={item.fr} />} <span className="fr">{item.fr}</span> <span className="muted">{item.en}</span>
       </p>
       {item.note && <p className="feedback-note">{item.note}</p>}
       <CheckMarker item={item} />

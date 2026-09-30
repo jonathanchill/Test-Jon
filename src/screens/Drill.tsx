@@ -20,10 +20,12 @@ interface Props {
   backHref: string;
   backLabel: string;
   emptyMessage: string;
+  /** Shadowing: hear and repeat, nothing recorded. */
+  shadow?: boolean;
 }
 
 /** Generic drill runner: a queue of items, one exercise at a time, then a summary. */
-export function Drill({ title, crumbs, build, flashFront, backHref, backLabel, emptyMessage }: Props) {
+export function Drill({ title, crumbs, build, flashFront, backHref, backLabel, emptyMessage, shadow }: Props) {
   const [seed, setSeed] = useState(() => Date.now());
   const queue = useMemo(() => build(getState(), seed), [build, seed]);
   const [index, setIndex] = useState(0);
@@ -33,7 +35,7 @@ export function Drill({ title, crumbs, build, flashFront, backHref, backLabel, e
     (grade: Grade) => {
       const item = queue[index];
       if (!item) return;
-      answer(item.id, grade);
+      if (!shadow) answer(item.id, grade);
       setTally((t) => ({
         correct: t.correct + (grade >= 4 ? 1 : 0),
         nearly: t.nearly + (grade === 3 ? 1 : 0),
@@ -41,7 +43,7 @@ export function Drill({ title, crumbs, build, flashFront, backHref, backLabel, e
       }));
       setIndex((i) => i + 1);
     },
-    [queue, index],
+    [queue, index, shadow],
   );
 
   function restart() {
@@ -71,6 +73,8 @@ export function Drill({ title, crumbs, build, flashFront, backHref, backLabel, e
           <h2>{queue.length === 0 ? 'Nothing to do here' : 'Done'}</h2>
           {queue.length === 0 ? (
             <p className="muted">{emptyMessage}</p>
+          ) : shadow ? (
+            <p className="muted">{queue.length} phrases shadowed. Nothing is recorded in shadowing mode.</p>
           ) : (
             <ul className="summary-list">
               <li>{tally.correct} correct</li>
@@ -92,7 +96,7 @@ export function Drill({ title, crumbs, build, flashFront, backHref, backLabel, e
           </div>
         </div>
       ) : (
-        <Exercise item={item} flashFront={flashFront} onGrade={onGrade} />
+        <Exercise item={item} flashFront={flashFront} onGrade={onGrade} shadow={shadow} />
       )}
     </div>
   );

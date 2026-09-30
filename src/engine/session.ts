@@ -2,9 +2,9 @@ import type { Item, ItemType, Unit } from '../content/types';
 import type { ProgressState } from './progress';
 import { isDue, isNew } from './srs';
 
-export type Mode = 'flash-fr' | 'flash-en' | 'gapfill' | 'choice' | 'write' | 'mixed';
+export type Mode = 'flash-fr' | 'flash-en' | 'gapfill' | 'choice' | 'write' | 'listen' | 'shadow' | 'mixed';
 
-export const MODES: Mode[] = ['flash-fr', 'flash-en', 'gapfill', 'choice', 'write', 'mixed'];
+export const MODES: Mode[] = ['flash-fr', 'flash-en', 'gapfill', 'choice', 'write', 'listen', 'shadow', 'mixed'];
 
 export const MODE_LABELS: Record<Mode, string> = {
   'flash-fr': 'Flashcards, French to English',
@@ -12,26 +12,39 @@ export const MODE_LABELS: Record<Mode, string> = {
   gapfill: 'Gap-fill',
   choice: 'Multiple choice',
   write: 'Write it: translate, rewrite, fix the mistake',
+  listen: 'Listen: dictation and by-ear choices',
+  shadow: 'Shadowing: hear, repeat, next (not graded)',
   mixed: 'Everything, mixed',
 };
 
 export const SESSION_CAP = 25;
 export const REVIEW_CAP = 30;
 
-const TYPES_FOR_MODE: Record<Mode, ItemType[] | null> = {
-  'flash-fr': ['flashcard'],
-  'flash-en': ['flashcard'],
-  gapfill: ['gapfill'],
-  choice: ['choice'],
-  write: ['transform', 'errorspot', 'translate', 'open'],
-  mixed: null,
+/** Every type the app can render. */
+export const SUPPORTED_TYPES: ItemType[] = ['flashcard', 'gapfill', 'choice', 'transform', 'errorspot', 'translate', 'open', 'dictation'];
+
+const WRITE_TYPES: ItemType[] = ['transform', 'errorspot', 'translate', 'open'];
+
+const isEar = (i: Item) => i.type === 'choice' && (i.tags?.includes('ear') ?? false);
+
+const MODE_FILTER: Record<Mode, (i: Item) => boolean> = {
+  'flash-fr': (i) => i.type === 'flashcard',
+  'flash-en': (i) => i.type === 'flashcard',
+  gapfill: (i) => i.type === 'gapfill',
+  choice: (i) => i.type === 'choice' && !isEar(i),
+  write: (i) => WRITE_TYPES.includes(i.type),
+  listen: (i) => i.type === 'dictation' || isEar(i),
+  shadow: (i) => i.tts && i.type !== 'open',
+  mixed: () => true,
 };
 
-/** Types the app can currently render. Dictation waits for audio. */
-export const SUPPORTED_TYPES: ItemType[] = ['flashcard', 'gapfill', 'choice', 'transform', 'errorspot', 'translate', 'open'];
+export function itemFitsMode(item: Item, mode: Mode): boolean {
+  return SUPPORTED_TYPES.includes(item.type) && MODE_FILTER[mode](item);
+}
 
-export function typesForMode(mode: Mode): ItemType[] {
-  return TYPES_FOR_MODE[mode] ?? SUPPORTED_TYPES;
+/** Modes that do not record progress. */
+export function modeIsGraded(mode: Mode): boolean {
+  return mode !== 'shadow';
 }
 
 export function visibleItems(items: Item[], showVulgar: boolean): Item[] {
@@ -53,10 +66,11 @@ export function shuffle<T>(arr: T[], seed: number): T[] {
 /**
  * Builds a drill queue for one unit: due items first, then never-seen items,
  * then everything else, each group shuffled, capped at SESSION_CAP.
+ * Shadowing keeps the unit's own order so word lists stay grouped.
  */
 export function buildUnitSession(unit: Unit, mode: Mode, state: ProgressState, now: number): Item[] {
-  const types = typesForMode(mode);
-  const pool = visibleItems(unit.items, state.settings.showVulgar).filter((i) => SUPPORTED_TYPES.includes(i.type) && types.includes(i.type));
+  const pool = visibleItems(unit.items, state.settings.showVulgar).filter((i) => itemFitsMode(i, mode));
+  if (mode === 'shadow') return pool.slice(0, REVIEW_CAP);
   const due: Item[] = [];
   const fresh: Item[] = [];
   const rest: Item[] = [];
@@ -140,8 +154,6 @@ export function unitStats(unit: Unit, state: ProgressState, now: number): UnitSt
   return { total: items.length, seen, due, inBank };
 }
 
-export function countByType(items: Item[]): Partial<Record<ItemType, number>> {
-  const counts: Partial<Record<ItemType, number>> = {};
-  for (const i of items) counts[i.type] = (counts[i.type] ?? 0) + 1;
-  return counts;
+export function countForMode(items: Item[], mode: Mode): number {
+  return items.filter((i) => itemFitsMode(i, mode)).length;
 }

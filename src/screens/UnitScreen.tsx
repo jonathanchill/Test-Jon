@@ -1,6 +1,6 @@
 import { getUnit } from '../content/loader';
 import { useProgress } from '../engine/progress';
-import { MODES, MODE_LABELS, countByType, typesForMode, unitStats, visibleItems } from '../engine/session';
+import { MODES, MODE_LABELS, countForMode, unitStats, visibleItems } from '../engine/session';
 import { href } from '../router';
 import { Explanation } from '../ui/Explanation';
 import { CheckMarker, RegisterTag, SourceTag } from '../ui/Tags';
@@ -13,7 +13,6 @@ export function UnitScreen({ id }: { id: string }) {
 
   const stats = unitStats(unit, state, Date.now());
   const items = visibleItems(unit.items, state.settings.showVulgar);
-  const counts = countByType(items);
 
   return (
     <div className="screen">
@@ -35,7 +34,7 @@ export function UnitScreen({ id }: { id: string }) {
         <h2>Drill</h2>
         <div className="mode-list">
           {MODES.map((mode) => {
-            const n = typesForMode(mode).reduce((sum, t) => sum + (counts[t] ?? 0), 0);
+            const n = countForMode(items, mode);
             if (n === 0) return null;
             return (
               <a key={mode} className={`btn btn-block ${mode === 'mixed' ? 'btn-primary' : ''}`} href={href({ name: 'drill', id: unit.id, mode })}>

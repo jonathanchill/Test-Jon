@@ -2,7 +2,10 @@ import { type FormEvent, useEffect, useRef, useState } from 'react';
 import type { Item } from '../content/types';
 import { type CheckOutcome, checkAnswer, gapfillAnswers } from '../engine/answerCheck';
 import { gradeFromResult, type Grade } from '../engine/srs';
+import { useAutoSpeak, useReplayKey } from '../audio/tts';
+import { useProgress } from '../engine/progress';
 import { Feedback } from '../ui/Feedback';
+import { Speaker } from '../ui/Speaker';
 
 interface Props {
   item: Item;
@@ -14,6 +17,10 @@ export function GapFill({ item, onGrade }: Props) {
   const [outcome, setOutcome] = useState<CheckOutcome | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const nextRef = useRef<HTMLButtonElement>(null);
+  const { settings } = useProgress();
+  const audioOnly = settings.audioOnly && item.tts;
+  useAutoSpeak(audioOnly ? item.fr : null, outcome === null, settings.speed, settings.nativeSpeed);
+  useReplayKey(item.tts ? item.fr : null, settings.speed, settings.nativeSpeed);
 
   useEffect(() => {
     setValue('');
@@ -42,10 +49,11 @@ export function GapFill({ item, onGrade }: Props) {
 
   return (
     <div className="exercise">
-      <p className="prompt-label">Fill the gap</p>
+      <p className="prompt-label">{audioOnly ? 'Listen to the whole sentence, then type the missing word' : 'Fill the gap'}</p>
       <form onSubmit={submit} className="gap-form">
+        {audioOnly && !outcome && <Speaker text={item.fr} big label="Play again" />}
         <p className="gap-sentence fr">
-          {before}
+          {!(audioOnly && !outcome) && before}
           <input
             ref={inputRef}
             className={`gap-input ${outcome ? `gap-${outcome.result}` : ''}`}
@@ -60,7 +68,7 @@ export function GapFill({ item, onGrade }: Props) {
             aria-label="missing word"
             size={Math.max(6, (answers[0]?.length ?? 6) + 2)}
           />
-          {after}
+          {!(audioOnly && !outcome) && after}
         </p>
         <p className="muted hint">{item.en}</p>
         {!outcome ? (

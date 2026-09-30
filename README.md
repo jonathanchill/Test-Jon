@@ -10,7 +10,9 @@ No backend, no accounts, no API keys, no analytics. Progress lives in the browse
 
 - A unit map in course order. Priority 1 units are the ones that keep coming up in lessons.
 - Each unit opens with a plain-English explanation of the rule, then drills.
-- Exercise types: flashcards (both directions), gap-fill, multiple choice, transformation (e.g. *je dois partir* to *il faut que je parte*), error spotting (find and fix one of Jonathan's real slips), English to French translation with accepted alternatives, and open writing prompts self-marked against a model answer. Dictation arrives with audio.
+- Exercise types: flashcards (both directions), gap-fill, multiple choice, transformation (e.g. *je dois partir* to *il faut que je parte*), error spotting (find and fix one of Jonathan's real slips), English to French translation with accepted alternatives, open writing prompts self-marked against a model answer, and dictation (hear it, type it).
+- **Audio** through the browser's own French voice (Web Speech API, nothing downloaded): a listen button on every French phrase, three speeds plus a "native" toggle, `P` to replay, an **audio-only mode** in Settings that speaks French prompts instead of showing them until you answer, and a **shadowing** mode per unit (hear, repeat, next, nothing graded). If the device has no French voice, Settings and the audio drills say so and how to add one.
+- **Installable and offline**: add it to the phone's home screen from the browser menu ("Add to Home Screen" on iPhone Safari, "Install app" in Chrome). The app shell and all content are cached, so it works on the train. New versions are picked up on the next launch after a deploy.
 - **Review**: one session a day mixing everything due across all units, capped at 30, with mistake-bank items weighted double. **Mistake bank**: everything answered wrong, drillable on its own. **Spot the mistake**: the error-spotting deck built from the real slips.
 - Answer checking ignores case, spacing, apostrophe style and final punctuation, accepts listed alternatives, and treats a missing accent as "nearly" (it shows the accented form). Wrong gender, agreement or conjugation is wrong.
 - Spaced repetition (a simplified SM-2) on every item. Anything answered wrong goes into the mistake bank until it is answered correctly twice in a row.
@@ -23,8 +25,8 @@ No backend, no accounts, no API keys, no analytics. Progress lives in the browse
 | - | - | - |
 | M1 | Scaffold, Pages deploy, content schema and validation, Units 1 and 4, flashcards and gap-fill | done |
 | M2 | Units 1 to 10 (648 items), spaced-repetition review, mistake bank, error-spotting deck, all text exercise types | done |
-| M3 | Audio: text to speech at three speeds, dictation, audio-only mode, Unit 11 (listening), installable PWA with offline support | next |
-| M4 | Speaking drills, mastery stats, "today's lesson" mode, export/import polish | |
+| M3 | Audio at three speeds plus native, dictation, audio-only mode, shadowing, Unit 11 (listening, 55 items), installable PWA with offline support | done |
+| M4 | Speaking drills, mastery stats, "today's lesson" mode, export/import polish | next |
 
 ## Local development
 
@@ -85,6 +87,7 @@ You can also edit the JSON by hand. The rules the validator enforces:
 
 - Every item has `id` (unit prefix plus a three-digit number, e.g. `subj-041`, unique across all files), `unit` (must equal the file name), `type`, `fr`, `en` (UK English), `register` (`neutral`, `informal`, `slang`, `vulgar`), `source` (`lesson`, `sheet`, `added`), `lesson_date` (ISO date, or `null` unless the source is `lesson`), `check` and `tts`.
 - Type-specific fields: `gapfill` needs `prompt_fr` with exactly one `___` and `answers` (the missing word or words; the first answer filled into the prompt must equal `fr`). `choice` needs `choices` and `answers`. `transform`, `errorspot`, `translate` and `dictation` need `answers` including `fr` itself. `open` needs `prompt_fr` and `model`.
+- `tags` is optional. Two tags change behaviour: `ear` on a `choice` item makes it a "which did you hear?" drill (the French is spoken, not shown), and `numbers` on a `dictation` item asks for digits. `tts: false` hides the listen button for items that should not be read aloud (English lists, verlan explanations).
 - `note` is optional but required when `check` is true. Keep it to one line: the reason, or the slip it corrects.
 - No two items of the same type in one unit may share the same `fr`.
 

@@ -1,6 +1,8 @@
 import type { Item } from '../content/types';
 import type { Grade } from '../engine/srs';
 import { Choice } from './Choice';
+import { Dictation } from './Dictation';
+import { Shadow } from './Shadow';
 import { ErrorSpot } from './ErrorSpot';
 import { Flashcard } from './Flashcard';
 import { GapFill } from './GapFill';
@@ -13,10 +15,13 @@ interface Props {
   /** For flashcards: which side to show first. */
   flashFront: 'fr' | 'en';
   onGrade: (grade: Grade) => void;
+  /** Shadowing mode: hear and repeat, no grading. */
+  shadow?: boolean;
 }
 
 /** Picks the right exercise component for an item's type. */
-export function Exercise({ item, flashFront, onGrade }: Props) {
+export function Exercise({ item, flashFront, onGrade, shadow }: Props) {
+  if (shadow) return <Shadow key={item.id} item={item} onNext={() => onGrade(4)} />;
   switch (item.type) {
     case 'flashcard':
       return <Flashcard key={item.id} item={item} front={flashFront} onGrade={onGrade} />;
@@ -33,7 +38,6 @@ export function Exercise({ item, flashFront, onGrade }: Props) {
     case 'open':
       return <OpenPrompt key={item.id} item={item} onGrade={onGrade} />;
     case 'dictation':
-      // Arrives with the audio milestone; until then treat it as a translation.
-      return <Translate key={item.id} item={item} onGrade={onGrade} />;
+      return <Dictation key={item.id} item={item} onGrade={onGrade} />;
   }
 }

@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 import type { Item } from '../content/types';
 import type { Grade } from '../engine/srs';
+import { useAutoSpeak, useReplayKey } from '../audio/tts';
+import { useProgress } from '../engine/progress';
+import { Speaker } from '../ui/Speaker';
 import { CheckMarker } from '../ui/Tags';
 
 interface Props {
@@ -19,6 +22,11 @@ const GRADES: { key: string; grade: Grade; label: string }[] = [
 
 export function Flashcard({ item, front, onGrade }: Props) {
   const [flipped, setFlipped] = useState(false);
+  const { settings } = useProgress();
+  // Audio-only: a French front is spoken, not shown, until the card is flipped.
+  const hideFront = settings.audioOnly && front === 'fr' && item.tts && !flipped;
+  useAutoSpeak(item.tts ? item.fr : null, front === 'fr' ? !flipped : flipped, settings.speed, settings.nativeSpeed);
+  useReplayKey(item.tts ? item.fr : null, settings.speed, settings.nativeSpeed);
 
   useEffect(() => {
     setFlipped(false);
@@ -53,14 +61,22 @@ export function Flashcard({ item, front, onGrade }: Props) {
   return (
     <div className="exercise">
       <p className="prompt-label">{front === 'fr' ? 'What does this mean?' : 'How do you say this in French?'}</p>
-      <p className={`card-front ${front === 'fr' ? 'fr' : ''}`}>{frontText}</p>
+      {hideFront ? (
+        <p className="card-front muted">Listen, then flip.</p>
+      ) : (
+        <p className={`card-front ${front === 'fr' ? 'fr' : ''}`}>
+          {front === 'fr' && item.tts && <Speaker text={item.fr} />} {frontText}
+        </p>
+      )}
       {!flipped ? (
         <button className="btn btn-primary btn-block" onClick={() => setFlipped(true)} autoFocus>
           Show answer <kbd>Space</kbd>
         </button>
       ) : (
         <>
-          <p className={`card-back ${front === 'en' ? 'fr' : ''}`}>{backText}</p>
+          <p className={`card-back ${front === 'en' ? 'fr' : ''}`}>
+            {front === 'en' && item.tts && <Speaker text={item.fr} />} {backText}
+          </p>
           {item.note && <p className="feedback-note">{item.note}</p>}
           <CheckMarker item={item} />
           <p className="prompt-label">How well did you know it?</p>

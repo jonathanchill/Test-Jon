@@ -1,36 +1,25 @@
 import { type FormEvent, useEffect, useRef, useState } from 'react';
+import { useAutoSpeak, useReplayKey } from '../audio/tts';
 import type { Item } from '../content/types';
 import { type CheckOutcome, checkAnswer } from '../engine/answerCheck';
-import { type Grade, gradeFromResult } from '../engine/srs';
-import { useAutoSpeak, useReplayKey } from '../audio/tts';
 import { useProgress } from '../engine/progress';
+import { type Grade, gradeFromResult } from '../engine/srs';
 import { Feedback } from '../ui/Feedback';
-import { Speaker } from '../ui/Speaker';
+import { Speaker, SpeedControl, VoiceNotice } from '../ui/Speaker';
 
 interface Props {
   item: Item;
   onGrade: (grade: Grade) => void;
-  /** Small label above the prompt. */
-  label: string;
-  /** The text shown as the prompt. */
-  prompt: string;
-  promptIsFrench: boolean;
-  /** Optional hint under the prompt. */
-  hint?: string;
-  placeholder?: string;
 }
 
-/** Shared shell for translate, transform, error-spotting and (later) dictation: type the full French. */
-export function TypedAnswer({ item, onGrade, label, prompt, promptIsFrench, hint, placeholder }: Props) {
+/** Hear a phrase, type what you heard. Nothing is shown until you answer. */
+export function Dictation({ item, onGrade }: Props) {
+  const { settings } = useProgress();
   const [value, setValue] = useState('');
   const [outcome, setOutcome] = useState<CheckOutcome | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const nextRef = useRef<HTMLButtonElement>(null);
-  const { settings } = useProgress();
-  const spoken = promptIsFrench && item.tts ? prompt : null;
-  const hidePrompt = settings.audioOnly && spoken !== null && outcome === null;
-  useAutoSpeak(spoken, settings.audioOnly && outcome === null, settings.speed, settings.nativeSpeed);
-  useReplayKey(spoken ?? (item.tts ? item.fr : null), settings.speed, settings.nativeSpeed);
+  const isNumber = item.tags?.includes('numbers') ?? false;
 
   useEffect(() => {
     setValue('');
@@ -42,6 +31,9 @@ export function TypedAnswer({ item, onGrade, label, prompt, promptIsFrench, hint
     if (outcome) nextRef.current?.focus();
   }, [outcome]);
 
+  useAutoSpeak(item.fr, outcome === null, settings.speed, settings.nativeSpeed);
+  useReplayKey(item.fr, settings.speed, settings.nativeSpeed);
+
   function submit(e: FormEvent) {
     e.preventDefault();
     if (outcome) return;
@@ -50,15 +42,12 @@ export function TypedAnswer({ item, onGrade, label, prompt, promptIsFrench, hint
 
   return (
     <div className="exercise">
-      <p className="prompt-label">{label}</p>
-      {hidePrompt ? (
-        <Speaker text={spoken as string} big label="Play again" />
-      ) : (
-        <p className={`card-front ${promptIsFrench ? 'fr' : ''}`}>
-          {spoken && <Speaker text={spoken} />} {prompt}
-        </p>
-      )}
-      {hint && <p className="muted hint">{hint}</p>}
+      <p className="prompt-label">{isNumber ? 'Listen and type the number in digits' : 'Listen and type what you hear'}</p>
+      <VoiceNotice />
+      <div className="listen-row">
+        <Speaker text={item.fr} big label="Play" />
+        <SpeedControl />
+      </div>
       <form onSubmit={submit} className="gap-form">
         <input
           ref={inputRef}
@@ -71,8 +60,9 @@ export function TypedAnswer({ item, onGrade, label, prompt, promptIsFrench, hint
           autoComplete="off"
           spellCheck={false}
           lang="fr"
-          placeholder={placeholder ?? 'Type the French'}
-          aria-label="your answer"
+          inputMode={isNumber ? 'numeric' : 'text'}
+          placeholder={isNumber ? 'Digits' : 'What did you hear?'}
+          aria-label="what you heard"
         />
         {!outcome ? (
           <button type="submit" className="btn btn-primary btn-block">

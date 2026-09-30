@@ -3,7 +3,10 @@ import type { Item } from '../content/types';
 import { normalise } from '../engine/answerCheck';
 import { shuffle } from '../engine/session';
 import type { Grade } from '../engine/srs';
+import { useAutoSpeak, useReplayKey } from '../audio/tts';
+import { useProgress } from '../engine/progress';
 import { Feedback } from '../ui/Feedback';
+import { Speaker } from '../ui/Speaker';
 
 interface Props {
   item: Item;
@@ -22,6 +25,10 @@ export function Choice({ item, onGrade }: Props) {
   const nextRef = useRef<HTMLButtonElement>(null);
   const answers = item.answers ?? [];
   const correct = picked !== null && answers.some((a) => normalise(a) === normalise(picked));
+  const { settings } = useProgress();
+  const byEar = (item.tags?.includes('ear') ?? false) && item.tts;
+  useAutoSpeak(byEar ? item.fr : null, picked === null, settings.speed, settings.nativeSpeed);
+  useReplayKey(item.tts ? item.fr : null, settings.speed, settings.nativeSpeed);
 
   useEffect(() => setPicked(null), [item.id]);
   useEffect(() => {
@@ -43,7 +50,8 @@ export function Choice({ item, onGrade }: Props) {
 
   return (
     <div className="exercise">
-      <p className="prompt-label">Pick the right one</p>
+      <p className="prompt-label">{byEar ? 'Listen, then pick what you heard' : 'Pick the right one'}</p>
+      {byEar && picked === null && <Speaker text={item.fr} big label="Play again" />}
       {item.prompt_fr && <p className="card-front fr">{item.prompt_fr}</p>}
       <p className="muted hint">{item.en}</p>
       <div className="choice-list">

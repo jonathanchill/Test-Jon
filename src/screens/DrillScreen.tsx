@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { allUnits, getUnit } from '../content/loader';
 import type { ProgressState } from '../engine/progress';
-import { MODE_LABELS, type Mode, buildBankSession, buildErrorSession, buildReviewSession, buildUnitSession } from '../engine/session';
+import { MODE_LABELS, type Mode, buildBankSession, buildErrorSession, buildReviewSession, buildUnitSession, modeIsGraded } from '../engine/session';
 import { href } from '../router';
 import { Drill } from './Drill';
 import { NotFound } from './NotFound';
@@ -23,6 +23,7 @@ export function UnitDrillScreen({ id, mode }: { id: string; mode: Mode }) {
       backHref={href({ name: 'unit', id: unit.id })}
       backLabel="Back to the unit"
       emptyMessage="This unit has no items of that kind yet."
+      shadow={!modeIsGraded(mode)}
     />
   );
 }
