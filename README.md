@@ -12,6 +12,8 @@ No backend, no accounts, no API keys, no analytics. Progress lives in the browse
 - Each unit opens with a plain-English explanation of the rule, then drills.
 - Exercise types: flashcards (both directions), gap-fill, multiple choice, transformation (e.g. *je dois partir* to *il faut que je parte*), error spotting (find and fix one of Jonathan's real slips), English to French translation with accepted alternatives, open writing prompts self-marked against a model answer, and dictation (hear it, type it).
 - **Audio** through the browser's own French voice (Web Speech API, nothing downloaded): a listen button on every French phrase, three speeds plus a "native" toggle, `P` to replay, an **audio-only mode** in Settings that speaks French prompts instead of showing them until you answer, and a **shadowing** mode per unit (hear, repeat, next, nothing graded). If the device has no French voice, Settings and the audio drills say so and how to add one.
+- **Speaking drills** (Chrome on a laptop or Android): "Speak it" mode shows the English, you say the French, and speech recognition checks it against the accepted answers with the same accent rule. Browsers without recognition fall back to reveal-and-mark-yourself.
+- **Today's lesson**: one tap on the home screen builds about fifteen minutes from everything due for review plus ten items from your weakest unit (priority 1 units count as weaker). **Mastery** per unit is the share of items scheduled a week or more out; the home screen shows the overall figure and a streak of days practised.
 - **Installable and offline**: add it to the phone's home screen from the browser menu ("Add to Home Screen" on iPhone Safari, "Install app" in Chrome). The app shell and all content are cached, so it works on the train. New versions are picked up on the next launch after a deploy.
 - **Review**: one session a day mixing everything due across all units, capped at 30, with mistake-bank items weighted double. **Mistake bank**: everything answered wrong, drillable on its own. **Spot the mistake**: the error-spotting deck built from the real slips.
 - Answer checking ignores case, spacing, apostrophe style and final punctuation, accepts listed alternatives, and treats a missing accent as "nearly" (it shows the accented form). Wrong gender, agreement or conjugation is wrong.
@@ -26,7 +28,7 @@ No backend, no accounts, no API keys, no analytics. Progress lives in the browse
 | M1 | Scaffold, Pages deploy, content schema and validation, Units 1 and 4, flashcards and gap-fill | done |
 | M2 | Units 1 to 10 (648 items), spaced-repetition review, mistake bank, error-spotting deck, all text exercise types | done |
 | M3 | Audio at three speeds plus native, dictation, audio-only mode, shadowing, Unit 11 (listening, 55 items), installable PWA with offline support | done |
-| M4 | Speaking drills, mastery stats, "today's lesson" mode, export/import polish | next |
+| M4 | Speaking drills, mastery per unit and streak, today's lesson, export reminder | done |
 
 ## Local development
 
@@ -70,7 +72,7 @@ The site is reachable by anyone with the URL. Content therefore contains no pers
 
 ## Progress on two devices
 
-Laptop and phone do not sync. In **Settings** use **Export progress as JSON** on one device, get the file to the other (AirDrop, email to yourself, a shared folder), then **Import progress from JSON** there. Importing merges rather than replaces: for each item the more recently answered copy wins, so it is safe to import in both directions.
+Laptop and phone do not sync. In **Settings** use **Export progress as JSON** on one device, get the file to the other (AirDrop, email to yourself, a shared folder), then **Import progress from JSON** there. Importing merges rather than replaces: for each item the more recently answered copy wins, so it is safe to import in both directions. The home screen reminds you when progress on a device is more than a week newer than its last export.
 
 ## Adding a lesson
 

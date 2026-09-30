@@ -1,7 +1,10 @@
 import { useCallback } from 'react';
 import { allUnits, getUnit } from '../content/loader';
+import { getState } from '../engine/progress';
 import type { ProgressState } from '../engine/progress';
-import { MODE_LABELS, type Mode, buildBankSession, buildErrorSession, buildReviewSession, buildUnitSession, modeIsGraded } from '../engine/session';
+import { MODE_LABELS, type Mode, buildBankSession, buildErrorSession, buildReviewSession, buildUnitSession, variantForMode } from '../engine/session';
+import { buildToday } from '../engine/mastery';
+import { useMemo } from 'react';
 import { href } from '../router';
 import { Drill } from './Drill';
 import { NotFound } from './NotFound';
@@ -23,7 +26,7 @@ export function UnitDrillScreen({ id, mode }: { id: string; mode: Mode }) {
       backHref={href({ name: 'unit', id: unit.id })}
       backLabel="Back to the unit"
       emptyMessage="This unit has no items of that kind yet."
-      shadow={!modeIsGraded(mode)}
+      variant={variantForMode(mode)}
     />
   );
 }
@@ -71,6 +74,32 @@ export function ErrorsScreen() {
       backHref={href({ name: 'home' })}
       backLabel="Back to the units"
       emptyMessage="No error-spotting items yet."
+    />
+  );
+}
+
+export function TodayScreen() {
+  // The unit is chosen once per visit so the intro line and the queue agree.
+  const seed = useMemo(() => Date.now(), []);
+  const plan = useMemo(() => buildToday(allUnits(), getState(), seed), [seed]);
+  const build = useCallback((state: ProgressState, s: number) => buildToday(allUnits(), state, s).items, []);
+  return (
+    <Drill
+      title="Today's lesson"
+      crumbs={home}
+      intro={
+        plan.unit ? (
+          <p className="muted">
+            {plan.reviewCount > 0 ? `${plan.reviewCount} due for review, plus ` : 'Nothing due, so '}
+            new material from <a href={href({ name: 'unit', id: plan.unit.id })}>{plan.unit.title}</a>, your weakest unit. About fifteen minutes.
+          </p>
+        ) : null
+      }
+      build={build}
+      flashFront="en"
+      backHref={href({ name: 'home' })}
+      backLabel="Back to the units"
+      emptyMessage="Nothing to do today."
     />
   );
 }

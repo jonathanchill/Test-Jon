@@ -2,6 +2,7 @@ import { getUnit } from '../content/loader';
 import { useProgress } from '../engine/progress';
 import { MODES, MODE_LABELS, countForMode, unitStats, visibleItems } from '../engine/session';
 import { href } from '../router';
+import { percent, unitMastery } from '../engine/mastery';
 import { Explanation } from '../ui/Explanation';
 import { CheckMarker, RegisterTag, SourceTag } from '../ui/Tags';
 import { NotFound } from './NotFound';
@@ -21,9 +22,13 @@ export function UnitScreen({ id }: { id: string }) {
       </p>
       <h1>{unit.title}</h1>
       <p className="muted">
-        {stats.total} items · {stats.seen} seen{stats.due > 0 && <> · {stats.due} due</>}
+        {percent(unitMastery(unit, state))}% known · {stats.total} items · {stats.seen} seen{stats.due > 0 && <> · {stats.due} due</>}
         {stats.inBank > 0 && <> · {stats.inBank} in mistake bank</>}
       </p>
+
+      <div className="progress-bar" aria-hidden="true">
+        <div className="progress-fill" style={{ width: `${percent(unitMastery(unit, state))}%` }} />
+      </div>
 
       <section>
         <h2>The rule</h2>

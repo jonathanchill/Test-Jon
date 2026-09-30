@@ -8,6 +8,7 @@ export type Route =
   | { name: 'home' }
   | { name: 'unit'; id: string }
   | { name: 'drill'; id: string; mode: Mode }
+  | { name: 'today' }
   | { name: 'review' }
   | { name: 'bank' }
   | { name: 'errors' }
@@ -20,6 +21,7 @@ export function parseHash(hash: string): Route {
   const parts = path.split('/').map(decodeURIComponent);
   if (parts.length === 1) {
     if (parts[0] === 'settings') return { name: 'settings' };
+    if (parts[0] === 'today') return { name: 'today' };
     if (parts[0] === 'review') return { name: 'review' };
     if (parts[0] === 'bank') return { name: 'bank' };
     if (parts[0] === 'errors') return { name: 'errors' };
@@ -42,6 +44,8 @@ export function href(route: Route): string {
       return `#/unit/${encodeURIComponent(route.id)}`;
     case 'drill':
       return `#/unit/${encodeURIComponent(route.id)}/drill/${route.mode}`;
+    case 'today':
+      return '#/today';
     case 'review':
       return '#/review';
     case 'bank':

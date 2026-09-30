@@ -2,9 +2,9 @@ import type { Item, ItemType, Unit } from '../content/types';
 import type { ProgressState } from './progress';
 import { isDue, isNew } from './srs';
 
-export type Mode = 'flash-fr' | 'flash-en' | 'gapfill' | 'choice' | 'write' | 'listen' | 'shadow' | 'mixed';
+export type Mode = 'flash-fr' | 'flash-en' | 'gapfill' | 'choice' | 'write' | 'listen' | 'speak' | 'shadow' | 'mixed';
 
-export const MODES: Mode[] = ['flash-fr', 'flash-en', 'gapfill', 'choice', 'write', 'listen', 'shadow', 'mixed'];
+export const MODES: Mode[] = ['flash-fr', 'flash-en', 'gapfill', 'choice', 'write', 'listen', 'speak', 'shadow', 'mixed'];
 
 export const MODE_LABELS: Record<Mode, string> = {
   'flash-fr': 'Flashcards, French to English',
@@ -13,6 +13,7 @@ export const MODE_LABELS: Record<Mode, string> = {
   choice: 'Multiple choice',
   write: 'Write it: translate, rewrite, fix the mistake',
   listen: 'Listen: dictation and by-ear choices',
+  speak: 'Speak it: say the French out loud (Chrome, Android)',
   shadow: 'Shadowing: hear, repeat, next (not graded)',
   mixed: 'Everything, mixed',
 };
@@ -34,6 +35,7 @@ const MODE_FILTER: Record<Mode, (i: Item) => boolean> = {
   choice: (i) => i.type === 'choice' && !isEar(i),
   write: (i) => WRITE_TYPES.includes(i.type),
   listen: (i) => i.type === 'dictation' || isEar(i),
+  speak: (i) => i.tts && (i.type === 'flashcard' || i.type === 'translate'),
   shadow: (i) => i.tts && i.type !== 'open',
   mixed: () => true,
 };
@@ -45,6 +47,12 @@ export function itemFitsMode(item: Item, mode: Mode): boolean {
 /** Modes that do not record progress. */
 export function modeIsGraded(mode: Mode): boolean {
   return mode !== 'shadow';
+}
+
+/** Modes that swap the item's usual exercise for a different one. */
+export type Variant = 'shadow' | 'speak';
+export function variantForMode(mode: Mode): Variant | undefined {
+  return mode === 'shadow' || mode === 'speak' ? mode : undefined;
 }
 
 export function visibleItems(items: Item[], showVulgar: boolean): Item[] {

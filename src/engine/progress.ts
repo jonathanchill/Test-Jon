@@ -23,6 +23,8 @@ export interface ProgressState {
   settings: Settings;
   streak: Streak;
   updatedAt: number;
+  /** When progress was last exported from this device, ms since epoch. */
+  lastExportAt?: number;
 }
 
 export const STORAGE_KEY = 'french-lessons.v1';
@@ -83,6 +85,7 @@ export function parseState(text: string): ProgressState {
     settings: { ...DEFAULT_SETTINGS, ...(obj.settings ?? {}) },
     streak: { current: obj.streak?.current ?? 0, lastDay: obj.streak?.lastDay ?? null },
     updatedAt: typeof obj.updatedAt === 'number' ? obj.updatedAt : 0,
+    ...(typeof obj.lastExportAt === 'number' ? { lastExportAt: obj.lastExportAt } : {}),
   };
 }
 
@@ -162,6 +165,10 @@ export function answer(itemId: string, grade: Grade, now = Date.now()): void {
 
 export function setSettings(patch: Partial<Settings>): void {
   update((s) => ({ ...s, settings: { ...s.settings, ...patch } }));
+}
+
+export function markExported(now = Date.now()): void {
+  update((s) => ({ ...s, lastExportAt: now }));
 }
 
 export function resetAll(): void {

@@ -3,6 +3,7 @@ import type { Item } from '../content/types';
 import { answer, getState, type ProgressState } from '../engine/progress';
 import type { Grade } from '../engine/srs';
 import { Exercise } from '../exercises/Exercise';
+import type { Variant } from '../engine/session';
 
 interface Tally {
   correct: number;
@@ -20,12 +21,15 @@ interface Props {
   backHref: string;
   backLabel: string;
   emptyMessage: string;
-  /** Shadowing: hear and repeat, nothing recorded. */
-  shadow?: boolean;
+  /** shadow: hear and repeat, nothing recorded. speak: speech recognition. */
+  variant?: Variant;
+  /** Optional line above the progress bar, e.g. which unit today's lesson picked. */
+  intro?: ReactNode;
 }
 
 /** Generic drill runner: a queue of items, one exercise at a time, then a summary. */
-export function Drill({ title, crumbs, build, flashFront, backHref, backLabel, emptyMessage, shadow }: Props) {
+export function Drill({ title, crumbs, build, flashFront, backHref, backLabel, emptyMessage, variant, intro }: Props) {
+  const shadow = variant === 'shadow';
   const [seed, setSeed] = useState(() => Date.now());
   const queue = useMemo(() => build(getState(), seed), [build, seed]);
   const [index, setIndex] = useState(0);
@@ -58,6 +62,7 @@ export function Drill({ title, crumbs, build, flashFront, backHref, backLabel, e
   return (
     <div className="screen">
       <p className="crumbs">{crumbs}</p>
+      {intro}
       <div className="drill-header">
         <span className="muted">{title}</span>
         <span className="muted">
@@ -96,7 +101,7 @@ export function Drill({ title, crumbs, build, flashFront, backHref, backLabel, e
           </div>
         </div>
       ) : (
-        <Exercise item={item} flashFront={flashFront} onGrade={onGrade} shadow={shadow} />
+        <Exercise item={item} flashFront={flashFront} onGrade={onGrade} variant={variant} />
       )}
     </div>
   );

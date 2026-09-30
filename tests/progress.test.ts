@@ -25,7 +25,7 @@ describe('export / import round trip', () => {
   it('serialises and parses back to an equal state', () => {
     let s = recordAnswer(emptyState(), 'subj-001', 4, T0);
     s = recordAnswer(s, 'mieux-022', 0, T0 + 1000);
-    s = { ...s, settings: { ...s.settings, showVulgar: true } };
+    s = { ...s, settings: { ...s.settings, showVulgar: true }, lastExportAt: T0 + 5000 };
     const text = serialise(s);
     const back = parseState(text);
     expect(back).toEqual(s);

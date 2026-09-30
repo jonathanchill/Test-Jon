@@ -1,5 +1,5 @@
 import { href, useRoute } from './router';
-import { BankScreen, ErrorsScreen, ReviewScreen, UnitDrillScreen } from './screens/DrillScreen';
+import { BankScreen, ErrorsScreen, ReviewScreen, TodayScreen, UnitDrillScreen } from './screens/DrillScreen';
 import { NotFound } from './screens/NotFound';
 import { SettingsScreen } from './screens/SettingsScreen';
 import { UnitMap } from './screens/UnitMap';
@@ -14,8 +14,8 @@ export function App() {
           Français
         </a>
         <nav>
-          <a href={href({ name: 'review' })} aria-current={route.name === 'review' ? 'page' : undefined}>
-            Review
+          <a href={href({ name: 'today' })} aria-current={route.name === 'today' ? 'page' : undefined}>
+            Today
           </a>
           <a href={href({ name: 'settings' })} aria-current={route.name === 'settings' ? 'page' : undefined}>
             Settings
@@ -26,6 +26,7 @@ export function App() {
         {route.name === 'home' && <UnitMap />}
         {route.name === 'unit' && <UnitScreen id={route.id} />}
         {route.name === 'drill' && <UnitDrillScreen key={`${route.id}-${route.mode}`} id={route.id} mode={route.mode} />}
+        {route.name === 'today' && <TodayScreen key="today" />}
         {route.name === 'review' && <ReviewScreen key="review" />}
         {route.name === 'bank' && <BankScreen key="bank" />}
         {route.name === 'errors' && <ErrorsScreen key="errors" />}

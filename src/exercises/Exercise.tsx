@@ -3,6 +3,8 @@ import type { Grade } from '../engine/srs';
 import { Choice } from './Choice';
 import { Dictation } from './Dictation';
 import { Shadow } from './Shadow';
+import { Speak } from './Speak';
+import type { Variant } from '../engine/session';
 import { ErrorSpot } from './ErrorSpot';
 import { Flashcard } from './Flashcard';
 import { GapFill } from './GapFill';
@@ -15,13 +17,14 @@ interface Props {
   /** For flashcards: which side to show first. */
   flashFront: 'fr' | 'en';
   onGrade: (grade: Grade) => void;
-  /** Shadowing mode: hear and repeat, no grading. */
-  shadow?: boolean;
+  /** shadow: hear and repeat, no grading. speak: say it, speech recognition checks. */
+  variant?: Variant;
 }
 
 /** Picks the right exercise component for an item's type. */
-export function Exercise({ item, flashFront, onGrade, shadow }: Props) {
-  if (shadow) return <Shadow key={item.id} item={item} onNext={() => onGrade(4)} />;
+export function Exercise({ item, flashFront, onGrade, variant }: Props) {
+  if (variant === 'shadow') return <Shadow key={item.id} item={item} onNext={() => onGrade(4)} />;
+  if (variant === 'speak') return <Speak key={item.id} item={item} onGrade={onGrade} />;
   switch (item.type) {
     case 'flashcard':
       return <Flashcard key={item.id} item={item} front={flashFront} onGrade={onGrade} />;

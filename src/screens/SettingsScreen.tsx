@@ -1,6 +1,7 @@
 import { type ChangeEvent, useState } from 'react';
 import { allItems } from '../content/loader';
-import { getState, mergeStates, parseState, resetAll, serialise, setSettings, setState, useProgress } from '../engine/progress';
+import { getState, markExported, mergeStates, parseState, resetAll, serialise, setSettings, setState, useProgress } from '../engine/progress';
+import { formatDate } from '../ui/Tags';
 import { href } from '../router';
 import { SpeedControl, VoiceNotice } from '../ui/Speaker';
 
@@ -22,6 +23,7 @@ export function SettingsScreen() {
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
+    markExported();
     setMessage('Exported. Move the file to your other device and import it there.');
   }
 
@@ -84,7 +86,8 @@ export function SettingsScreen() {
           device. Importing merges: for each item the more recently answered copy wins.
         </p>
         <p>
-          {seen} items seen · {inBank} in the mistake bank · streak {state.streak.current} day{state.streak.current === 1 ? '' : 's'}
+          {seen} items seen · {inBank} in the mistake bank · streak {state.streak.current} day{state.streak.current === 1 ? '' : 's'} ·{' '}
+          {state.lastExportAt ? `last exported ${formatDate(new Date(state.lastExportAt).toISOString().slice(0, 10))}` : 'never exported'}
         </p>
         <div className="mode-list">
           <button className="btn btn-primary btn-block" onClick={exportProgress}>

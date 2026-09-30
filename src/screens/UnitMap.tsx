@@ -1,6 +1,8 @@
 import { allUnits, curriculumWithContent } from '../content/loader';
 import { useProgress } from '../engine/progress';
 import { unitStats } from '../engine/session';
+import { percent, unitMastery, weakestUnit } from '../engine/mastery';
+import { formatDate } from '../ui/Tags';
 import { href } from '../router';
 
 export function UnitMap() {
@@ -9,18 +11,27 @@ export function UnitMap() {
   const entries = curriculumWithContent();
   let dueTotal = 0;
   let bankTotal = 0;
+  let known = 0;
+  let total = 0;
   for (const u of allUnits()) {
     const s = unitStats(u, state, now);
     dueTotal += s.due;
     bankTotal += s.inBank;
+    known += Math.round(unitMastery(u, state) * s.total);
+    total += s.total;
   }
+  const weakest = weakestUnit(allUnits(), state);
+  const exportStale = state.updatedAt > 0 && (!state.lastExportAt || state.updatedAt - state.lastExportAt > 7 * 24 * 60 * 60 * 1000);
 
   return (
     <div className="screen">
       <h1>Today</h1>
+      <a className="btn btn-primary btn-block today-main" href={href({ name: 'today' })}>
+        Today's lesson <span className="muted-on-dark">{dueTotal > 0 ? `${dueTotal} due` : ''}{weakest ? ` + ${weakest.title}` : ''}</span>
+      </a>
       <div className="today-row">
-        <a className={`btn btn-block ${dueTotal > 0 ? 'btn-primary' : ''}`} href={href({ name: 'review' })}>
-          Review {dueTotal > 0 ? `${dueTotal} due` : ''}
+        <a className="btn btn-block" href={href({ name: 'review' })}>
+          Review {dueTotal > 0 ? `(${dueTotal})` : ''}
         </a>
         <a className="btn btn-block" href={href({ name: 'bank' })}>
           Mistake bank {bankTotal > 0 ? `(${bankTotal})` : ''}
@@ -30,10 +41,17 @@ export function UnitMap() {
         </a>
       </div>
       <p className="muted">
-        {dueTotal === 0 ? 'Nothing due right now. ' : ''}
-        {state.streak.current > 1 ? `Streak: ${state.streak.current} days. ` : ''}
-        Priority 1 units keep coming up in lessons. Start there.
+        {total > 0 ? `${percent(known / total)}% of ${total} items known. ` : ''}
+        {state.streak.current > 0 ? `Streak: ${state.streak.current} day${state.streak.current === 1 ? '' : 's'}. ` : ''}
+        {dueTotal === 0 ? 'Nothing due right now.' : ''}
       </p>
+      {exportStale && (
+        <p className="notice">
+          Progress lives on this device only.{' '}
+          {state.lastExportAt ? `Last exported ${formatDate(new Date(state.lastExportAt).toISOString().slice(0, 10))}.` : 'Never exported.'}{' '}
+          <a href={href({ name: 'settings' })}>Export it</a> to carry it to your other device.
+        </p>
+      )}
 
       <h1>Units</h1>
       <ol className="unit-list">
@@ -49,7 +67,7 @@ export function UnitMap() {
               <p className="muted unit-blurb">{planned.blurb}</p>
               {stats ? (
                 <p className="unit-stats">
-                  {stats.seen}/{stats.total} seen
+                  {unit && percent(unitMastery(unit, state))}% known · {stats.seen}/{stats.total} seen
                   {stats.due > 0 && <> · {stats.due} due</>}
                   {stats.inBank > 0 && <> · {stats.inBank} in mistake bank</>}
                 </p>
