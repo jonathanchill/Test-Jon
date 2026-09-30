@@ -1,0 +1,102 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "french-lessons/unit.schema.json",
+  "title": "Unit file",
+  "description": "One learning unit: its explanation plus every drill item. See README, 'Adding a lesson'.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "title", "priority", "order", "explanation", "items"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+    "title": { "type": "string", "minLength": 1 },
+    "priority": { "type": "integer", "enum": [1, 2, 3] },
+    "order": { "type": "integer", "minimum": 1 },
+    "explanation": {
+      "type": "string",
+      "minLength": 20,
+      "description": "Plain-English explanation of the rule. Paragraphs separated by blank lines; lines starting with '- ' are bullets; **bold** allowed."
+    },
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/item" }
+    }
+  },
+  "$defs": {
+    "item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "unit", "type", "fr", "en", "register", "source", "lesson_date", "check", "tts"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z]+-[0-9]{3}$" },
+        "unit": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+        "type": {
+          "type": "string",
+          "enum": ["flashcard", "gapfill", "choice", "transform", "errorspot", "translate", "dictation", "open"]
+        },
+        "fr": { "type": "string", "minLength": 1, "description": "The full, correct French." },
+        "en": { "type": "string", "minLength": 1, "description": "UK English translation." },
+        "prompt_fr": {
+          "type": "string",
+          "minLength": 1,
+          "description": "gapfill: sentence with ___ for the blank. transform/errorspot: the source sentence. open: the writing prompt."
+        },
+        "answers": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 },
+          "description": "Accepted answers. gapfill: the missing word(s). Others: full accepted sentences."
+        },
+        "choices": {
+          "type": "array",
+          "minItems": 2,
+          "items": { "type": "string", "minLength": 1 },
+          "description": "choice items only. The correct one must also appear in answers."
+        },
+        "model": { "type": "string", "minLength": 1, "description": "open items: model answer for self-marking." },
+        "note": { "type": "string", "minLength": 1, "description": "One-line reason or reminder shown after answering." },
+        "register": { "type": "string", "enum": ["neutral", "informal", "slang", "vulgar"] },
+        "source": { "type": "string", "enum": ["lesson", "sheet", "added"] },
+        "lesson_date": {
+          "oneOf": [
+            { "type": "string", "format": "date" },
+            { "type": "null" }
+          ],
+          "description": "Date of the lesson the item came from, or null for sheet and added items."
+        },
+        "check": { "type": "boolean", "description": "true = show the 'verify with Charlotte' marker." },
+        "tts": { "type": "boolean", "description": "true = the French can be read aloud." },
+        "tags": { "type": "array", "items": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" } }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "type": { "const": "gapfill" } } },
+          "then": {
+            "required": ["prompt_fr", "answers"],
+            "properties": { "prompt_fr": { "type": "string", "pattern": "___" } }
+          }
+        },
+        {
+          "if": { "properties": { "type": { "const": "choice" } } },
+          "then": { "required": ["choices", "answers"] }
+        },
+        {
+          "if": { "properties": { "type": { "enum": ["transform", "errorspot"] } } },
+          "then": { "required": ["prompt_fr", "answers"] }
+        },
+        {
+          "if": { "properties": { "type": { "enum": ["translate", "dictation"] } } },
+          "then": { "required": ["answers"] }
+        },
+        {
+          "if": { "properties": { "type": { "const": "open" } } },
+          "then": { "required": ["prompt_fr", "model"] }
+        },
+        {
+          "if": { "properties": { "check": { "const": true } } },
+          "then": { "required": ["note"] }
+        }
+      ]
+    }
+  }
+}

@@ -1,17 +1,31 @@
 {
-  "name": "mail-lens",
-  "version": "1.1.0",
+  "name": "french-lessons",
+  "version": "0.1.0",
   "private": true,
-  "description": "Chrome extension that labels Gmail messages as spam, AI-written or human.",
+  "type": "module",
+  "description": "Personal French practice app built from lesson notes. Static site for GitHub Pages.",
   "scripts": {
-    "test": "node tools/api-test.js && node tools/offline-eval.js && node tools/smoke-test.js",
-    "test:unit": "node tools/api-test.js",
-    "test:browser": "node tools/smoke-test.js",
-    "eval": "node tools/offline-eval.js",
-    "icons": "node tools/make-icons.js",
-    "build": "bash tools/build.sh"
+    "dev": "vite",
+    "build": "tsc --noEmit -p tsconfig.json && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "validate": "node scripts/validate-content.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
   },
   "devDependencies": {
-    "playwright": "^1.62.1"
+    "@types/node": "^26.6.3",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
+    "typescript": "^5.9.0",
+    "vite": "^8.3.1",
+    "vitest": "^5.0.2"
   }
 }

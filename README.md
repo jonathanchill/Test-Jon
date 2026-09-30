@@ -1,187 +1,110 @@
-# Mail Lens
+# French practice
 
-A Chrome extension that labels your Gmail. Every message gets a badge in the
-message list, and a fuller verdict card at the top of the message when you open
-it, saying whether it looks like **spam**, is **automated** notification mail,
-reads as **AI-written**, or reads as written by a **human**.
+A personal French drill app built from Jonathan's lesson notes with Charlotte. It is a static site, hosted on GitHub Pages, that works on a laptop and a phone from one URL:
 
-It runs **fully offline by default** — no account, no API key, no cost, and no
-text ever leaves your browser. A Claude API key is optional and only sharpens
-one call: human vs AI on a message you open.
+**https://jonathanchill.github.io/Test-Jon/**
 
-```
-┌──────────────────────────────────────────────────────────────────┐
-│ PayPal Security   [SPAM 55]  URGENT: your account has been sus…  │
-│ Sam Okafor        [HUMAN 55] lunch tomorrow? - hey, still on…    │
-│ Matt W. via LI    [AUTO 55]  Matt just messaged you - 1 new…     │
-│ Dana at GrowthCo  [AI 72]    Unlocking the full potential of…    │
-│ Zach Miller       [? 35]     New deck                            │
-└──────────────────────────────────────────────────────────────────┘
-```
+No backend, no accounts, no API keys, no analytics. Progress lives in the browser's localStorage on each device, with export and import to move it between devices.
 
-Open one and you get the reasoning:
+## What is in it
 
-```
-┌──────────────────────────────────────────────────────────────────┐
-│ [AI]  Not spam · written by AI                      [Re-check]   │
-│                                                                  │
-│ Spam        ▓░░░░░░░░░  8%      AI-written  ▓▓▓▓▓▓▓▓▓░ 88%       │
-│                                                                  │
-│ Formulaic opener, evenly-sized sentences, and stock phrasing      │
-│ ("leverage", "seamless", "unlock the full potential").            │
-│ Judged by Claude, from the full message.                          │
-└──────────────────────────────────────────────────────────────────┘
-```
+- A unit map in course order. Priority 1 units are the ones that keep coming up in lessons.
+- Each unit opens with a plain-English explanation of the rule, then drills.
+- Exercise types so far: flashcards (French to English and English to French) and gap-fill. Multiple choice, transformation, error spotting, translation, dictation and open prompts arrive in later milestones.
+- Answer checking ignores case, spacing, apostrophe style and final punctuation, accepts listed alternatives, and treats a missing accent as "nearly" (it shows the accented form). Wrong gender, agreement or conjugation is wrong.
+- Spaced repetition (a simplified SM-2) on every item. Anything answered wrong goes into the mistake bank until it is answered correctly twice in a row.
+- Items marked **verify with Charlotte** were reconstructed from unclear transcripts or corrected without her, so ask about them next lesson.
+- Vulgar items are hidden unless switched on in Settings.
 
-## Install
+## Milestones
 
-1. Get the files onto your machine — either clone this repo, or download
-   `mail-lens-1.0.0.zip` and unzip it somewhere permanent (Chrome reads the
-   folder every time it starts, so don't leave it in Downloads or the Trash).
-2. Go to `chrome://extensions` and switch on **Developer mode** (top right).
-3. Click **Load unpacked** and pick the folder containing `manifest.json`.
-4. The settings page opens. Paste an
-   [Anthropic API key](https://console.anthropic.com/settings/keys) and press
-   **Test**.
-5. Open Gmail and hard-refresh (Cmd/Ctrl + Shift + R). Badges appear as rows
-   scroll into view.
+| | Scope | Status |
+| - | - | - |
+| M1 | Scaffold, Pages deploy, content schema and validation, Units 1 and 4, flashcards and gap-fill | done |
+| M2 | All units, spaced-repetition review session, mistake bank deck, error-spotting and the other exercise types | next |
+| M3 | Audio: text to speech at three speeds, dictation, audio-only mode, Unit 11, installable PWA with offline support | |
+| M4 | Speaking drills, mastery stats, "today's lesson" mode, export/import polish | |
 
-Works in Chrome, Edge, Brave, Arc and Opera — anything Chromium-based. Not
-Safari or Firefox. If your browser is managed by your employer, Developer mode
-may be blocked by policy; `chrome://policy` will say so.
+## Local development
 
-To rebuild the zip after changing anything: `npm run build` → `dist/`.
-
-The extension works with no API key at all — it falls back to a built-in offline
-scorer. That scorer is rougher, and says so on every verdict it produces.
-
-## How it decides
-
-Two independent judgements per message:
-
-| Badge    | Meaning                                                              |
-| -------- | -------------------------------------------------------------------- |
-| `SPAM`   | Unsolicited bulk mail, phishing, a scam, or fraud                    |
-| `AUTO`   | Machine-sent: notifications, digests, calendar mail, receipts, alerts |
-| `AI`     | The prose reads as generated by a language model                     |
-| `AI+H`   | Human-drafted, then clearly model-polished                           |
-| `HUMAN`  | Written by a person                                                  |
-| `?`      | Too little text to call it — the honest answer for most previews      |
-
-The number next to the badge is how confident the verdict is, 0–100.
-
-Being promotional is not the same as being spam: a newsletter you signed up for
-is `not spam`, and may well also be `AI`.
-
-## Where the text goes
-
-Mail Lens reads what Gmail has already rendered on screen — the sender, subject
-and preview text of rows you scroll past, and the body of a message you open. In
-Claude mode it sends that to the Anthropic API. It goes nowhere else, and there
-is no server in between.
-
-- Only rows in or near the viewport are checked, so a 2,000-message inbox does
-  not become 2,000 API calls.
-- List rows are batched eight to a call.
-- Every verdict is cached for 30 days, keyed on the Gmail thread, so a message
-  costs one check no matter how often you look at it.
-- There is a daily cap on API calls (400 by default); past it, everything falls
-  back to offline scoring.
-- Setting either **What gets checked** dropdown to *offline scoring only* stops
-  all network traffic.
-
-Your API key lives in this Chrome profile's extension storage. Anyone with
-access to the profile can read it, so use a key scoped to a workspace you can
-revoke.
-
-## How much to trust it
-
-**`SPAM` and `AUTO` are the badges worth acting on.** Junk has blunt tells, and
-automated mail announces itself in the sender address, the "via" in the sender
-name, and the unsubscribe footer. Offline scoring handles both well.
-
-**`HUMAN` vs `AI` is the weak axis**, and offline it is weaker still. No
-detector can prove text was machine-written — not this one, not any commercial
-one. Careful writing by a human is the standard false positive, and a light
-human edit defeats detection completely. Read the percentage as the strength of
-a hunch. An `AI` badge on a colleague's mail is a reason to look closer, never a
-finding about that person.
-
-That is also why list badges cap at 55 and why `?` is common: from a subject
-line and a hundred characters of snippet there is usually nothing to go on, and
-saying so is the correct answer. Open the message and it re-judges against the
-full text, then the list row upgrades too.
-
-### Measured, not asserted
-
-`npm run eval` scores the offline engine against `tools/corpus.js`, a labelled
-set of the mail a working inbox actually contains. Current result: **20/20 spam,
-20/20 authorship**. Treat that as a regression guard, not an accuracy claim —
-the corpus and the scorer were written by the same hand, and it is only twenty
-cases. Real inboxes are messier, particularly on human vs AI. Add cases that
-catch it out; that is what the file is for.
-
-## Settings
-
-`chrome://extensions` → Mail Lens → Details → Extension options, or the
-**Settings** button in the toolbar popup.
-
-- **API key** and **model** — optional. Keys come from the
-  [Claude Console](https://platform.claude.com/settings/keys), billed separately
-  from any Claude.ai Pro or Team subscription.
-- **What gets checked** — per-surface choice of Claude, offline scoring, or off,
-  so you can run the list for free and spend the API budget on messages you open.
-- **Also badge ordinary mail** — off if you only want to see the exceptions.
-- **Daily API call cap**.
-- **Clear cached verdicts** — forces everything to be re-judged.
-
-## Layout
+Needs Node 20.19+ or 22.12+.
 
 ```
-manifest.json
-src/
-  background/service-worker.js   API key, queue, batching, cache, daily cap
-  content/gmail.js               Gmail DOM extraction and badge rendering
-  content/badges.css             Badge and card styles, light and dark
-  lib/claude.js                  Anthropic Messages API client
-  lib/heuristics.js              Offline scorer, used with no key or on failure
-  lib/util.js                    Hashing and cache keys, shared by both contexts
-  options/                       Settings page
-  popup/                         Toolbar popup
-tools/                           Icon generator and tests
+npm install
+npm run dev        # http://localhost:5173/Test-Jon/
 ```
 
-The content script never sees the API key and never calls Anthropic; it hands an
-extracted email to the service worker and gets a verdict back.
-
-## Tests
+Other commands:
 
 ```
-npm install          # playwright, for the browser test only
-npm test
+npm run validate   # check every content file against the schema and cross-file rules
+npm test           # unit tests (answer checking, scheduling, progress export/import, content, routing)
+npm run build      # typecheck and production build into dist/
+npm run preview    # serve dist/ locally
 ```
 
-- `tools/api-test.js` — the Anthropic client with `fetch` stubbed (request shape,
-  retries, refusals, error handling), a guard that the JSON schema uses only
-  keywords structured outputs accepts, and spot checks on the offline scorer.
-  No network, no key.
-- `tools/offline-eval.js` — scores the offline engine against the labelled
-  corpus and fails if accuracy drops, if it stops using the full range of
-  verdicts, or if its confidence goes flat.
-- `tools/smoke-test.js` — loads the unpacked extension into Chromium, serves a
-  Gmail-shaped fixture in place of `mail.google.com`, and checks that badges and
-  the verdict card get injected, that opening a message upgrades its row, and
-  that nothing is sent to the API without a key. Set `CHROMIUM_PATH` if
-  Playwright's own Chromium is not installed.
+## Deployment
 
-## Known limits
+Every push runs the CI workflow (`.github/workflows/ci.yml`): validate content, run tests, build. Pushes to `main` also run the deploy workflow (`.github/workflows/deploy.yml`), which repeats those checks and then publishes `dist/` to GitHub Pages using `actions/upload-pages-artifact` and `actions/deploy-pages`. The deploy job cannot run if validation or tests fail. The workflow can also be started by hand from the Actions tab.
 
-- Gmail's class names are obfuscated and do change. Every selector has
-  fallbacks, and nothing throws when one stops matching, but a big Gmail
-  redesign will need `src/content/gmail.js` updated.
-- It reads the rendered DOM, so it only sees what Gmail has drawn: the open
-  message and the rows you scroll past. It cannot sweep the whole mailbox in the
-  background. Doing that would mean the Gmail API and an OAuth client, which
-  needs a Google Cloud project per install.
-- Attachments and images are not examined — text only.
-- Basic HTML Gmail is not supported.
+### Enabling Pages (one-off)
+
+1. Open the repo on GitHub, then **Settings** (the repo's settings, not your account's).
+2. In the left sidebar choose **Pages**.
+3. Under **Build and deployment**, set **Source** to **GitHub Actions**. Do not pick "Deploy from a branch".
+4. Go to the **Actions** tab, open **Deploy to GitHub Pages** in the left list, click **Run workflow**, keep `main`, and run it. Any later push to `main` redeploys automatically.
+5. After a minute or two the site is live at `https://jonathanchill.github.io/Test-Jon/`. The URL also appears at the top of the Pages settings page and on the deploy job.
+
+Note: GitHub Pages from a **private** repository needs a paid GitHub plan. On a free account the repo must be public for the site to publish. The content rules below already assume the site is publicly reachable.
+
+### Repo name
+
+The site is served under `/<repo name>/`, so Vite needs to know it. It is one constant, `REPO_NAME`, at the top of `vite.config.ts`. If the repo is renamed, change that value and push. To build for the root of a domain instead, set `VITE_BASE=/` when building.
+
+### Privacy
+
+The site is reachable by anyone with the URL. Content therefore contains no personal details: vocabulary and generic example sentences only. The page carries `<meta name="robots" content="noindex, nofollow">` and `robots.txt` disallows all crawlers, which keeps it out of search results but is not security.
+
+## Progress on two devices
+
+Laptop and phone do not sync. In **Settings** use **Export progress as JSON** on one device, get the file to the other (AirDrop, email to yourself, a shared folder), then **Import progress from JSON** there. Importing merges rather than replaces: for each item the more recently answered copy wins, so it is safe to import in both directions.
+
+## Adding a lesson
+
+Content lives in `content/units/*.json`, one file per unit, validated against `content/schema.json`. Nothing in `src/` needs to change to add material.
+
+The expected workflow after a lesson:
+
+1. Open the repo in Claude Code and paste the new lesson notes (or a transcript).
+2. Ask it to convert them into items in the schema, tagged `"source": "lesson"` with the lesson date, and to append them to the right unit file(s) without duplicating items that are already there. Anything reconstructed from an unclear transcript, or corrected by Claude rather than Charlotte, gets `"check": true` and a `note` saying why.
+3. It runs `npm run validate` and `npm test`, then commits and pushes to `main`.
+4. The deploy workflow publishes the new content within a couple of minutes.
+
+You can also edit the JSON by hand. The rules the validator enforces:
+
+- Every item has `id` (unit prefix plus a three-digit number, e.g. `subj-041`, unique across all files), `unit` (must equal the file name), `type`, `fr`, `en` (UK English), `register` (`neutral`, `informal`, `slang`, `vulgar`), `source` (`lesson`, `sheet`, `added`), `lesson_date` (ISO date, or `null` unless the source is `lesson`), `check` and `tts`.
+- Type-specific fields: `gapfill` needs `prompt_fr` with exactly one `___` and `answers` (the missing word or words; the first answer filled into the prompt must equal `fr`). `choice` needs `choices` and `answers`. `transform`, `errorspot`, `translate` and `dictation` need `answers` including `fr` itself. `open` needs `prompt_fr` and `model`.
+- `note` is optional but required when `check` is true. Keep it to one line: the reason, or the slip it corrects.
+- No two items of the same type in one unit may share the same `fr`.
+
+A minimal example:
+
+```json
+{
+  "id": "subj-041",
+  "unit": "subjunctive",
+  "type": "gapfill",
+  "prompt_fr": "Il faut que tu ___ la vérité",
+  "answers": ["dises"],
+  "fr": "Il faut que tu dises la vérité",
+  "en": "You have to tell the truth",
+  "note": "dire becomes que tu dises",
+  "register": "neutral",
+  "source": "lesson",
+  "lesson_date": "2026-10-07",
+  "check": false,
+  "tts": true
+}
+```
+
+To add a whole new unit, create `content/units/<id>.json` with `id`, `title`, `priority`, a unique `order`, an `explanation` (paragraphs separated by blank lines, `- ` bullets, `**bold**`), and `items`. Then add the unit to `CURRICULUM` in `src/content/curriculum.ts` so it appears on the map in the right place.
