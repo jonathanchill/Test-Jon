@@ -67,7 +67,7 @@ export function validateAll() {
       if (item.type === 'gapfill') {
         const blanks = (item.prompt_fr.match(/___/g) ?? []).length;
         if (blanks !== 1) errors.push(`${where}: gapfill prompt must contain exactly one ___`);
-        const filled = item.prompt_fr.replace('___', item.answers[0]).replace(/\s+/g, ' ').trim();
+        const filled = item.prompt_fr.replace('___', item.answers[0]).replace(/'\s+/g, "'").replace(/\s+/g, ' ').trim();
         if (filled.toLowerCase() !== item.fr.replace(/\s+/g, ' ').trim().toLowerCase()) {
           errors.push(`${where}: prompt_fr with the first answer filled in ("${filled}") does not equal fr ("${item.fr}")`);
         }

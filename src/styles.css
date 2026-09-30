@@ -510,3 +510,107 @@ main {
   background: var(--surface);
   border-radius: var(--radius);
 }
+
+/* M2: choice, typed answers, open prompts, today row */
+.today-row {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0.5rem 0 1rem;
+}
+
+@media (min-width: 600px) {
+  .today-row {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.choice-list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.choice-btn {
+  justify-content: flex-start;
+  text-align: left;
+  font-size: 1.15rem;
+}
+
+.choice-btn kbd {
+  margin: 0 0.5rem 0 0;
+}
+
+.choice-btn:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+.choice-correct {
+  border-color: var(--ok);
+  color: var(--ok);
+}
+
+.choice-wrong {
+  border-color: var(--bad);
+  color: var(--bad);
+  text-decoration: line-through;
+}
+
+.choice-dim {
+  opacity: 0.45;
+}
+
+.text-input,
+.text-area {
+  font: inherit;
+  font-size: 1.25rem;
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  border-bottom: 2px solid var(--fg);
+  border-radius: var(--radius) var(--radius) 0 0;
+  background: var(--surface);
+  color: var(--fg);
+}
+
+.text-input:focus,
+.text-area:focus {
+  outline: none;
+  border-bottom-color: var(--fg);
+  background: var(--bg);
+}
+
+.text-input.gap-correct {
+  border-bottom-color: var(--ok);
+  color: var(--ok);
+}
+
+.text-input.gap-nearly {
+  border-bottom-color: var(--near);
+  color: var(--near);
+}
+
+.text-input.gap-wrong {
+  border-bottom-color: var(--bad);
+  color: var(--bad);
+  text-decoration: none;
+}
+
+.text-area {
+  resize: vertical;
+  line-height: 1.4;
+}
+
+.open-prompt {
+  font-size: 1.2rem;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.grade-row-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.topbar nav {
+  display: flex;
+  gap: 0.25rem;
+}

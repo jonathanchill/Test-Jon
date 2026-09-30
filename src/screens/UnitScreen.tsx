@@ -1,12 +1,10 @@
 import { getUnit } from '../content/loader';
 import { useProgress } from '../engine/progress';
-import { MODE_LABELS, type Mode, unitStats, visibleItems } from '../engine/session';
+import { MODES, MODE_LABELS, countByType, typesForMode, unitStats, visibleItems } from '../engine/session';
 import { href } from '../router';
 import { Explanation } from '../ui/Explanation';
 import { CheckMarker, RegisterTag, SourceTag } from '../ui/Tags';
 import { NotFound } from './NotFound';
-
-const MODES: Mode[] = ['flash-fr', 'flash-en', 'gapfill', 'mixed'];
 
 export function UnitScreen({ id }: { id: string }) {
   const unit = getUnit(id);
@@ -15,8 +13,7 @@ export function UnitScreen({ id }: { id: string }) {
 
   const stats = unitStats(unit, state, Date.now());
   const items = visibleItems(unit.items, state.settings.showVulgar);
-  const counts = { flashcard: 0, gapfill: 0 };
-  for (const i of items) if (i.type in counts) counts[i.type as keyof typeof counts]++;
+  const counts = countByType(items);
 
   return (
     <div className="screen">
@@ -26,6 +23,7 @@ export function UnitScreen({ id }: { id: string }) {
       <h1>{unit.title}</h1>
       <p className="muted">
         {stats.total} items · {stats.seen} seen{stats.due > 0 && <> · {stats.due} due</>}
+        {stats.inBank > 0 && <> · {stats.inBank} in mistake bank</>}
       </p>
 
       <section>
@@ -37,10 +35,10 @@ export function UnitScreen({ id }: { id: string }) {
         <h2>Drill</h2>
         <div className="mode-list">
           {MODES.map((mode) => {
-            const n = mode === 'mixed' ? counts.flashcard + counts.gapfill : mode === 'gapfill' ? counts.gapfill : counts.flashcard;
+            const n = typesForMode(mode).reduce((sum, t) => sum + (counts[t] ?? 0), 0);
             if (n === 0) return null;
             return (
-              <a key={mode} className="btn btn-block" href={href({ name: 'drill', id: unit.id, mode })}>
+              <a key={mode} className={`btn btn-block ${mode === 'mixed' ? 'btn-primary' : ''}`} href={href({ name: 'drill', id: unit.id, mode })}>
                 {MODE_LABELS[mode]} <span className="muted">({n})</span>
               </a>
             );
@@ -53,9 +51,10 @@ export function UnitScreen({ id }: { id: string }) {
         <ul className="item-list">
           {items.map((item) => (
             <li key={item.id}>
-              <span className="fr">{item.fr}</span>
+              <span className="fr">{item.type === 'errorspot' ? item.fr : item.type === 'open' ? item.prompt_fr : item.fr}</span>
               <span className="muted"> {item.en}</span>
               <span className="tags">
+                <span className="tag">{item.type}</span>
                 <RegisterTag item={item} />
                 <SourceTag item={item} />
                 <CheckMarker item={item} />

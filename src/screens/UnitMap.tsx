@@ -1,4 +1,4 @@
-import { curriculumWithContent } from '../content/loader';
+import { allUnits, curriculumWithContent } from '../content/loader';
 import { useProgress } from '../engine/progress';
 import { unitStats } from '../engine/session';
 import { href } from '../router';
@@ -7,16 +7,35 @@ export function UnitMap() {
   const state = useProgress();
   const now = Date.now();
   const entries = curriculumWithContent();
-  const dueTotal = entries.reduce((n, e) => n + (e.unit ? unitStats(e.unit, state, now).due : 0), 0);
+  let dueTotal = 0;
+  let bankTotal = 0;
+  for (const u of allUnits()) {
+    const s = unitStats(u, state, now);
+    dueTotal += s.due;
+    bankTotal += s.inBank;
+  }
 
   return (
     <div className="screen">
-      <h1>Units</h1>
+      <h1>Today</h1>
+      <div className="today-row">
+        <a className={`btn btn-block ${dueTotal > 0 ? 'btn-primary' : ''}`} href={href({ name: 'review' })}>
+          Review {dueTotal > 0 ? `${dueTotal} due` : ''}
+        </a>
+        <a className="btn btn-block" href={href({ name: 'bank' })}>
+          Mistake bank {bankTotal > 0 ? `(${bankTotal})` : ''}
+        </a>
+        <a className="btn btn-block" href={href({ name: 'errors' })}>
+          Spot the mistake
+        </a>
+      </div>
       <p className="muted">
+        {dueTotal === 0 ? 'Nothing due right now. ' : ''}
+        {state.streak.current > 1 ? `Streak: ${state.streak.current} days. ` : ''}
         Priority 1 units keep coming up in lessons. Start there.
-        {dueTotal > 0 && <> {dueTotal} item{dueTotal === 1 ? '' : 's'} due for review.</>}
-        {state.streak.current > 1 && <> Streak: {state.streak.current} days.</>}
       </p>
+
+      <h1>Units</h1>
       <ol className="unit-list">
         {entries.map(({ planned, unit }, i) => {
           const stats = unit ? unitStats(unit, state, now) : null;
@@ -35,7 +54,7 @@ export function UnitMap() {
                   {stats.inBank > 0 && <> · {stats.inBank} in mistake bank</>}
                 </p>
               ) : (
-                <p className="unit-stats muted">not yet added</p>
+                <p className="unit-stats muted">arrives with the audio milestone</p>
               )}
             </>
           );

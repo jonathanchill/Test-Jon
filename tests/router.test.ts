@@ -9,6 +9,9 @@ describe('hash router', () => {
     expect(parseHash('#/unit/subjunctive/drill/gapfill')).toEqual({ name: 'drill', id: 'subjunctive', mode: 'gapfill' });
     expect(parseHash('#/unit/subjunctive/drill/nope')).toEqual({ name: 'drill', id: 'subjunctive', mode: 'mixed' });
     expect(parseHash('#/settings')).toEqual({ name: 'settings' });
+    expect(parseHash('#/review')).toEqual({ name: 'review' });
+    expect(parseHash('#/bank')).toEqual({ name: 'bank' });
+    expect(parseHash('#/errors')).toEqual({ name: 'errors' });
     expect(parseHash('#/what')).toEqual({ name: 'not-found', path: 'what' });
   });
   it('round-trips through href', () => {

@@ -1,5 +1,5 @@
 import { href, useRoute } from './router';
-import { DrillScreen } from './screens/DrillScreen';
+import { BankScreen, ErrorsScreen, ReviewScreen, UnitDrillScreen } from './screens/DrillScreen';
 import { NotFound } from './screens/NotFound';
 import { SettingsScreen } from './screens/SettingsScreen';
 import { UnitMap } from './screens/UnitMap';
@@ -14,6 +14,9 @@ export function App() {
           Français
         </a>
         <nav>
+          <a href={href({ name: 'review' })} aria-current={route.name === 'review' ? 'page' : undefined}>
+            Review
+          </a>
           <a href={href({ name: 'settings' })} aria-current={route.name === 'settings' ? 'page' : undefined}>
             Settings
           </a>
@@ -22,7 +25,10 @@ export function App() {
       <main>
         {route.name === 'home' && <UnitMap />}
         {route.name === 'unit' && <UnitScreen id={route.id} />}
-        {route.name === 'drill' && <DrillScreen key={`${route.id}-${route.mode}`} id={route.id} mode={route.mode} />}
+        {route.name === 'drill' && <UnitDrillScreen key={`${route.id}-${route.mode}`} id={route.id} mode={route.mode} />}
+        {route.name === 'review' && <ReviewScreen key="review" />}
+        {route.name === 'bank' && <BankScreen key="bank" />}
+        {route.name === 'errors' && <ErrorsScreen key="errors" />}
         {route.name === 'settings' && <SettingsScreen />}
         {route.name === 'not-found' && <NotFound what={`page "${route.path}"`} />}
       </main>

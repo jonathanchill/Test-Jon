@@ -66,3 +66,10 @@ describe('gapfillAnswers', () => {
     expect(checkAnswer("il faut que j'aile à la pharmacie", answers).result).toBe('wrong');
   });
 });
+
+describe('elision spacing', () => {
+  it("ignores a space after an apostrophe (j' aille = j'aille)", () => {
+    expect(normalise("j' aille")).toBe("j'aille");
+    expect(checkAnswer("de l' eau", ["de l'eau"]).result).toBe('correct');
+  });
+});

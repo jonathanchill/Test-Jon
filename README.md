@@ -10,7 +10,8 @@ No backend, no accounts, no API keys, no analytics. Progress lives in the browse
 
 - A unit map in course order. Priority 1 units are the ones that keep coming up in lessons.
 - Each unit opens with a plain-English explanation of the rule, then drills.
-- Exercise types so far: flashcards (French to English and English to French) and gap-fill. Multiple choice, transformation, error spotting, translation, dictation and open prompts arrive in later milestones.
+- Exercise types: flashcards (both directions), gap-fill, multiple choice, transformation (e.g. *je dois partir* to *il faut que je parte*), error spotting (find and fix one of Jonathan's real slips), English to French translation with accepted alternatives, and open writing prompts self-marked against a model answer. Dictation arrives with audio.
+- **Review**: one session a day mixing everything due across all units, capped at 30, with mistake-bank items weighted double. **Mistake bank**: everything answered wrong, drillable on its own. **Spot the mistake**: the error-spotting deck built from the real slips.
 - Answer checking ignores case, spacing, apostrophe style and final punctuation, accepts listed alternatives, and treats a missing accent as "nearly" (it shows the accented form). Wrong gender, agreement or conjugation is wrong.
 - Spaced repetition (a simplified SM-2) on every item. Anything answered wrong goes into the mistake bank until it is answered correctly twice in a row.
 - Items marked **verify with Charlotte** were reconstructed from unclear transcripts or corrected without her, so ask about them next lesson.
@@ -21,8 +22,8 @@ No backend, no accounts, no API keys, no analytics. Progress lives in the browse
 | | Scope | Status |
 | - | - | - |
 | M1 | Scaffold, Pages deploy, content schema and validation, Units 1 and 4, flashcards and gap-fill | done |
-| M2 | All units, spaced-repetition review session, mistake bank deck, error-spotting and the other exercise types | next |
-| M3 | Audio: text to speech at three speeds, dictation, audio-only mode, Unit 11, installable PWA with offline support | |
+| M2 | Units 1 to 10 (648 items), spaced-repetition review, mistake bank, error-spotting deck, all text exercise types | done |
+| M3 | Audio: text to speech at three speeds, dictation, audio-only mode, Unit 11 (listening), installable PWA with offline support | next |
 | M4 | Speaking drills, mastery stats, "today's lesson" mode, export/import polish | |
 
 ## Local development

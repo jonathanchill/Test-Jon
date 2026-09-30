@@ -25,6 +25,7 @@ export function normalise(input: string): string {
     .replace(/ /g, ' ')
     .toLowerCase()
     .replace(INNER_PUNCT_SPACE, '$1')
+    .replace(/'\s+/g, "'")
     .replace(EDGE_PUNCT, '')
     .replace(/\s+/g, ' ')
     .trim();
