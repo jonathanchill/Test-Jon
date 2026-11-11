@@ -1,0 +1,21 @@
+# Root copy so a Netlify import of the whole repo builds the agency site.
+
+[build]
+  base = "agency-site"
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Set PUBLIC_SITE_URL in the Netlify UI (Site configuration > Environment
+# variables) to the real domain once you have one. Until then the sitemap and
+# canonical tags use https://example.com.
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
