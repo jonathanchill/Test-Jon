@@ -44,8 +44,7 @@ const bg = tint === 'mint' ? 'radial-gradient(circle at 50% 50%, rgba(185,245,21
   .in .pill-m { opacity: 1; transform: none; }
   .links :global(line) { stroke: var(--color-ink); stroke-opacity: .25; stroke-width: 1.5; stroke-dasharray: var(--len); stroke-dashoffset: var(--len); transition: stroke-dashoffset .9s cubic-bezier(.2,.7,.2,1); transition-delay: var(--d); }
   .in .links :global(line) { stroke-dashoffset: 0; }
-  .links :global(.dot) { opacity: 0; transition: opacity .4s; }
-  .in .links :global(.dot) { opacity: 1; transition-delay: 1.5s; }
+  .links :global(.dot) { opacity: 0; transition: opacity .3s; }
   @media (prefers-reduced-motion: reduce) {
     .hub, .orb, .pill, .pill-m, .links :global(line) { opacity: 1; transform: none; transition: none; stroke-dashoffset: 0; }
     .hub { transform: translate(-50%, -50%); } .orb { transform: translate(-50%, -50%); } .pill { transform: translateY(-50%); }
@@ -80,6 +79,7 @@ const bg = tint === 'mint' ? 'radial-gradient(circle at 50% 50%, rgba(185,245,21
         const am = document.createElementNS(NS, 'animateMotion');
         am.setAttribute('dur', `${1.6 + (i % 3) * 0.3}s`); am.setAttribute('repeatCount', '1'); am.setAttribute('fill', 'freeze'); am.setAttribute('begin', 'indefinite');
         am.setAttribute('path', `M${sx} ${sy} L${px} ${py}`);
+        am.addEventListener('beginEvent', () => { dot.style.opacity = '1'; });
         am.addEventListener('endEvent', () => { dot.style.opacity = '0'; });
         dot.appendChild(am); svg.appendChild(dot);
       });
