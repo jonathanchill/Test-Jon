@@ -9,6 +9,13 @@ import Faq from '@/components/Faq.astro';
 import { site } from '@/data/site';
 import { pillars, services } from '@/data/services';
 import { getCollection } from 'astro:content';
+import HeroCards from '@/components/HeroCards.astro';
+import Pipeline from '@/components/diagrams/Pipeline.astro';
+import RadialMap from '@/components/diagrams/RadialMap.astro';
+import FeatureCards from '@/components/FeatureCards.astro';
+import Impact from '@/components/Impact.astro';
+import { sectors } from '@/data/sectors';
+import Bento from '@/components/diagrams/Bento.astro';
 
 const work = (await getCollection('work')).filter((w) => w.data.featured).sort((a, b) => a.data.order - b.data.order).slice(0, 4);
 const quick = services.filter((s) => s.from);
@@ -17,11 +24,12 @@ const clients = ['Client logo', 'Client logo', 'Client logo', 'Client logo', 'Cl
 <Base title="Home" description={site.description}>
   <Hero
     eyebrow="AI & digital product studio · UK"
+    split
     title="AI that ships.<br/><span class='text-signal'>Products that last.</span>"
     lede="We find where AI pays back in your business, prove it in a fixed-price sprint, then build and run the software behind it. No hype, no 40-slide strategy decks. Working systems, measured results."
     cta={{ label: 'Book a 30-minute call', href: '/contact' }}
     secondary={{ label: 'Take the AI readiness scorecard', href: '/ai-readiness' }}
-  />
+  ><HeroCards /></Hero>
 
   <div class="overflow-hidden border-y border-line py-5" aria-label="Clients">
     <div class="marquee flex w-max gap-16 whitespace-nowrap font-display text-2xl font-bold text-ink/30">
@@ -29,24 +37,26 @@ const clients = ['Client logo', 'Client logo', 'Client logo', 'Client logo', 'Cl
     </div>
   </div>
 
+  <section class="container-x py-14"><Impact /></section>
+
   <Section eyebrow="Why us" title="Three promises most agencies will not put in writing.">
-    <div class="grid gap-6 md:grid-cols-3">
-      {[
-        ['Fixed prices, published upfront', 'Our audits and sprints are fixed price and our engagement models and rate bands are on the website. You know the number before the first call.'],
-        ['Working software in 10 days', 'Every AI engagement starts with a 10-Day Sprint that ends in a working prototype on your data and a go or no-go decision. Half the time of the usual 20-day sprint.'],
-        ['Measured, not vibes', 'We write evaluation sets before features, agree a success metric before a build, and report against it after launch. If it did not move the number, we say so.'],
-      ].map(([h, p], i) => (
-        <div class="card">
-          <p class="font-mono text-sm text-signal">0{i + 1}</p>
-          <h3 class="mt-3 text-xl font-semibold">{h}</h3>
-          <p class="mt-3 text-ink/70">{p}</p>
-        </div>
-      ))}
+    <FeatureCards />
+  </Section>
+
+  <Section eyebrow="How it works" title="From your data to your systems, with a score at every step." lede="This is the shape of every AI system we ship. Evaluation before the model, guardrails before your users, monitoring forever." class="bg-paper-deep">
+    <Pipeline />
+    <div class="mt-14 grid items-center gap-12 lg:grid-cols-2">
+      <div data-reveal>
+        <p class="eyebrow">What it looks like in production</p>
+        <h3 class="mt-3 text-display-md font-bold">Real numbers, not a demo.</h3>
+        <p class="mt-4 text-lg text-ink/70">The cards on the right are the kind of dashboard every client gets: evaluation scores, hours returned, cost per task and a live audit trail. If the number does not move, we tell you.</p>
+      </div>
+      <Bento />
     </div>
   </Section>
 
   <Section dark eyebrow="What we do" title="New processes that cut cost. New products that drive growth.">
-    <div class="grid gap-10 lg:grid-cols-2">
+    <div class="grid gap-10 lg:grid-cols-2" data-reveal="stagger">
       <div class="rounded-3xl border border-paper/15 p-8">
         <p class="eyebrow text-mint">AI Services</p>
         <h3 class="mt-3 text-2xl font-bold">Put AI to work in the business you already run.</h3>
@@ -66,8 +76,21 @@ const clients = ['Client logo', 'Client logo', 'Client logo', 'Client logo', 'Cl
     </div>
   </Section>
 
+  <Section eyebrow="Plugs into what you own" title="One governed AI layer. Every system you already run." lede="We do not replace your stack. We connect it. Policies, evals and an audit log sit between your tools and any model, so you can swap vendors without rebuilding.">
+    <div class="grid items-center gap-12 lg:grid-cols-2">
+      <RadialMap items={[{ label: 'CRM' }, { label: 'ERP' }, { label: 'Email & docs' }, { label: 'Data warehouse' }, { label: 'Slack & Teams' }, { label: 'Customer portal' }]} />
+      <ul class="space-y-5" data-reveal="stagger">
+        {[
+          ['Vendor-neutral', 'Anthropic, OpenAI, Google or open-weight models, chosen by evaluation score and swapped without touching your systems.'],
+          ['Governed by default', 'Policy checks, PII redaction and a complete audit trail on every call. Aligned to ISO 42001.'],
+          ['Measured forever', 'Evals re-run automatically when a provider updates a model, so quality never silently drops.'],
+        ].map(([h, p]) => (<li class="rounded-3xl border border-line bg-white/60 p-6"><h3 class="text-xl font-semibold">{h}</h3><p class="mt-2 text-ink/70">{p}</p></li>))}
+      </ul>
+    </div>
+  </Section>
+
   <Section eyebrow="Start here" title="Two fixed-price ways to begin.">
-    <div class="grid gap-6 md:grid-cols-2">
+    <div class="grid gap-6 md:grid-cols-2" data-reveal="stagger">
       {quick.map((s) => (
         <a href={`/services/${s.slug}`} class="card group">
           <div class="flex items-center justify-between"><p class="eyebrow">{s.pillar}</p><span class="rounded-full bg-mint px-3 py-1 text-xs font-semibold">{s.timeline}</span></div>
@@ -79,8 +102,13 @@ const clients = ['Client logo', 'Client logo', 'Client logo', 'Client logo', 'Cl
     </div>
   </Section>
 
+  <Section eyebrow="Sectors" title="Built for your industry, not a generic template." lede="The same engineering rigour, shaped around the regulation, data and customers your sector actually has." class="bg-paper-deep">
+    <RadialMap tint="mint" items={sectors.slice(0, 6).map((x) => ({ label: x.name }))} />
+    <a href="/sectors" class="btn-outline mt-10">All sectors</a>
+  </Section>
+
   <Section eyebrow="Selected work" title="Proof, not promises.">
-    <div class="grid gap-10 md:grid-cols-2">{work.map((w, i) => <WorkCard entry={w} large={i < 2} />)}</div>
+    <div class="grid gap-10 md:grid-cols-2" data-reveal="stagger">{work.map((w, i) => <WorkCard entry={w} large={i < 2} />)}</div>
     <a href="/work" class="btn-outline mt-12">See all work</a>
   </Section>
 

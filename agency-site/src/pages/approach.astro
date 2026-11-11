@@ -22,7 +22,7 @@ const principles = [
 <Base title="Approach & Pricing" description="How we work and what it costs. Fixed-price sprints, scoped projects, retained teams and support retainers, with published rate bands.">
   <Hero eyebrow="Approach & pricing" title="How we work, and <span class='text-signal'>what it costs.</span>" lede="Most agencies hide their prices until the third meeting. We would rather you knew the shape of the deal before the first one. Four engagement models, each with a clear scope and a clear number." cta={{ label: 'Get a quote', href: '/contact' }} />
   <Section eyebrow="Engagement models" title="Pick the shape that fits.">
-    <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+    <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-4" data-reveal="stagger">
       {models.map((m) => (
         <div class="card flex flex-col">
           <p class="eyebrow">{m.who}</p>
@@ -36,7 +36,7 @@ const principles = [
     <p class="mt-6 text-sm text-muted">Prices shown are placeholders pending final rate card. All prices exclude VAT.</p>
   </Section>
   <Section dark eyebrow="Principles" title="Six things we do on every project.">
-    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3" data-reveal="stagger">
       {principles.map(([h, p], i) => <div class="rounded-3xl border border-paper/15 p-7"><p class="font-mono text-mint">0{i + 1}</p><h3 class="mt-3 text-xl font-bold">{h}</h3><p class="mt-3 text-paper/70">{p}</p></div>)}
     </div>
   </Section>

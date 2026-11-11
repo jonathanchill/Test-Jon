@@ -23,5 +23,26 @@ const gtm = import.meta.env.PUBLIC_GTM_ID;
     <Header />
     <main id="main" class="flex-1"><slot /></main>
     <Footer />
+    <script>
+      // Scroll reveal
+      const io = new IntersectionObserver((entries) => {
+        for (const e of entries) if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      }, { rootMargin: '0px 0px -10% 0px', threshold: 0.15 });
+      document.querySelectorAll('[data-reveal], [data-animate]').forEach((el) => io.observe(el));
+
+      // Count-up numbers: <span data-count="4000" data-suffix="+">0</span>
+      const cio = new IntersectionObserver((entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue; cio.unobserve(e.target);
+          const el = e.target as HTMLElement; const end = Number(el.dataset.count); const dec = (el.dataset.count || '').split('.')[1]?.length ?? 0;
+          const prefix = el.dataset.prefix ?? ''; const suffix = el.dataset.suffix ?? ''; const t0 = performance.now(); const dur = 1600;
+          const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+          const tick = (t: number) => { const p = reduce ? 1 : Math.min(1, (t - t0) / dur); const v = end * (1 - Math.pow(1 - p, 3));
+            el.textContent = prefix + v.toLocaleString('en-GB', { minimumFractionDigits: dec, maximumFractionDigits: dec }) + suffix; if (p < 1) requestAnimationFrame(tick); };
+          requestAnimationFrame(tick);
+        }
+      }, { threshold: 0.5 });
+      document.querySelectorAll('[data-count]').forEach((el) => cio.observe(el));
+    </script>
   </body>
 </html>

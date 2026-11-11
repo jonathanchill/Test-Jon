@@ -15,7 +15,7 @@ const work = (await getCollection('work')).filter((w) => w.data.category === 'Di
   <Hero eyebrow="Digital Services" title="Strategy, design and build for products people <span class='text-signal'>come back to.</span>" lede="Apps, platforms and websites engineered to perform and built to change. We bring senior strategists, designers and engineers to every project, and we hand over code and documentation your team can own." cta={{ label: 'Arrange a discovery call', href: '/contact' }} />
   {pillars.digital.map((p, i) => (
     <Section id={p.name.toLowerCase()} eyebrow={`0${i + 1}`} title={p.name} lede={p.blurb} class={i % 2 ? 'bg-paper-deep' : ''}>
-      <div class="grid gap-6 md:grid-cols-3">{services.filter((s) => s.pillar === p.name).map((s) => <ServiceCard service={s} />)}</div>
+      <div class="grid gap-6 md:grid-cols-3" data-reveal="stagger">{services.filter((s) => s.pillar === p.name).map((s) => <ServiceCard service={s} />)}</div>
     </Section>
   ))}
   <Section eyebrow="Selected digital work" title="Recent digital projects.">

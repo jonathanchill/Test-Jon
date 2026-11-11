@@ -1,0 +1,50 @@
+---
+/** Animated "how an AI system flows" diagram. Nodes connected by moving dashed lines with travelling dots. */
+interface Props { dark?: boolean; class?: string }
+const { dark = false, class: cls = '' } = Astro.props;
+const ink = dark ? '#f6f3ee' : '#0b0f1a';
+const sub = dark ? 'rgba(246,243,238,.6)' : '#5b6275';
+const box = dark ? 'rgba(246,243,238,.06)' : '#ffffff';
+const line = dark ? 'rgba(246,243,238,.25)' : '#d8d2c6';
+const nodes = [
+  { x: 40,  label: 'Your data', sub: 'CRM · docs · email', icon: 'db' },
+  { x: 260, label: 'Evals', sub: 'ground truth set', icon: 'check' },
+  { x: 480, label: 'Model layer', sub: 'best fit by score', icon: 'spark' },
+  { x: 700, label: 'Guardrails', sub: 'policy · PII · audit', icon: 'shield' },
+  { x: 920, label: 'Your systems', sub: 'ERP · portal · Slack', icon: 'grid' },
+];
+const icons: Record<string, string> = {
+  db: 'M12 3c4.4 0 8 1.3 8 3s-3.6 3-8 3-8-1.3-8-3 3.6-3 8-3Zm-8 6c0 1.7 3.6 3 8 3s8-1.3 8-3v4c0 1.7-3.6 3-8 3s-8-1.3-8-3V9Zm0 6c0 1.7 3.6 3 8 3s8-1.3 8-3v3c0 1.7-3.6 3-8 3s-8-1.3-8-3v-3Z',
+  check: 'M4 12.5l5 5L20 6.5',
+  spark: 'M12 2l2.2 6.8L21 11l-6.8 2.2L12 20l-2.2-6.8L3 11l6.8-2.2L12 2Z',
+  shield: 'M12 2l8 3v7c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V5l8-3Zm-3 10l2 2 4-4',
+  grid: 'M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z',
+};
+---
+<div class:list={['w-full overflow-x-auto', cls]} data-animate>
+  <svg viewBox="0 0 1080 240" class="min-w-[720px] w-full" role="img" aria-label="Data flows through evaluation, a model layer and guardrails into your systems">
+    <defs>
+      <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5 0 10z" fill="#2b4bff"/></marker>
+      <filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    </defs>
+    {nodes.slice(0, -1).map((n, i) => {
+      const x1 = n.x + 160, x2 = nodes[i + 1].x; const d = `M${x1} 110 C ${x1 + 30} 110, ${x2 - 30} 110, ${x2} 110`;
+      return (<g>
+        <path d={d} stroke={line} stroke-width="2" fill="none" />
+        <path d={d} stroke="#2b4bff" stroke-width="2" fill="none" class="dash-flow" marker-end="url(#arr)" />
+        <circle r="5" fill="#2b4bff" filter="url(#glow)"><animateMotion dur={`${2.4 + i * 0.3}s`} repeatCount="indefinite" path={d} begin={`${i * 0.5}s`} /></circle>
+      </g>);
+    })}
+    {nodes.map((n, i) => (
+      <g style={`--i:${i}`}>
+        <rect x={n.x} y="60" width="160" height="100" rx="18" fill={box} stroke={line} />
+        <rect x={n.x} y="60" width="160" height="100" rx="18" fill="none" stroke="#2b4bff" stroke-width="2" class="draw" style={`animation-delay:${i * .25}s`} />
+        <g transform={`translate(${n.x + 18} 76)`}><rect width="28" height="28" rx="8" fill="#2b4bff" opacity=".12" /><path d={icons[n.icon]} transform="translate(2 2) scale(1)" fill="none" stroke="#2b4bff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></g>
+        <text x={n.x + 18} y="130" font-family="Inter, system-ui, sans-serif" font-weight="700" font-size="15" fill={ink}>{n.label}</text>
+        <text x={n.x + 18} y="148" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill={sub}>{n.sub}</text>
+      </g>
+    ))}
+    <g transform="translate(540 205)"><circle r="4" fill="#2b4bff"/><circle r="4" fill="#2b4bff" class="pulse-dot"/><text x="12" y="4" font-family="ui-monospace, Menlo, monospace" font-size="11" fill={sub}>monitoring · evals re-run on every model update</text></g>
+    <path d="M560 160 L560 200" stroke={line} stroke-width="1.5" stroke-dasharray="3 4"/>
+  </svg>
+</div>

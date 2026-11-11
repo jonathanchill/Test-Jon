@@ -1,0 +1,44 @@
+---
+/** Bento grid of live-looking product cards: eval score ring, sparkline, cost bars, latency, activity log. */
+interface Props { class?: string }
+const { class: cls = '' } = Astro.props;
+const spark = [12, 18, 14, 22, 20, 28, 26, 34, 31, 40, 38, 47, 52, 50, 58];
+const w = 260, h = 80, max = Math.max(...spark);
+const pts = spark.map((v, i) => `${(i / (spark.length - 1)) * w},${h - (v / max) * (h - 8) - 4}`).join(' ');
+const bars = [['Before', 100, 'bg-ink/20'], ['After', 31, 'bg-signal']] as const;
+const log = ['Invoice #4471 classified → Approvals', 'Policy check passed · 0 PII', 'Proposal drafted for Acme (2m 14s)', 'Model update detected · 212 evals re-run', 'Eval score 96.1% · no regressions'];
+---
+<div class:list={['grid gap-4 md:grid-cols-6', cls]} data-reveal="stagger">
+  <div class="card md:col-span-2 flex flex-col justify-between">
+    <p class="eyebrow">Eval score</p>
+    <div class="relative mx-auto my-4 h-36 w-36" data-animate>
+      <svg viewBox="0 0 36 36" class="h-full w-full -rotate-90">
+        <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e6e0d4" stroke-width="3" />
+        <circle cx="18" cy="18" r="15.9" fill="none" stroke="#2b4bff" stroke-width="3" stroke-linecap="round" pathLength="100" class="ring-fill" style="--to: 4" />
+      </svg>
+      <div class="absolute inset-0 flex flex-col items-center justify-center"><span class="font-display text-3xl font-bold"><span data-count="96.1">0</span>%</span><span class="text-xs text-muted">212 cases</span></div>
+    </div>
+    <p class="text-sm text-ink/70">Every release is scored against your ground truth before it ships.</p>
+  </div>
+  <div class="card md:col-span-4" data-animate>
+    <div class="flex items-start justify-between"><div><p class="eyebrow">Hours returned to the team</p><p class="mt-1 font-display text-4xl font-bold"><span data-count="1240" data-suffix=" h">0</span></p></div><span class="rounded-full bg-mint px-3 py-1 text-xs font-semibold">+58% this quarter</span></div>
+    <svg viewBox={`0 0 ${w} ${h}`} class="mt-4 h-24 w-full" preserveAspectRatio="none" aria-hidden="true">
+      <defs><linearGradient id="sg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#2b4bff" stop-opacity=".25"/><stop offset="1" stop-color="#2b4bff" stop-opacity="0"/></linearGradient></defs>
+      <polygon points={`0,${h} ${pts} ${w},${h}`} fill="url(#sg)" />
+      <polyline points={pts} fill="none" stroke="#2b4bff" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" class="draw" />
+    </svg>
+  </div>
+  <div class="card md:col-span-3" data-animate>
+    <p class="eyebrow">Cost per proposal</p>
+    <div class="mt-5 space-y-4">
+      {bars.map(([l, v, c]) => (<div><div class="flex justify-between text-sm"><span>{l}</span><span class="font-mono text-muted">{v === 100 ? '£42.00' : '£13.10'}</span></div><div class="mt-1.5 h-2.5 w-full rounded-full bg-paper-deep"><div class={`bar-fill h-full rounded-full ${c}`} style={`width:${v}%`}></div></div></div>))}
+    </div>
+    <p class="mt-5 text-sm text-ink/70">Automation with a human approval step, measured end to end.</p>
+  </div>
+  <div class="card md:col-span-3">
+    <p class="eyebrow">Live activity</p>
+    <ul class="mt-4 space-y-2.5 font-mono text-xs">
+      {log.map((l, i) => (<li class="flex items-center gap-2 rounded-xl bg-paper-deep/60 px-3 py-2" style={`animation: rise .6s both; animation-delay:${i * .12 + .2}s`}><span class="relative flex h-2 w-2"><span class="absolute inline-flex h-full w-full rounded-full bg-signal opacity-60 pulse-dot"></span><span class="relative inline-flex h-2 w-2 rounded-full bg-signal"></span></span>{l}</li>))}
+    </ul>
+  </div>
+</div>

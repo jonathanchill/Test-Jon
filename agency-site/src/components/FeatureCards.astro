@@ -1,0 +1,43 @@
+---
+/** Stacked feature cards, text left and a live diagram right, in the style of the reference. */
+import StepFlow from '@/components/diagrams/StepFlow.astro';
+import Shield from '@/components/diagrams/Shield.astro';
+import Rings from '@/components/diagrams/Rings.astro';
+const items = [
+  { n: '01', title: 'Fixed prices, published upfront', body: 'Our audits and sprints are fixed price and our engagement models and rate bands are on the website. You know the number before the first call.', diagram: 'price' },
+  { n: '02', title: 'Working software in 10 days', body: 'Every AI engagement starts with a 10-Day Sprint that ends in a working prototype on your data and a go or no-go decision. Half the time of the usual 20-day sprint.', diagram: 'flow' },
+  { n: '03', title: 'Measured, not vibes', body: 'We write evaluation sets before features, agree a success metric before a build, and report against it after launch. If it did not move the number, we say so.', diagram: 'shield' },
+];
+---
+<div class="space-y-8">
+  {items.map((it) => (
+    <article class="stack relative grid gap-8 rounded-[2rem] border border-line bg-white/80 p-6 shadow-[0_20px_60px_-30px_rgba(11,15,26,.25)] lg:grid-cols-12 lg:items-center lg:p-10" data-animate data-reveal>
+      <div class="lg:col-span-5">
+        <span class="grid h-11 w-11 place-items-center rounded-full bg-paper-deep font-mono text-sm text-signal">{it.n}</span>
+        <h3 class="mt-6 text-2xl font-bold lg:text-3xl">{it.title}</h3>
+        <p class="mt-4 text-lg text-ink/70">{it.body}</p>
+      </div>
+      <div class="lg:col-span-7">
+        {it.diagram === 'flow' && <StepFlow />}
+        {it.diagram === 'shield' && <Shield />}
+        {it.diagram === 'price' && (
+          <Rings class="aspect-[4/3] overflow-hidden rounded-2xl bg-[radial-gradient(circle_at_50%_50%,rgba(185,245,216,.6),transparent_65%)]" color="#0b0f1a">
+            <div class="w-72 rounded-3xl bg-ink p-6 text-paper shadow-2xl">
+              <p class="eyebrow text-paper/50">10-Day AI Sprint</p>
+              <p class="mt-2 font-display text-4xl font-bold">£<span data-count="12500">0</span></p>
+              <p class="mt-1 text-xs text-paper/60">Fixed. Placeholder pending rate card.</p>
+              <ul class="mt-4 space-y-1.5 text-xs text-paper/80"><li>✓ Senior team only</li><li>✓ Working prototype on your data</li><li>✓ Go / no-go decision pack</li></ul>
+            </div>
+            <span class="absolute -right-6 top-6 rounded-full bg-white px-3 py-1.5 text-xs font-semibold shadow-md">No surprises</span>
+            <span class="absolute -bottom-5 -left-10 rounded-full bg-mint px-3 py-1.5 text-xs font-semibold shadow-md">Rate bands published</span>
+          </Rings>
+        )}
+      </div>
+    </article>
+  ))}
+</div>
+<style>
+  /* stacked paper effect behind each card */
+  .stack::before, .stack::after { content: ""; position: absolute; left: 14px; right: 14px; bottom: -8px; height: 24px; border-radius: 1.6rem; border: 1px solid var(--color-line); background: rgba(255,255,255,.6); z-index: -1; }
+  .stack::after { left: 28px; right: 28px; bottom: -15px; background: rgba(255,255,255,.35); }
+</style>

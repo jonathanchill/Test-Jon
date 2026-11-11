@@ -1,0 +1,31 @@
+---
+/** "Impact in numbers" panel: staggered floating stat cards on a soft blue gradient. */
+const stats = [
+  ['10', ' days', 'from idea to a working AI prototype'],
+  ['96', '%', 'median eval score on shipped AI features (placeholder)'],
+  ['0', '', 'surprise invoices. Fixed prices, published upfront'],
+];
+---
+<div class="relative overflow-hidden rounded-[2.5rem] bg-[linear-gradient(135deg,#eef1ff,#dfe6ff_55%,#f3f6ff)] px-8 py-14 lg:px-16" data-animate>
+  <div class="grid items-center gap-12 lg:grid-cols-12">
+    <ul class="relative space-y-4 lg:col-span-6">
+      {stats.map(([n, suf, l], i) => (
+        <li class="stat flex items-center gap-4 rounded-2xl border border-white bg-white/90 p-5 shadow-[0_18px_40px_-20px_rgba(29,54,201,.35)] backdrop-blur" style={`--d:${i * .15}s; margin-left:${i === 1 ? '2.5rem' : i === 2 ? '0.75rem' : '0'}`}>
+          <span class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-signal/10 text-signal"><svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 19V5M4 19h16M8 15l4-5 3 3 5-7"/></svg></span>
+          <div><p class="font-display text-3xl font-bold leading-none"><span data-count={n} data-suffix={suf}>0</span></p><p class="mt-1 text-sm text-ink/70">{l}</p></div>
+        </li>
+      ))}
+    </ul>
+    <div class="lg:col-span-6" data-reveal>
+      <p class="eyebrow">Our impact in numbers</p>
+      <h2 class="mt-3 text-display-md font-bold">Numbers we are happy to be held to.</h2>
+      <p class="mt-4 text-lg text-ink/70">These are the figures we report against on every engagement. Replace the placeholders with your own once the first projects land.</p>
+      <a href="/approach" class="btn-primary mt-8 shine">See how we work</a>
+    </div>
+  </div>
+</div>
+<style>
+  .stat { opacity: 0; transform: translateX(-24px); transition: opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1); transition-delay: var(--d); }
+  .in .stat { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) { .stat { opacity: 1; transform: none; transition: none; } }
+</style>

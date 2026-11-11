@@ -1,0 +1,16 @@
+---
+/** Concentric ripple rings with a centred slot. Used behind hero cards and feature icons. */
+interface Props { class?: string; rings?: number; color?: string; pulse?: boolean }
+const { class: cls = '', rings = 5, color = '#2b4bff', pulse = true } = Astro.props;
+---
+<div class:list={['relative grid place-items-center', cls]} aria-hidden="true">
+  {Array.from({ length: rings }).map((_, i) => (
+    <span class:list={['absolute rounded-full border', pulse && 'ring-pulse']} style={`inset:${(i / rings) * 50}%; border-color:${color}; opacity:${0.05 + (i / rings) * 0.14}; animation-delay:${i * .4}s`}></span>
+  ))}
+  <div class="relative"><slot /></div>
+</div>
+<style>
+  .ring-pulse { animation: ringPulse 4s ease-in-out infinite; }
+  @keyframes ringPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+  @media (prefers-reduced-motion: reduce) { .ring-pulse { animation: none; } }
+</style>

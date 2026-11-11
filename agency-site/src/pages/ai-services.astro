@@ -7,6 +7,7 @@ import CtaBand from '@/components/CtaBand.astro';
 import WorkCard from '@/components/WorkCard.astro';
 import { byGroup, pillars } from '@/data/services';
 import { getCollection } from 'astro:content';
+import Pipeline from '@/components/diagrams/Pipeline.astro';
 const services = byGroup('ai');
 const work = (await getCollection('work')).filter((w) => w.data.category === 'AI').sort((a, b) => a.data.order - b.data.order).slice(0, 3);
 const steps = [
@@ -21,12 +22,13 @@ const steps = [
 
   {pillars.ai.map((p, i) => (
     <Section id={p.name.toLowerCase().replace(/\s+/g, '-')} eyebrow={`0${i + 1}`} title={p.name} lede={p.blurb} class={i % 2 ? 'bg-paper-deep' : ''}>
-      <div class="grid gap-6 md:grid-cols-3">{services.filter((s) => s.pillar === p.name).map((s) => <ServiceCard service={s} />)}</div>
+      <div class="grid gap-6 md:grid-cols-3" data-reveal="stagger">{services.filter((s) => s.pillar === p.name).map((s) => <ServiceCard service={s} />)}</div>
     </Section>
   ))}
 
   <Section dark eyebrow="Our approach" title="Four steps. One number per step.">
-    <ol class="grid gap-6 md:grid-cols-4">
+    <Pipeline dark class="mb-14" />
+    <ol class="grid gap-6 md:grid-cols-4" data-reveal="stagger">
       {steps.map(([h, p], i) => (
         <li class="rounded-3xl border border-paper/15 p-7"><p class="font-mono text-mint">0{i + 1}</p><h3 class="mt-3 text-xl font-bold">{h}</h3><p class="mt-3 text-paper/70">{p}</p></li>
       ))}

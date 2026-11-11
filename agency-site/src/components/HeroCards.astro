@@ -1,0 +1,33 @@
+---
+/** Floating product-style cards for the home hero. */
+---
+<div class="relative mx-auto h-[420px] w-full max-w-md lg:h-[520px]" aria-hidden="true">
+  <div class="absolute inset-0 grid place-items-center">{[0,1,2,3,4].map((i) => <span class="hero-ring absolute rounded-full border border-signal" style={`inset:${i * 11}%; opacity:${0.04 + i * 0.03}; animation-delay:${i * .5}s`}></span>)}</div>
+  <div class="float card-in absolute left-0 top-6 w-64 rounded-3xl border border-line bg-white/80 p-5 shadow-xl backdrop-blur" style="--r:-3deg">
+    <p class="eyebrow">10-Day Sprint</p>
+    <p class="mt-2 font-display text-2xl font-bold">Day 7 of 10</p>
+    <div class="mt-3 h-2 w-full rounded-full bg-paper-deep"><div class="h-full w-[70%] rounded-full bg-signal"></div></div>
+    <ul class="mt-4 space-y-1.5 text-xs text-ink/70"><li>✓ Eval set agreed (212 cases)</li><li>✓ Prototype on live data</li><li>○ Security review</li><li>○ Go / no-go pack</li></ul>
+  </div>
+  <div class="float float-2 card-in absolute right-0 top-40 w-60 rounded-3xl bg-ink p-5 text-paper shadow-2xl" style="--r:4deg">
+    <p class="eyebrow text-paper/50">Eval score</p>
+    <p class="mt-2 font-display text-4xl font-bold text-mint">96.1%</p>
+    <p class="mt-1 text-xs text-paper/60">vs 71% baseline · 0 regressions</p>
+    <svg viewBox="0 0 120 32" class="mt-4 h-8 w-full"><polyline points="0,28 15,24 30,25 45,18 60,19 75,12 90,10 105,6 120,4" fill="none" stroke="#b9f5d8" stroke-width="2.5" stroke-linecap="round"/></svg>
+  </div>
+  <div class="float float-3 card-in absolute bottom-4 left-8 w-56 rounded-3xl border border-line bg-white/80 p-4 shadow-xl backdrop-blur" style="--r:-2deg">
+    <p class="eyebrow">Approval queue</p>
+    <div class="mt-3 flex items-center gap-3"><span class="relative flex h-2.5 w-2.5"><span class="pulse-dot absolute inline-flex h-full w-full rounded-full bg-signal"></span><span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-signal"></span></span><p class="text-sm font-semibold">Proposal drafted · Acme Ltd</p></div>
+    <p class="mt-1 pl-5 text-xs text-ink/60">Ready for review · 2m 14s</p>
+  </div>
+</div>
+
+<style>
+  .hero-ring { animation: heroRing 6s ease-in-out infinite; }
+  @keyframes heroRing { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+  .card-in { animation-name: cardIn, floaty; animation-duration: .9s, 7s; animation-timing-function: cubic-bezier(.2,.7,.2,1), ease-in-out; animation-iteration-count: 1, infinite; animation-fill-mode: both, none; }
+  .card-in.float-2 { animation-duration: .9s, 9s; animation-delay: .25s, .65s; }
+  .card-in.float-3 { animation-duration: .9s, 11s; animation-delay: .45s, .85s; }
+  @keyframes cardIn { from { opacity: 0; transform: translateY(40px) rotate(var(--r, 0deg)); } to { opacity: 1; transform: translateY(0) rotate(var(--r, 0deg)); } }
+  @media (prefers-reduced-motion: reduce) { .hero-ring, .card-in { animation: none; opacity: 1; } }
+</style>

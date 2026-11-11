@@ -1,0 +1,37 @@
+---
+/** Orthogonal step-flow on a faint grid. Nodes reveal in sequence once scrolled into view. */
+interface Props { steps?: { title: string; sub: string }[]; class?: string }
+const { class: cls = '', steps = [
+  { title: 'Framing workshop', sub: 'Day 1' },
+  { title: 'Eval set on your data', sub: 'Days 2–4' },
+  { title: 'Working prototype', sub: 'Days 5–8' },
+  { title: 'Go / no-go pack', sub: 'Day 10' },
+] } = Astro.props;
+const trunkX = 250; const startY = 36; const gap = 72; const pillW = 210; const pillH = 50;
+---
+<div class:list={['relative overflow-hidden rounded-2xl', cls]} style="background-image: linear-gradient(to right, rgba(11,15,26,.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(11,15,26,.06) 1px, transparent 1px); background-size: 48px 48px;">
+  <svg viewBox="0 0 520 330" class="h-auto w-full" role="img" aria-label="Sprint steps connected in sequence">
+    <path d={`M${trunkX} ${startY + pillH / 2} V ${startY + (steps.length - 1) * gap + pillH / 2}`} stroke="#0b0f1a" stroke-opacity=".35" stroke-width="1.5" class="draw" />
+    {steps.map((s, i) => {
+      const left = i % 2 === 0; const y = startY + i * gap; const x = left ? trunkX - 36 - pillW : trunkX + 36; const jy = y + pillH / 2;
+      const spur = left ? `M${trunkX} ${jy} H ${x + pillW}` : `M${trunkX} ${jy} H ${x}`;
+      const done = i < steps.length - 1;
+      return (<g class="step" style={`--d:${0.35 + i * 0.35}s`}>
+        <path d={spur} stroke="#0b0f1a" stroke-opacity=".35" stroke-width="1.5" class="draw" style={`animation-delay:${0.2 + i * 0.35}s`} />
+        <rect x={trunkX - 5} y={jy - 5} width="10" height="10" transform={`rotate(45 ${trunkX} ${jy})`} fill="#f6f3ee" stroke="#0b0f1a" stroke-opacity=".5" stroke-width="1.5" />
+        <g class="node">
+          <rect x={x} y={y} width={pillW} height={pillH} rx="25" fill="#fff" stroke="#0b0f1a" stroke-opacity=".08" style="filter: drop-shadow(0 6px 16px rgba(11,15,26,.08))" />
+          <circle cx={x + 25} cy={y + 25} r="13" fill={done ? '#2b4bff' : '#b9f5d8'} />
+          <path d={`M${x + 19} ${y + 25.5} l4 4 l8 -8`} stroke={done ? '#fff' : '#0b0f1a'} stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+          <text x={x + 48} y={y + 22} font-family="Inter, system-ui, sans-serif" font-size="12.5" font-weight="600" fill="#0b0f1a">{s.title}</text>
+          <text x={x + 48} y={y + 38} font-family="ui-monospace, Menlo, monospace" font-size="10" fill="#5b6275">{s.sub}</text>
+        </g>
+      </g>);
+    })}
+  </svg>
+</div>
+<style>
+  .node { opacity: 0; transform: translateY(10px); transition: opacity .6s cubic-bezier(.2,.7,.2,1), transform .6s cubic-bezier(.2,.7,.2,1); transition-delay: var(--d); }
+  :global(.in) .node { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) { .node { opacity: 1; transform: none; transition: none; } }
+</style>

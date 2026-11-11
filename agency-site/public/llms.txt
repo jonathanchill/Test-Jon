@@ -1,6 +1,6 @@
-# Verso (placeholder name)
+# Opposite Number
 
-> Verso is a UK AI and digital product studio. We help ambitious businesses put AI to work in their operations and products, then design, build and run the software behind it. Fixed-price sprints, published engagement models, and engineering-led delivery.
+> Opposite Number is a UK AI and digital product studio. We help ambitious businesses put AI to work in their operations and products, then design, build and run the software behind it. Fixed-price sprints, published engagement models, and engineering-led delivery.
 
 ## Services
 

@@ -1,0 +1,18 @@
+---
+/** Shield on soft rings, for governance and security messages. */
+interface Props { class?: string }
+const { class: cls = '' } = Astro.props;
+---
+<div class:list={['relative grid aspect-[4/3] place-items-center overflow-hidden rounded-2xl bg-[radial-gradient(circle_at_50%_55%,rgba(43,75,255,.16),transparent_65%)]', cls]} aria-hidden="true">
+  {[0, 1, 2, 3].map((i) => <span class="absolute left-1/2 top-[55%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-signal/15" style={`width:${34 + i * 20}%; aspect-ratio:1;`}></span>)}
+  <svg viewBox="0 0 120 140" class="relative h-[52%] w-auto drop-shadow-[0_18px_30px_rgba(29,54,201,.35)]">
+    <defs><linearGradient id="shg" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#3b5bff"/><stop offset="1" stop-color="#0b0f1a"/></linearGradient></defs>
+    <path d="M60 6l48 18v40c0 32-21 54-48 68C33 118 12 96 12 64V24L60 6Z" fill="url(#shg)"/>
+    <path d="M60 14l40 15v35c0 27-17.5 46-40 58C37.5 110 20 91 20 64V29L60 14Z" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="1.5"/>
+    <rect x="42" y="60" width="36" height="30" rx="7" fill="#f6f3ee"/>
+    <path d="M49 60v-8a11 11 0 0 1 22 0v8" fill="none" stroke="#f6f3ee" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="60" cy="74" r="4" fill="#2b4bff"/><path d="M60 76v6" stroke="#2b4bff" stroke-width="3" stroke-linecap="round"/>
+  </svg>
+  <span class="absolute right-5 top-5 flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-xs font-semibold shadow-sm"><span class="h-2 w-2 rounded-full bg-mint ring-4 ring-mint/40"></span>Audit log on</span>
+  <span class="absolute bottom-5 left-5 rounded-full bg-white px-3 py-1.5 text-xs font-semibold shadow-sm">0 PII leaks · 212 checks</span>
+</div>

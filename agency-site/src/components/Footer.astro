@@ -1,10 +1,12 @@
 ---
 import { site, nav, footerNav } from '@/data/site';
+import Logo from '@/components/Logo.astro';
 const year = new Date().getFullYear();
 ---
 <footer class="mt-24 bg-ink text-paper">
   <div class="container-x grid gap-12 py-16 lg:grid-cols-12">
     <div class="lg:col-span-5">
+      <Logo inverse class="mb-6" />
       <p class="font-display text-display-md font-bold leading-tight">{site.tagline}</p>
       <a href="/contact" class="btn-light mt-8">Start a conversation</a>
     </div>
