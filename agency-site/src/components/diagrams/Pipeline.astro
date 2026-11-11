@@ -21,7 +21,7 @@ const icons: Record<string, string> = {
   grid: 'M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z',
 };
 ---
-<div class:list={['w-full overflow-x-auto', cls]} data-animate>
+<div class:list={['pipeline w-full overflow-x-auto', cls]} data-animate>
   <svg viewBox="0 0 1080 240" class="min-w-[720px] w-full" role="img" aria-label="Data flows through evaluation, a model layer and guardrails into your systems">
     <defs>
       <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5 0 10z" fill="#2b4bff"/></marker>
@@ -32,7 +32,7 @@ const icons: Record<string, string> = {
       return (<g>
         <path d={d} stroke={line} stroke-width="2" fill="none" />
         <path d={d} stroke="#2b4bff" stroke-width="2" fill="none" class="dash-flow" marker-end="url(#arr)" />
-        <circle r="5" fill="#2b4bff" filter="url(#glow)"><animateMotion dur={`${2.4 + i * 0.3}s`} repeatCount="indefinite" path={d} begin={`${i * 0.5}s`} /></circle>
+        <circle r="5" fill="#2b4bff" filter="url(#glow)" class="pdot" style="opacity:0"><animateMotion dur="1.4s" repeatCount="1" fill="freeze" begin="indefinite" path={d} /></circle>
       </g>);
     })}
     {nodes.map((n, i) => (
@@ -48,3 +48,23 @@ const icons: Record<string, string> = {
     <path d="M560 160 L560 200" stroke={line} stroke-width="1.5" stroke-dasharray="3 4"/>
   </svg>
 </div>
+
+<script>
+  // Travelling dots make one pass, in sequence, when the pipeline scrolls into view.
+  document.querySelectorAll<HTMLElement>('.pipeline').forEach((root) => {
+    let fired = false;
+    const start = () => {
+      if (fired || !root.classList.contains('in')) return; fired = true;
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      root.querySelectorAll<SVGCircleElement>('.pdot').forEach((dot, i) => {
+        const am = dot.querySelector('animateMotion') as any;
+        const t = 0.9 + i * 1.2;
+        setTimeout(() => { dot.style.opacity = '1'; }, t * 1000);
+        am.addEventListener('endEvent', () => { dot.style.opacity = '0'; });
+        am.beginElementAt(t);
+      });
+    };
+    start();
+    new MutationObserver(start).observe(root, { attributes: true, attributeFilter: ['class'] });
+  });
+</script>
