@@ -21,15 +21,15 @@ const items = [
         {it.diagram === 'flow' && <StepFlow />}
         {it.diagram === 'shield' && <Shield />}
         {it.diagram === 'price' && (
-          <Rings class="aspect-[4/3] overflow-hidden rounded-2xl bg-[radial-gradient(circle_at_50%_50%,rgba(185,245,216,.6),transparent_65%)]" color="#0b0f1a">
-            <div class="w-72 rounded-3xl bg-ink p-6 text-paper shadow-2xl">
+          <Rings class="price-scene aspect-[4/3] overflow-hidden rounded-2xl bg-[radial-gradient(circle_at_50%_50%,rgba(185,245,216,.6),transparent_65%)]" color="#0b0f1a">
+            <div class="price-card w-72 rounded-3xl bg-ink p-6 text-paper shadow-2xl">
               <p class="eyebrow text-paper/50">10-Day AI Sprint</p>
               <p class="mt-2 font-display text-4xl font-bold">£<span data-count="12500">0</span></p>
               <p class="mt-1 text-xs text-paper/60">Fixed. Placeholder pending rate card.</p>
               <ul class="mt-4 space-y-1.5 text-xs text-paper/80"><li>✓ Senior team only</li><li>✓ Working prototype on your data</li><li>✓ Go / no-go decision pack</li></ul>
             </div>
-            <span class="absolute -right-6 top-6 rounded-full bg-white px-3 py-1.5 text-xs font-semibold shadow-md">No surprises</span>
-            <span class="absolute -bottom-5 -left-10 rounded-full bg-mint px-3 py-1.5 text-xs font-semibold shadow-md">Rate bands published</span>
+            <span class="price-pill price-pill-a absolute -right-6 top-6 rounded-full bg-white px-3 py-1.5 text-xs font-semibold shadow-md">No surprises</span>
+            <span class="price-pill price-pill-b absolute -bottom-5 -left-10 rounded-full bg-mint px-3 py-1.5 text-xs font-semibold shadow-md">Rate bands published</span>
           </Rings>
         )}
       </div>
@@ -37,6 +37,14 @@ const items = [
   ))}
 </div>
 <style>
+  /* Price card rises and settles when the feature card scrolls into view; pills pop in after it. */
+  .price-card { opacity: 0; transform: translateY(48px) scale(.94) rotate(-2deg); transition: opacity .8s cubic-bezier(.2,.7,.2,1), transform .9s cubic-bezier(.2,.9,.3,1.1); }
+  .in .price-card { opacity: 1; transform: none; }
+  .price-pill { opacity: 0; transform: translateY(12px) scale(.8); transition: opacity .5s cubic-bezier(.2,.7,.2,1), transform .6s cubic-bezier(.2,.9,.3,1.3); }
+  .price-pill-a { transition-delay: .55s; } .price-pill-b { transition-delay: .75s; }
+  .in .price-pill { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) { .price-card, .price-pill { opacity: 1; transform: none; transition: none; } }
+
   /* stacked paper effect behind each card */
   .stack::before, .stack::after { content: ""; position: absolute; left: 14px; right: 14px; bottom: -8px; height: 24px; border-radius: 1.6rem; border: 1px solid var(--color-line); background: rgba(255,255,255,.6); z-index: -1; }
   .stack::after { left: 28px; right: 28px; bottom: -15px; background: rgba(255,255,255,.35); }

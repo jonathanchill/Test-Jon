@@ -1,16 +1,17 @@
 ---
-/** Concentric ripple rings with a centred slot. Used behind hero cards and feature icons. */
+/** Concentric rings with a centred slot. Rings ripple outward continuously; parent `.in` class triggers the slot entrance. */
 interface Props { class?: string; rings?: number; color?: string; pulse?: boolean }
 const { class: cls = '', rings = 5, color = '#2b4bff', pulse = true } = Astro.props;
 ---
-<div class:list={['relative grid place-items-center', cls]} aria-hidden="true">
+<div class:list={['rings relative grid place-items-center', cls]} aria-hidden="true" style={`--ring:${color}`}>
   {Array.from({ length: rings }).map((_, i) => (
-    <span class:list={['absolute rounded-full border', pulse && 'ring-pulse']} style={`inset:${(i / rings) * 50}%; border-color:${color}; opacity:${0.05 + (i / rings) * 0.14}; animation-delay:${i * .4}s`}></span>
+    <span class="ring-static absolute left-1/2 top-1/2 aspect-square -translate-x-1/2 -translate-y-1/2 rounded-full border" style={`height:${118 - i * 20}%; border-color:${color}; opacity:${0.10 + (i / rings) * 0.22};`}></span>
   ))}
+  {pulse && [0, 1, 2].map((i) => <span class="ring-ripple absolute left-1/2 top-1/2 aspect-square rounded-full border-2" style={`height:60%; border-color:${color}; animation-delay:${i * 1.4}s`}></span>)}
   <div class="relative"><slot /></div>
 </div>
 <style>
-  .ring-pulse { animation: ringPulse 4s ease-in-out infinite; }
-  @keyframes ringPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
-  @media (prefers-reduced-motion: reduce) { .ring-pulse { animation: none; } }
+  .ring-ripple { opacity: 0; animation: ringRipple 4.2s cubic-bezier(.2,.6,.2,1) infinite; }
+  @keyframes ringRipple { 0% { transform: translate(-50%,-50%) scale(.7); opacity: 0; } 15% { opacity: .55; } 100% { transform: translate(-50%,-50%) scale(2.1); opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .ring-ripple { animation: none; } }
 </style>
