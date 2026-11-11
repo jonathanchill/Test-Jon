@@ -11,7 +11,8 @@ const { class: cls = '', rings = 5, color = '#9ca3af', pulse = true } = Astro.pr
   <div class="relative"><slot /></div>
 </div>
 <style>
-  .ring-ripple { opacity: 0; animation: ringRipple 4.2s cubic-bezier(.2,.6,.2,1) infinite; }
-  @keyframes ringRipple { 0% { transform: translate(-50%,-50%) scale(.7); opacity: 0; } 15% { opacity: .6; } 100% { transform: translate(-50%,-50%) scale(2.1); opacity: 0; } }
+  /* Each ripple expands over 4.2s. Three fire 1.4s apart, then the set rests for 3s before repeating (10s cycle). */
+  .ring-ripple { opacity: 0; animation: ringRipple 10s cubic-bezier(.2,.6,.2,1) infinite; }
+  @keyframes ringRipple { 0% { transform: translate(-50%,-50%) scale(.7); opacity: 0; } 6% { opacity: .6; } 42% { transform: translate(-50%,-50%) scale(2.1); opacity: 0; } 100% { transform: translate(-50%,-50%) scale(2.1); opacity: 0; } }
   @media (prefers-reduced-motion: reduce) { .ring-ripple { animation: none; } }
 </style>
