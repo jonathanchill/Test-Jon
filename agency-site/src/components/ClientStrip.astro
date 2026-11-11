@@ -1,0 +1,16 @@
+---
+import { clients } from '@/data/clients';
+interface Props { dark?: boolean }
+const { dark = false } = Astro.props;
+const loop = [...clients, ...clients, ...clients, ...clients];
+---
+<section class:list={['py-8', dark ? 'bg-ink text-paper' : 'border-y border-line']} aria-label="Clients" data-theme={dark ? 'dark' : undefined}>
+  <div class="container-x mb-5 flex items-center justify-between"><p class:list={['eyebrow', dark && 'text-paper/50']}>Trusted by</p><p class:list={['eyebrow hidden sm:block', dark && 'text-paper/50']}>More logos to come</p></div>
+  <div class="overflow-hidden" style="mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);">
+    <ul class="marquee flex w-max items-center gap-20 whitespace-nowrap px-10" style="animation-duration: 36s">
+      {loop.map((c) => (
+        <li class="shrink-0"><a href={c.href} rel="noopener" target="_blank" class:list={['block transition', dark ? 'opacity-70 brightness-0 invert hover:opacity-100' : 'opacity-55 grayscale hover:opacity-100']} title={c.name}><img src={c.src} alt={c.name} class:list={['w-auto', c.h ?? 'h-7']} loading="lazy" decoding="async" /></a></li>
+      ))}
+    </ul>
+  </div>
+</section>

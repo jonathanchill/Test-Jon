@@ -81,7 +81,9 @@
 .blob-a { width: 44vw; height: 44vw; left: 50%; top: -10%; background: #c9d2ff; }
 .blob-b { width: 36vw; height: 36vw; left: 70%; top: 30%; background: #b9f5d8; animation-duration: 22s; animation-delay: -6s; }
 .blob-c { width: 30vw; height: 30vw; left: 35%; top: 45%; background: #ffd9c7; animation-duration: 26s; animation-delay: -12s; }
-.dark .blob { mix-blend-mode: screen; opacity: .35; }
+.dark .blob { mix-blend-mode: screen; opacity: .28; }
+.dark .blob-a { background: #2b4bff; } .dark .blob-b { background: #1aa07a; } .dark .blob-c { background: #7a3cff; }
+.dark.grain::after { mix-blend-mode: screen; opacity: .25; }
 @keyframes drift { from { transform: translate(0,0) scale(1); } to { transform: translate(-8%, 10%) scale(1.15); } }
 
 /* Grain overlay */

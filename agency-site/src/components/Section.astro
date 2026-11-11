@@ -2,7 +2,7 @@
 interface Props { eyebrow?: string; title?: string; lede?: string; id?: string; class?: string; dark?: boolean }
 const { eyebrow, title, lede, id, class: cls = '', dark = false } = Astro.props;
 ---
-<section id={id} class:list={['py-16 lg:py-24', dark && 'bg-ink text-paper', cls]}>
+<section id={id} class:list={['py-16 lg:py-24', dark && 'bg-ink text-paper', cls]} data-theme={dark ? 'dark' : undefined}>
   <div class="container-x">
     {(eyebrow || title || lede) && (
       <div class="mb-12 max-w-3xl" data-reveal>

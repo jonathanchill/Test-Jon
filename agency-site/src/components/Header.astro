@@ -4,30 +4,65 @@ import Logo from '@/components/Logo.astro';
 const path = Astro.url.pathname;
 const isActive = (href: string) => path === href || path.startsWith(href + '/');
 ---
-<header class="sticky top-0 z-50 border-b border-line/60 bg-paper/85 backdrop-blur supports-[backdrop-filter]:bg-paper/70">
+<header id="site-header" class="site-header fixed inset-x-0 top-0 z-50 transition-colors duration-500">
   <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-paper">Skip to content</a>
   <div class="container-x flex h-16 items-center justify-between gap-6 lg:h-20">
-    <a href="/" class="flex items-center" aria-label={`${site.name} home`}><Logo /></a>
+    <a href="/" class="flex items-center" aria-label={`${site.name} home`}><span class="logo-light"><Logo /></span><span class="logo-dark"><Logo inverse /></span></a>
     <nav class="hidden items-center gap-7 lg:flex" aria-label="Primary">
       {nav.map((item) => (
-        <a href={item.href} class:list={['text-sm font-medium transition-colors hover:text-signal', isActive(item.href) ? 'text-signal' : 'text-ink/80']} aria-current={isActive(item.href) ? 'page' : undefined}>{item.label}</a>
+        <a href={item.href} class:list={['nav-link text-sm font-medium transition-colors hover:text-signal', isActive(item.href) && 'is-active']} aria-current={isActive(item.href) ? 'page' : undefined}>{item.label}</a>
       ))}
     </nav>
     <div class="flex items-center gap-3">
-      <a href="/contact" class="btn-primary hidden sm:inline-flex">Talk to us</a>
-      <button id="menu-btn" type="button" class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-line lg:hidden" aria-controls="mobile-menu" aria-expanded="false" aria-label="Open menu">
+      <a href="/contact" class="header-cta hidden sm:inline-flex">Talk to us</a>
+      <button id="menu-btn" type="button" class="menu-btn inline-flex h-11 w-11 items-center justify-center rounded-full border lg:hidden" aria-controls="mobile-menu" aria-expanded="false" aria-label="Open menu">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h14M3 10h14M3 14h14"/></svg>
       </button>
     </div>
   </div>
-  <div id="mobile-menu" class="hidden border-t border-line bg-paper lg:hidden">
+  <div id="mobile-menu" class="hidden border-t border-line bg-paper text-ink lg:hidden">
     <nav class="container-x flex flex-col py-4" aria-label="Mobile">
       {nav.map((item) => (<a href={item.href} class="py-3 text-lg font-medium">{item.label}</a>))}
       <a href="/contact" class="btn-primary mt-3 self-start">Talk to us</a>
     </nav>
   </div>
 </header>
+<style>
+  /* Light state (default): cream bar, dark text. Dark state: transparent over dark sections, light text. */
+  .site-header { background: color-mix(in srgb, var(--color-paper) 85%, transparent); backdrop-filter: blur(12px); border-bottom: 1px solid color-mix(in srgb, var(--color-line) 60%, transparent); color: var(--color-ink); }
+  .site-header .logo-dark { display: none; }
+  .site-header .nav-link { color: color-mix(in srgb, var(--color-ink) 80%, transparent); }
+  .site-header .nav-link.is-active { color: var(--color-signal); }
+  .site-header .header-cta { display: inline-flex; white-space: nowrap; align-items: center; gap: .5rem; border-radius: 9999px; padding: .75rem 1.5rem; font-size: .875rem; font-weight: 600; transition: background-color .2s, color .2s; background: var(--color-ink); color: var(--color-paper); }
+  .site-header .header-cta:hover { background: var(--color-signal); }
+  .site-header .menu-btn { border-color: var(--color-line); }
+  @media (max-width: 639px) { .site-header .header-cta { display: none; } }
+  .site-header.is-dark { background: transparent; backdrop-filter: none; border-bottom-color: transparent; color: var(--color-paper); }
+  .site-header.is-dark.is-scrolled { background: color-mix(in srgb, var(--color-ink) 70%, transparent); backdrop-filter: blur(12px); }
+  .site-header.is-dark .logo-light { display: none; }
+  .site-header.is-dark .logo-dark { display: inline; }
+  .site-header.is-dark .nav-link { color: color-mix(in srgb, var(--color-paper) 80%, transparent); }
+  .site-header.is-dark .nav-link.is-active { color: var(--color-mint); }
+  .site-header.is-dark .nav-link:hover { color: var(--color-mint); }
+  .site-header.is-dark .header-cta { background: var(--color-paper); color: var(--color-ink); }
+  .site-header.is-dark .header-cta:hover { background: var(--color-mint); }
+  .site-header.is-dark .menu-btn { border-color: color-mix(in srgb, var(--color-paper) 30%, transparent); }
+  .site-header.is-dark #mobile-menu { color: var(--color-ink); }
+</style>
 <script>
+  // Header theme follows whichever section sits under it. Sections opt in with data-theme="dark".
+  const header = document.getElementById('site-header')!;
+  const darkSections = Array.from(document.querySelectorAll<HTMLElement>('[data-theme="dark"]'));
+  const update = () => {
+    const h = header.offsetHeight; const probe = h * 0.6;
+    const over = darkSections.some((s) => { const r = s.getBoundingClientRect(); return r.top <= probe && r.bottom >= probe; });
+    header.classList.toggle('is-dark', over);
+    header.classList.toggle('is-scrolled', window.scrollY > 24);
+  };
+  update();
+  addEventListener('scroll', update, { passive: true });
+  addEventListener('resize', update);
+
   const btn = document.getElementById('menu-btn');
   const menu = document.getElementById('mobile-menu');
   btn?.addEventListener('click', () => {
