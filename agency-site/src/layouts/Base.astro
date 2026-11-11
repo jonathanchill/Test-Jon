@@ -1,0 +1,27 @@
+---
+import '@/styles/global.css';
+import Seo from '@/components/Seo.astro';
+import Header from '@/components/Header.astro';
+import Footer from '@/components/Footer.astro';
+interface Props { title: string; description: string; image?: string; type?: 'website' | 'article'; jsonLd?: Record<string, unknown> | Record<string, unknown>[] }
+const gtm = import.meta.env.PUBLIC_GTM_ID;
+---
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0b0f1a" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <Seo {...Astro.props} />
+    {gtm && <script is:inline define:vars={{ gtm }}>
+      window.dataLayer = window.dataLayer || [];
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s);j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer',gtm);
+    </script>}
+  </head>
+  <body class="min-h-dvh flex flex-col">
+    <Header />
+    <main id="main" class="flex-1"><slot /></main>
+    <Footer />
+  </body>
+</html>

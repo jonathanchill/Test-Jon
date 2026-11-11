@@ -1,0 +1,16 @@
+---
+import { faqs } from '@/data/faqs';
+const ld = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faqs.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) };
+---
+<div class="divide-y divide-line border-y border-line">
+  {faqs.map((f) => (
+    <details class="group py-5">
+      <summary class="flex cursor-pointer list-none items-center justify-between gap-6 text-lg font-semibold [&::-webkit-details-marker]:hidden">
+        {f.q}
+        <span class="shrink-0 text-2xl leading-none transition-transform group-open:rotate-45" aria-hidden="true">+</span>
+      </summary>
+      <p class="mt-3 max-w-3xl text-ink/70">{f.a}</p>
+    </details>
+  ))}
+</div>
+<script type="application/ld+json" set:html={JSON.stringify(ld)} />

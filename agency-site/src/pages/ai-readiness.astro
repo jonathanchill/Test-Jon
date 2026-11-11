@@ -1,0 +1,81 @@
+---
+import Base from '@/layouts/Base.astro';
+import Hero from '@/components/Hero.astro';
+import CtaBand from '@/components/CtaBand.astro';
+const questions = [
+  { q: 'Do you have a written AI strategy with named owners and a budget?', dim: 'Strategy' },
+  { q: 'Can you name three processes where AI would save measurable time or money?', dim: 'Strategy' },
+  { q: 'Is the data those processes need clean, accessible and owned by someone?', dim: 'Data' },
+  { q: 'Do you know where your sensitive data lives and who can access it?', dim: 'Data' },
+  { q: 'Do you have an AI acceptable-use policy your staff have actually read?', dim: 'Governance' },
+  { q: 'Have you assessed AI-specific security risks such as prompt injection and data leakage?', dim: 'Governance' },
+  { q: 'Have you shipped at least one AI feature or workflow to production, with monitoring?', dim: 'Delivery' },
+  { q: 'Do you measure AI outputs against a defined quality metric before and after release?', dim: 'Delivery' },
+  { q: 'Have most of your staff had hands-on AI training relevant to their role?', dim: 'People' },
+  { q: 'Do teams have champions and a way to share what works?', dim: 'People' },
+];
+const options = [['No', 0], ['Partly', 1], ['Yes', 2]] as const;
+---
+<Base title="AI Readiness Scorecard" description="A free five-minute self-assessment across strategy, data, governance, delivery and people. Get your score and the next move instantly.">
+  <Hero eyebrow="Free self-assessment" title="Where are you really on your <span class='text-signal'>AI journey?</span>" lede="Ten honest questions, five dimensions, instant score. No email gate. If you want help with the result, we are a click away." />
+  <section class="container-x pb-20">
+    <form id="scorecard" class="grid gap-6 lg:grid-cols-12">
+      <ol class="space-y-4 lg:col-span-8">
+        {questions.map((item, i) => (
+          <li class="card">
+            <p class="eyebrow">{item.dim}</p>
+            <p class="mt-2 text-lg font-semibold">{i + 1}. {item.q}</p>
+            <div class="mt-4 flex flex-wrap gap-2" role="radiogroup" aria-label={item.q}>
+              {options.map(([label, v]) => (
+                <label class="cursor-pointer rounded-full border border-line px-4 py-2 text-sm font-medium has-[:checked]:border-ink has-[:checked]:bg-ink has-[:checked]:text-paper">
+                  <input type="radio" name={`q${i}`} value={v} data-dim={item.dim} class="sr-only" required />{label}
+                </label>
+              ))}
+            </div>
+          </li>
+        ))}
+      </ol>
+      <aside class="lg:col-span-4">
+        <div class="sticky top-28 rounded-3xl bg-ink p-8 text-paper">
+          <p class="eyebrow text-paper/50">Your score</p>
+          <p class="mt-2 font-display text-6xl font-bold"><span id="score">0</span><span class="text-2xl text-paper/50">/20</span></p>
+          <p id="stage" class="mt-3 text-lg font-semibold">Answer the questions to see your stage.</p>
+          <ul id="dims" class="mt-6 space-y-3 text-sm"></ul>
+          <p id="advice" class="mt-6 text-paper/75"></p>
+          <a href="/contact" class="btn-light mt-8 w-full justify-center">Talk through your result</a>
+        </div>
+      </aside>
+    </form>
+  </section>
+  <CtaBand title="Want a second opinion on your score?" body="Book a free 45-minute AI consultation. We will go through your answers and tell you the one thing to do next." />
+</Base>
+<script>
+  const form = document.getElementById('scorecard') as HTMLFormElement;
+  const scoreEl = document.getElementById('score')!;
+  const stageEl = document.getElementById('stage')!;
+  const dimsEl = document.getElementById('dims')!;
+  const adviceEl = document.getElementById('advice')!;
+  const stages: [number, string, string][] = [
+    [0, 'Stage 1 · Curious', 'Start with an AI Opportunity Audit. Two weeks to find where AI pays back and what data you will need.'],
+    [6, 'Stage 2 · Experimenting', 'You have ideas but nothing in production. A 10-Day Sprint will turn the best one into a working, measured prototype.'],
+    [11, 'Stage 3 · Delivering', 'You are shipping. Now invest in evals, governance and adoption so what you build is trusted and used.'],
+    [16, 'Stage 4 · Scaling', 'You are ahead of most. A Fractional AI Lead can keep strategy, governance and delivery aligned as you scale.'],
+  ];
+  const update = () => {
+    const inputs = Array.from(form.querySelectorAll<HTMLInputElement>('input[type=radio]:checked'));
+    const total = inputs.reduce((n, i) => n + Number(i.value), 0);
+    const byDim: Record<string, number> = {};
+    inputs.forEach((i) => { const d = i.dataset.dim!; byDim[d] = (byDim[d] ?? 0) + Number(i.value); });
+    scoreEl.textContent = String(total);
+    const stage = [...stages].reverse().find(([min]) => total >= min)!;
+    if (inputs.length === 0) { stageEl.textContent = 'Answer the questions to see your stage.'; adviceEl.textContent = ''; dimsEl.innerHTML = ''; return; }
+    stageEl.textContent = stage[1];
+    adviceEl.textContent = inputs.length === 10 ? stage[2] : `${10 - inputs.length} question${inputs.length === 9 ? '' : 's'} to go.`;
+    dimsEl.innerHTML = ['Strategy', 'Data', 'Governance', 'Delivery', 'People'].map((d) => {
+      const v = byDim[d] ?? 0;
+      return `<li class="flex items-center justify-between gap-4"><span>${d}</span><span class="flex gap-1" aria-label="${v} of 4">${[0,1,2,3].map((k) => `<span class="h-2 w-6 rounded-full ${k < v ? 'bg-mint' : 'bg-paper/20'}"></span>`).join('')}</span></li>`;
+    }).join('');
+  };
+  form.addEventListener('change', update);
+  form.addEventListener('submit', (e) => e.preventDefault());
+</script>

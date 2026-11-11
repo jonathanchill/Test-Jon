@@ -1,0 +1,22 @@
+---
+import Base from '@/layouts/Base.astro';
+import CtaBand from '@/components/CtaBand.astro';
+import { getCollection, render } from 'astro:content';
+import { site } from '@/data/site';
+export async function getStaticPaths() { const all = await getCollection('insights'); return all.filter((p) => !p.data.draft).map((e) => ({ params: { id: e.id }, props: { entry: e } })); }
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data;
+const ld = { '@context': 'https://schema.org', '@type': 'Article', headline: d.title, description: d.description, datePublished: d.date.toISOString(), author: { '@type': 'Person', name: d.author }, publisher: { '@type': 'Organization', name: site.name } };
+---
+<Base title={d.title} description={d.description} type="article" jsonLd={ld}>
+  <article class="container-x max-w-3xl pt-16 lg:pt-24">
+    <p class="eyebrow">{d.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} · {d.readingTime} min read</p>
+    <h1 class="mt-4 text-display-lg font-bold leading-[1.02]">{d.title}</h1>
+    <p class="mt-6 text-xl text-ink/75">{d.description}</p>
+    <p class="mt-4 text-sm text-muted">By {d.author}</p>
+    <div class="prose-basic mt-12"><Content /></div>
+    <div class="mt-12 flex flex-wrap gap-2">{d.tags.map((t) => <span class="rounded-full border border-line px-3 py-1 text-sm">{t}</span>)}</div>
+  </article>
+  <CtaBand />
+</Base>

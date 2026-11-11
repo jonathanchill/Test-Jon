@@ -1,0 +1,7 @@
+---
+import Base from '@/layouts/Base.astro';
+import Hero from '@/components/Hero.astro';
+---
+<Base title="Page not found" description="That page does not exist.">
+  <Hero eyebrow="404" title="That page has <span class='text-signal'>shipped elsewhere.</span>" lede="The link may be old or mistyped. Try the homepage or get in touch." cta={{ label: 'Back home', href: '/' }} secondary={{ label: 'Contact', href: '/contact' }} />
+</Base>

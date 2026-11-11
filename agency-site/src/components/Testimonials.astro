@@ -1,0 +1,11 @@
+---
+import { testimonials } from '@/data/testimonials';
+---
+<div class="grid gap-6 md:grid-cols-3">
+  {testimonials.map((t) => (
+    <figure class="card flex flex-col justify-between">
+      <blockquote class="text-lg leading-relaxed">“{t.quote}”</blockquote>
+      <figcaption class="mt-6 text-sm"><span class="font-semibold">{t.name}</span><br /><span class="text-muted">{t.role}, {t.company}</span></figcaption>
+    </figure>
+  ))}
+</div>

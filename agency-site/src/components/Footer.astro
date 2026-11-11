@@ -1,0 +1,45 @@
+---
+import { site, nav, footerNav } from '@/data/site';
+const year = new Date().getFullYear();
+---
+<footer class="mt-24 bg-ink text-paper">
+  <div class="container-x grid gap-12 py-16 lg:grid-cols-12">
+    <div class="lg:col-span-5">
+      <p class="font-display text-display-md font-bold leading-tight">{site.tagline}</p>
+      <a href="/contact" class="btn-light mt-8">Start a conversation</a>
+    </div>
+    <div class="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:col-span-7">
+      <div>
+        <p class="eyebrow text-paper/50">Explore</p>
+        <ul class="mt-4 space-y-2 text-sm">{nav.map((i) => <li><a href={i.href} class="hover:text-mint">{i.label}</a></li>)}</ul>
+      </div>
+      <div>
+        <p class="eyebrow text-paper/50">More</p>
+        <ul class="mt-4 space-y-2 text-sm">
+          {footerNav.map((i) => <li><a href={i.href} class="hover:text-mint">{i.label}</a></li>)}
+          <li><a href="/contact" class="hover:text-mint">Contact</a></li>
+        </ul>
+      </div>
+      <div class="col-span-2 sm:col-span-1">
+        <p class="eyebrow text-paper/50">Contact</p>
+        <ul class="mt-4 space-y-2 text-sm">
+          <li><a href={`mailto:${site.email}`} class="hover:text-mint">{site.email}</a></li>
+          <li><a href={site.phoneHref} class="hover:text-mint">{site.phone}</a></li>
+          {site.addresses.map((a) => <li class="text-paper/60"><span class="block text-paper">{a.label}</span>{a.lines.join(', ')}</li>)}
+        </ul>
+        <ul class="mt-6 flex flex-wrap gap-4 text-sm">
+          <li><a href={site.social.linkedin} rel="noopener" class="hover:text-mint">LinkedIn</a></li>
+          <li><a href={site.social.youtube} rel="noopener" class="hover:text-mint">YouTube</a></li>
+          <li><a href={site.social.instagram} rel="noopener" class="hover:text-mint">Instagram</a></li>
+          <li><a href={site.social.x} rel="noopener" class="hover:text-mint">X</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="border-t border-paper/10">
+    <div class="container-x flex flex-col gap-3 py-6 text-xs text-paper/50 sm:flex-row sm:items-center sm:justify-between">
+      <p>© {year} {site.legalName}. All rights reserved.</p>
+      <p>{site.certifications.length ? `Certified: ${site.certifications.join(' · ')}` : ''}</p>
+    </div>
+  </div>
+</footer>

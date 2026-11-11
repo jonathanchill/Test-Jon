@@ -1,0 +1,15 @@
+---
+import Base from '@/layouts/Base.astro';
+import { site } from '@/data/site';
+---
+<Base title="Privacy Policy" description="Privacy Policy for {site.name}.">
+  <article class="container-x max-w-3xl py-16 lg:py-24 prose-basic">
+    <p class="eyebrow">Legal</p>
+    <h1 class="mt-3 text-display-lg font-bold">Privacy Policy</h1>
+    <p class="mt-6"><strong>Placeholder.</strong> This page needs the final legal text for {site.legalName}, including company number, registered address, ICO registration and data-processing details. Replace before launch.</p>
+    <h2>Who we are</h2>
+    <p>{site.legalName}, trading as {site.name}. Contact: <a href={`mailto:${site.email}`}>{site.email}</a>.</p>
+    <h2>Last updated</h2>
+    <p>To be confirmed.</p>
+  </article>
+</Base>

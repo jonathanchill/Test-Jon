@@ -1,0 +1,19 @@
+# Verso (placeholder name)
+
+> Verso is a UK AI and digital product studio. We help ambitious businesses put AI to work in their operations and products, then design, build and run the software behind it. Fixed-price sprints, published engagement models, and engineering-led delivery.
+
+## Services
+
+- [AI Services](/ai-services): AI Opportunity Audit, 10-Day AI Sprint, Fractional AI Lead, AI Product Development, Business Process Automation, Data & AI Readiness, AI Adoption Programme, AI Governance & Security, AI Search Visibility (GEO)
+- [Digital Services](/digital-services): Product Strategy & Roadmaps, Proof of Concept, Mobile App Development, Web Platforms & SaaS, Marketing Websites & Headless CMS, Design Systems, Digital Branding
+- [Approach & Pricing](/approach): how we work and what it costs
+- [AI Readiness Scorecard](/ai-readiness): a five-minute self-assessment
+
+## Proof
+
+- [Work](/work): case studies
+- [Insights](/insights): articles on AI strategy, engineering and adoption
+
+## Contact
+
+- [Contact](/contact)

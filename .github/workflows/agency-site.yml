@@ -1,0 +1,26 @@
+name: Agency site
+
+on:
+  push:
+    paths: ['agency-site/**', '.github/workflows/agency-site.yml']
+  pull_request:
+    paths: ['agency-site/**', '.github/workflows/agency-site.yml']
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: agency-site
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: agency-site/package-lock.json
+      - run: npm ci
+      - run: npm run check
+      - run: npm run build
+        env:
+          PUBLIC_SITE_URL: https://example.com

@@ -1,0 +1,16 @@
+---
+interface Props { eyebrow?: string; title?: string; lede?: string; id?: string; class?: string; dark?: boolean }
+const { eyebrow, title, lede, id, class: cls = '', dark = false } = Astro.props;
+---
+<section id={id} class:list={['py-16 lg:py-24', dark && 'bg-ink text-paper', cls]}>
+  <div class="container-x">
+    {(eyebrow || title || lede) && (
+      <div class="mb-12 max-w-3xl">
+        {eyebrow && <p class:list={['eyebrow', dark && 'text-paper/50']}>{eyebrow}</p>}
+        {title && <h2 class="mt-3 text-display-lg font-bold leading-[1.02]" set:html={title} />}
+        {lede && <p class:list={['mt-5 text-lg leading-relaxed', dark ? 'text-paper/70' : 'text-ink/70']}>{lede}</p>}
+      </div>
+    )}
+    <slot />
+  </div>
+</section>

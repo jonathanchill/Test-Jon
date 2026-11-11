@@ -1,0 +1,39 @@
+---
+import { site, nav } from '@/data/site';
+const path = Astro.url.pathname;
+const isActive = (href: string) => path === href || path.startsWith(href + '/');
+---
+<header class="sticky top-0 z-50 border-b border-line/60 bg-paper/85 backdrop-blur supports-[backdrop-filter]:bg-paper/70">
+  <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-paper">Skip to content</a>
+  <div class="container-x flex h-16 items-center justify-between gap-6 lg:h-20">
+    <a href="/" class="flex items-center gap-2 font-display text-xl font-bold tracking-tight" aria-label={`${site.name} home`}>
+      <span class="inline-block h-3 w-3 rounded-full bg-signal" aria-hidden="true"></span>{site.name}
+    </a>
+    <nav class="hidden items-center gap-7 lg:flex" aria-label="Primary">
+      {nav.map((item) => (
+        <a href={item.href} class:list={['text-sm font-medium transition-colors hover:text-signal', isActive(item.href) ? 'text-signal' : 'text-ink/80']} aria-current={isActive(item.href) ? 'page' : undefined}>{item.label}</a>
+      ))}
+    </nav>
+    <div class="flex items-center gap-3">
+      <a href="/contact" class="btn-primary hidden sm:inline-flex">Talk to us</a>
+      <button id="menu-btn" type="button" class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-line lg:hidden" aria-controls="mobile-menu" aria-expanded="false" aria-label="Open menu">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h14M3 10h14M3 14h14"/></svg>
+      </button>
+    </div>
+  </div>
+  <div id="mobile-menu" class="hidden border-t border-line bg-paper lg:hidden">
+    <nav class="container-x flex flex-col py-4" aria-label="Mobile">
+      {nav.map((item) => (<a href={item.href} class="py-3 text-lg font-medium">{item.label}</a>))}
+      <a href="/contact" class="btn-primary mt-3 self-start">Talk to us</a>
+    </nav>
+  </div>
+</header>
+<script>
+  const btn = document.getElementById('menu-btn');
+  const menu = document.getElementById('mobile-menu');
+  btn?.addEventListener('click', () => {
+    const open = menu?.classList.toggle('hidden') === false;
+    btn.setAttribute('aria-expanded', String(open));
+    btn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+  });
+</script>

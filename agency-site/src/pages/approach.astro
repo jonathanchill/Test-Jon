@@ -1,0 +1,45 @@
+---
+import Base from '@/layouts/Base.astro';
+import Hero from '@/components/Hero.astro';
+import Section from '@/components/Section.astro';
+import CtaBand from '@/components/CtaBand.astro';
+import Faq from '@/components/Faq.astro';
+const models = [
+  { name: 'Fixed-price sprint', who: 'For proving an idea fast', price: 'From £X,XXX', includes: ['10-Day AI Sprint or 2-week Opportunity Audit', 'Senior team, no juniors learning on your budget', 'Working prototype or ranked roadmap', 'Go / no-go decision pack'], cta: 'Book a sprint' },
+  { name: 'Scoped project', who: 'For a defined product or platform', price: 'Fixed scope, fixed price', includes: ['Discovery and estimate first, always', 'Milestone billing tied to demos', 'Change control you can see', 'Warranty period after launch'], cta: 'Scope a project' },
+  { name: 'Retained team', who: 'For an ongoing roadmap', price: 'Day-rate bands £XXX to £X,XXX', includes: ['Dedicated squad, monthly rolling', 'Published day rates by role', 'Monthly outcome reporting', 'Hand over to in-house whenever you choose'], cta: 'Build a team' },
+  { name: 'Support retainer', who: 'For keeping things secure and current', price: 'From £XXX / month', includes: ['Security patches and dependency updates', 'Monitoring and incident response', 'Small changes bank', 'Quarterly health review'], cta: 'Get supported' },
+];
+const principles = [
+  ['A number before a line of code', 'Every engagement starts by agreeing the metric that will tell us it worked.'],
+  ['Senior people, small teams', 'You get the people you met in the pitch. We do not swap them out.'],
+  ['Weekly demos, not monthly reports', 'You see working software every week and can change course cheaply.'],
+  ['Your repos, your cloud, your IP', 'Nothing is locked in with us. Documentation is part of done.'],
+  ['Security and evals built in', 'Threat modelling, evaluation sets and guardrails are in every estimate, not an upsell.'],
+  ['Honest scoping', 'If software is not the answer, or a cheaper tool exists, we will tell you.'],
+];
+---
+<Base title="Approach & Pricing" description="How we work and what it costs. Fixed-price sprints, scoped projects, retained teams and support retainers, with published rate bands.">
+  <Hero eyebrow="Approach & pricing" title="How we work, and <span class='text-signal'>what it costs.</span>" lede="Most agencies hide their prices until the third meeting. We would rather you knew the shape of the deal before the first one. Four engagement models, each with a clear scope and a clear number." cta={{ label: 'Get a quote', href: '/contact' }} />
+  <Section eyebrow="Engagement models" title="Pick the shape that fits.">
+    <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+      {models.map((m) => (
+        <div class="card flex flex-col">
+          <p class="eyebrow">{m.who}</p>
+          <h3 class="mt-3 text-2xl font-bold">{m.name}</h3>
+          <p class="mt-2 font-mono text-signal">{m.price}</p>
+          <ul class="mt-6 flex-1 space-y-2 text-sm text-ink/75">{m.includes.map((i) => <li class="flex gap-2"><span class="text-signal">✓</span>{i}</li>)}</ul>
+          <a href="/contact" class="btn-outline mt-8 justify-center">{m.cta}</a>
+        </div>
+      ))}
+    </div>
+    <p class="mt-6 text-sm text-muted">Prices shown are placeholders pending final rate card. All prices exclude VAT.</p>
+  </Section>
+  <Section dark eyebrow="Principles" title="Six things we do on every project.">
+    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {principles.map(([h, p], i) => <div class="rounded-3xl border border-paper/15 p-7"><p class="font-mono text-mint">0{i + 1}</p><h3 class="mt-3 text-xl font-bold">{h}</h3><p class="mt-3 text-paper/70">{p}</p></div>)}
+    </div>
+  </Section>
+  <Section eyebrow="FAQs" title="Straight answers."><Faq /></Section>
+  <CtaBand />
+</Base>

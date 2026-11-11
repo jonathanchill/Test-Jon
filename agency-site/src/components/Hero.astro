@@ -1,0 +1,18 @@
+---
+interface Props { eyebrow?: string; title: string; lede?: string; dark?: boolean; cta?: { label: string; href: string }; secondary?: { label: string; href: string } }
+const { eyebrow, title, lede, dark = false, cta, secondary } = Astro.props;
+---
+<section class:list={['relative overflow-hidden', dark ? 'bg-ink text-paper' : '']}>
+  <div class="container-x py-20 lg:py-32">
+    {eyebrow && <p class:list={['eyebrow rise', dark && 'text-paper/50']}>{eyebrow}</p>}
+    <h1 class="rise rise-2 mt-4 max-w-5xl text-display-xl font-bold leading-[0.95]" set:html={title} />
+    {lede && <p class:list={['rise rise-3 mt-8 max-w-2xl text-xl leading-relaxed', dark ? 'text-paper/75' : 'text-ink/75']}>{lede}</p>}
+    {(cta || secondary) && (
+      <div class="rise rise-3 mt-10 flex flex-wrap gap-3">
+        {cta && <a href={cta.href} class={dark ? 'btn-light' : 'btn-primary'}>{cta.label}</a>}
+        {secondary && <a href={secondary.href} class:list={[dark ? 'btn border border-paper/30 text-paper hover:bg-paper hover:text-ink' : 'btn-outline']}>{secondary.label}</a>}
+      </div>
+    )}
+    <slot />
+  </div>
+</section>

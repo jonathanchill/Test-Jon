@@ -1,0 +1,17 @@
+---
+interface Props { title?: string; body?: string; label?: string; href?: string }
+const { title = 'Talk to us about AI and digital', body = 'A 30-minute call. No deck, no pitch. Bring a problem and we will tell you honestly whether AI, software or neither is the answer.', label = "Let's talk", href = '/contact' } = Astro.props;
+---
+<section class="py-16 lg:py-24">
+  <div class="container-x">
+    <div class="rounded-[2.5rem] bg-signal px-8 py-14 text-paper lg:px-16 lg:py-20">
+      <div class="grid items-end gap-8 lg:grid-cols-12">
+        <div class="lg:col-span-8">
+          <h2 class="text-display-lg font-bold leading-[1.02]">{title}</h2>
+          <p class="mt-5 max-w-xl text-lg text-paper/85">{body}</p>
+        </div>
+        <div class="lg:col-span-4 lg:text-right"><a href={href} class="btn-light">{label}</a></div>
+      </div>
+    </div>
+  </div>
+</section>

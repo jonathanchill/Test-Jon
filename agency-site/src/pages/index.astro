@@ -1,0 +1,92 @@
+---
+import Base from '@/layouts/Base.astro';
+import Hero from '@/components/Hero.astro';
+import Section from '@/components/Section.astro';
+import WorkCard from '@/components/WorkCard.astro';
+import Testimonials from '@/components/Testimonials.astro';
+import CtaBand from '@/components/CtaBand.astro';
+import Faq from '@/components/Faq.astro';
+import { site } from '@/data/site';
+import { pillars, services } from '@/data/services';
+import { getCollection } from 'astro:content';
+
+const work = (await getCollection('work')).filter((w) => w.data.featured).sort((a, b) => a.data.order - b.data.order).slice(0, 4);
+const quick = services.filter((s) => s.from);
+const clients = ['Client logo', 'Client logo', 'Client logo', 'Client logo', 'Client logo', 'Client logo', 'Client logo', 'Client logo'];
+---
+<Base title="Home" description={site.description}>
+  <Hero
+    eyebrow="AI & digital product studio · UK"
+    title="AI that ships.<br/><span class='text-signal'>Products that last.</span>"
+    lede="We find where AI pays back in your business, prove it in a fixed-price sprint, then build and run the software behind it. No hype, no 40-slide strategy decks. Working systems, measured results."
+    cta={{ label: 'Book a 30-minute call', href: '/contact' }}
+    secondary={{ label: 'Take the AI readiness scorecard', href: '/ai-readiness' }}
+  />
+
+  <div class="overflow-hidden border-y border-line py-5" aria-label="Clients">
+    <div class="marquee flex w-max gap-16 whitespace-nowrap font-display text-2xl font-bold text-ink/30">
+      {[...clients, ...clients].map((c) => <span>{c}</span>)}
+    </div>
+  </div>
+
+  <Section eyebrow="Why us" title="Three promises most agencies will not put in writing.">
+    <div class="grid gap-6 md:grid-cols-3">
+      {[
+        ['Fixed prices, published upfront', 'Our audits and sprints are fixed price and our engagement models and rate bands are on the website. You know the number before the first call.'],
+        ['Working software in 10 days', 'Every AI engagement starts with a 10-Day Sprint that ends in a working prototype on your data and a go or no-go decision. Half the time of the usual 20-day sprint.'],
+        ['Measured, not vibes', 'We write evaluation sets before features, agree a success metric before a build, and report against it after launch. If it did not move the number, we say so.'],
+      ].map(([h, p], i) => (
+        <div class="card">
+          <p class="font-mono text-sm text-signal">0{i + 1}</p>
+          <h3 class="mt-3 text-xl font-semibold">{h}</h3>
+          <p class="mt-3 text-ink/70">{p}</p>
+        </div>
+      ))}
+    </div>
+  </Section>
+
+  <Section dark eyebrow="What we do" title="New processes that cut cost. New products that drive growth.">
+    <div class="grid gap-10 lg:grid-cols-2">
+      <div class="rounded-3xl border border-paper/15 p-8">
+        <p class="eyebrow text-mint">AI Services</p>
+        <h3 class="mt-3 text-2xl font-bold">Put AI to work in the business you already run.</h3>
+        <ul class="mt-6 space-y-4">
+          {pillars.ai.map((p) => <li><span class="font-semibold">{p.name}.</span> <span class="text-paper/70">{p.blurb}</span></li>)}
+        </ul>
+        <a href="/ai-services" class="btn-light mt-8">Explore AI services</a>
+      </div>
+      <div class="rounded-3xl border border-paper/15 p-8">
+        <p class="eyebrow text-mint">Digital Services</p>
+        <h3 class="mt-3 text-2xl font-bold">Design and build the products your customers come back for.</h3>
+        <ul class="mt-6 space-y-4">
+          {pillars.digital.map((p) => <li><span class="font-semibold">{p.name}.</span> <span class="text-paper/70">{p.blurb}</span></li>)}
+        </ul>
+        <a href="/digital-services" class="btn-light mt-8">Explore digital services</a>
+      </div>
+    </div>
+  </Section>
+
+  <Section eyebrow="Start here" title="Two fixed-price ways to begin.">
+    <div class="grid gap-6 md:grid-cols-2">
+      {quick.map((s) => (
+        <a href={`/services/${s.slug}`} class="card group">
+          <div class="flex items-center justify-between"><p class="eyebrow">{s.pillar}</p><span class="rounded-full bg-mint px-3 py-1 text-xs font-semibold">{s.timeline}</span></div>
+          <h3 class="mt-3 text-2xl font-bold group-hover:text-signal">{s.title}</h3>
+          <p class="mt-3 text-ink/70">{s.summary}</p>
+          <ul class="mt-5 space-y-1 text-sm text-ink/70">{s.outcomes.map((o) => <li>— {o}</li>)}</ul>
+        </a>
+      ))}
+    </div>
+  </Section>
+
+  <Section eyebrow="Selected work" title="Proof, not promises.">
+    <div class="grid gap-10 md:grid-cols-2">{work.map((w, i) => <WorkCard entry={w} large={i < 2} />)}</div>
+    <a href="/work" class="btn-outline mt-12">See all work</a>
+  </Section>
+
+  <Section eyebrow="Kind words" title="What clients say."><Testimonials /></Section>
+
+  <Section eyebrow="FAQs" title="Straight answers."><Faq /></Section>
+
+  <CtaBand />
+</Base>

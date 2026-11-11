@@ -1,0 +1,10 @@
+---
+import Base from '@/layouts/Base.astro';
+import Hero from '@/components/Hero.astro';
+import CtaBand from '@/components/CtaBand.astro';
+import { site } from '@/data/site';
+---
+<Base title="Careers" description={`Jobs at ${site.name}. Senior engineers, designers and AI specialists who like shipping.`}>
+  <Hero eyebrow="Careers" title="No open roles right now. <span class='text-signal'>Still say hello.</span>" lede="We hire slowly and keep teams small. If you are senior, curious and like shipping real things, send a note and a link to something you built." cta={{ label: `Email ${site.email}`, href: `mailto:${site.email}` }} />
+  <CtaBand />
+</Base>

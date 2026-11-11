@@ -1,0 +1,40 @@
+---
+import Base from '@/layouts/Base.astro';
+import Hero from '@/components/Hero.astro';
+import Section from '@/components/Section.astro';
+import ServiceCard from '@/components/ServiceCard.astro';
+import CtaBand from '@/components/CtaBand.astro';
+import WorkCard from '@/components/WorkCard.astro';
+import { byGroup, pillars } from '@/data/services';
+import { getCollection } from 'astro:content';
+const services = byGroup('ai');
+const work = (await getCollection('work')).filter((w) => w.data.category === 'AI').sort((a, b) => a.data.order - b.data.order).slice(0, 3);
+const steps = [
+  ['Diagnose', 'Two weeks with your teams and your data to find where AI genuinely pays back, ranked by value and effort.'],
+  ['Prove', 'A 10-Day Sprint builds a working prototype on real data, scored against a metric you set.'],
+  ['Build', 'Engineers and AI specialists ship production systems with evals, guardrails and monitoring.'],
+  ['Embed', 'Training, governance and a support retainer so adoption sticks and the system keeps improving.'],
+];
+---
+<Base title="AI Services" description="AI consultancy, development and adoption for UK businesses. Fixed-price audits and 10-day sprints, production AI products, automation, governance and AI search visibility.">
+  <Hero eyebrow="AI Services" title="AI consultancy and development that ends in <span class='text-signal'>working software.</span>" lede="AI is reshaping how every business operates. We help you find the real opportunities, prove them fast and build systems your teams trust. Every engagement has a number attached and a decision at the end." cta={{ label: 'Book a free AI consultation', href: '/contact' }} secondary={{ label: 'Take the readiness scorecard', href: '/ai-readiness' }} />
+
+  {pillars.ai.map((p, i) => (
+    <Section id={p.name.toLowerCase().replace(/\s+/g, '-')} eyebrow={`0${i + 1}`} title={p.name} lede={p.blurb} class={i % 2 ? 'bg-paper-deep' : ''}>
+      <div class="grid gap-6 md:grid-cols-3">{services.filter((s) => s.pillar === p.name).map((s) => <ServiceCard service={s} />)}</div>
+    </Section>
+  ))}
+
+  <Section dark eyebrow="Our approach" title="Four steps. One number per step.">
+    <ol class="grid gap-6 md:grid-cols-4">
+      {steps.map(([h, p], i) => (
+        <li class="rounded-3xl border border-paper/15 p-7"><p class="font-mono text-mint">0{i + 1}</p><h3 class="mt-3 text-xl font-bold">{h}</h3><p class="mt-3 text-paper/70">{p}</p></li>
+      ))}
+    </ol>
+  </Section>
+
+  <Section eyebrow="Selected AI work" title="Recent AI projects.">
+    <div class="grid gap-8 md:grid-cols-3">{work.map((w) => <WorkCard entry={w} />)}</div>
+  </Section>
+  <CtaBand title="Let's talk about your AI opportunity" />
+</Base>

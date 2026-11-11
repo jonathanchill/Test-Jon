@@ -1,0 +1,25 @@
+---
+const endpoint = import.meta.env.PUBLIC_FORM_ENDPOINT || '';
+---
+<form name="contact" method="POST" action={endpoint || '/thanks'} data-netlify={endpoint ? undefined : 'true'} netlify-honeypot="company-website" class="grid gap-5">
+  <input type="hidden" name="form-name" value="contact" />
+  <p class="hidden"><label>Leave this empty if you are human <input name="company-website" tabindex="-1" autocomplete="off" /></label></p>
+  <div class="grid gap-5 sm:grid-cols-2">
+    <label class="grid gap-2 text-sm font-medium">Your name<input required name="name" autocomplete="name" class="rounded-xl border border-line bg-white px-4 py-3 text-base" /></label>
+    <label class="grid gap-2 text-sm font-medium">Work email<input required type="email" name="email" autocomplete="email" class="rounded-xl border border-line bg-white px-4 py-3 text-base" /></label>
+  </div>
+  <label class="grid gap-2 text-sm font-medium">Company<input name="company" autocomplete="organization" class="rounded-xl border border-line bg-white px-4 py-3 text-base" /></label>
+  <label class="grid gap-2 text-sm font-medium">What are you trying to do?
+    <select name="interest" class="rounded-xl border border-line bg-white px-4 py-3 text-base">
+      <option>Explore where AI fits in our business</option>
+      <option>Build an AI product or feature</option>
+      <option>Automate a process</option>
+      <option>Build an app or platform</option>
+      <option>New website or brand</option>
+      <option>Something else</option>
+    </select>
+  </label>
+  <label class="grid gap-2 text-sm font-medium">Tell us about it<textarea required name="message" rows="5" class="rounded-xl border border-line bg-white px-4 py-3 text-base"></textarea></label>
+  <label class="flex items-start gap-3 text-sm text-ink/70"><input type="checkbox" required name="consent" class="mt-1" /> I agree to the <a href="/privacy" class="underline">privacy policy</a>.</label>
+  <button type="submit" class="btn-primary justify-self-start">Send message</button>
+</form>

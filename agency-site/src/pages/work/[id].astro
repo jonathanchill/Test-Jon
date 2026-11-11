@@ -1,0 +1,37 @@
+---
+import Base from '@/layouts/Base.astro';
+import Section from '@/components/Section.astro';
+import WorkCard from '@/components/WorkCard.astro';
+import CtaBand from '@/components/CtaBand.astro';
+import { getCollection, render } from 'astro:content';
+export async function getStaticPaths() { const all = await getCollection('work'); return all.map((e) => ({ params: { id: e.id }, props: { entry: e } })); }
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data;
+const more = (await getCollection('work')).filter((w) => w.id !== entry.id).sort((a, b) => a.data.order - b.data.order).slice(0, 3);
+const hue = (d.order * 47) % 360;
+---
+<Base title={d.title} description={d.summary} type="article">
+  <article>
+    <header class="container-x pt-16 lg:pt-24">
+      <p class="eyebrow">{d.client} · {d.sector} · {d.year}</p>
+      <h1 class="mt-4 max-w-4xl text-display-lg font-bold leading-[1.02]">{d.title}</h1>
+      <p class="mt-6 max-w-2xl text-xl text-ink/75">{d.summary}</p>
+      {d.placeholder && <p class="mt-6 inline-block rounded-full bg-ember px-4 py-1 text-sm font-semibold text-white">Placeholder content. Replace with a real case study before launch.</p>}
+      <div class="mt-10 aspect-[21/9] w-full rounded-3xl border border-line" style={`background: linear-gradient(135deg, hsl(${hue} 60% 92%), hsl(${(hue + 40) % 360} 55% 80%));`} role="img" aria-label="Project image placeholder"></div>
+    </header>
+    <div class="container-x mt-12 grid gap-12 lg:grid-cols-12">
+      <aside class="lg:col-span-4">
+        <dl class="space-y-6">
+          <div><dt class="eyebrow">Services</dt><dd class="mt-2 flex flex-wrap gap-2">{d.services.map((s) => <span class="rounded-full border border-line px-3 py-1 text-sm">{s}</span>)}</dd></div>
+          {d.results.length > 0 && <div><dt class="eyebrow">Results</dt><dd class="mt-2 grid gap-4">{d.results.map((r) => <div><p class="font-display text-4xl font-bold text-signal">{r.value}</p><p class="text-sm text-muted">{r.label}</p></div>)}</dd></div>}
+        </dl>
+      </aside>
+      <div class="prose-basic lg:col-span-8"><Content /></div>
+    </div>
+  </article>
+  <Section eyebrow="More work" title="Keep exploring.">
+    <div class="grid gap-8 md:grid-cols-3">{more.map((w) => <WorkCard entry={w} />)}</div>
+  </Section>
+  <CtaBand />
+</Base>

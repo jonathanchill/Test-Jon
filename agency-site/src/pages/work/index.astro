@@ -1,0 +1,29 @@
+---
+import Base from '@/layouts/Base.astro';
+import Hero from '@/components/Hero.astro';
+import WorkCard from '@/components/WorkCard.astro';
+import CtaBand from '@/components/CtaBand.astro';
+import { getCollection } from 'astro:content';
+const all = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
+---
+<Base title="Work" description="Case studies: AI products, automation, mobile apps, web platforms and design systems.">
+  <Hero eyebrow="Our work" title="Proof, <span class='text-signal'>not promises.</span>" lede="Every project below started with a number we agreed to move. Filter by AI or digital." />
+  <section class="container-x pb-20">
+    <div class="mb-10 flex flex-wrap gap-2" role="group" aria-label="Filter case studies">
+      {['All', 'AI', 'Digital'].map((f, i) => <button type="button" data-filter={f} class:list={['rounded-full border px-4 py-2 text-sm font-semibold', i === 0 ? 'border-ink bg-ink text-paper' : 'border-line']} aria-pressed={i === 0}>{f}</button>)}
+    </div>
+    <div id="work-grid" class="grid gap-10 md:grid-cols-2 lg:grid-cols-3">
+      {all.map((w) => <div data-category={w.data.category}><WorkCard entry={w} /></div>)}
+    </div>
+  </section>
+  <CtaBand />
+</Base>
+<script>
+  const buttons = document.querySelectorAll<HTMLButtonElement>('[data-filter]');
+  const items = document.querySelectorAll<HTMLElement>('#work-grid [data-category]');
+  buttons.forEach((b) => b.addEventListener('click', () => {
+    const f = b.dataset.filter;
+    buttons.forEach((x) => { const on = x === b; x.setAttribute('aria-pressed', String(on)); x.classList.toggle('bg-ink', on); x.classList.toggle('text-paper', on); x.classList.toggle('border-ink', on); x.classList.toggle('border-line', !on); });
+    items.forEach((el) => { el.hidden = !(f === 'All' || el.dataset.category === f); });
+  }));
+</script>

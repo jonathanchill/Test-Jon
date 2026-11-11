@@ -1,0 +1,36 @@
+---
+import { site } from '@/data/site';
+interface Props { title: string; description: string; image?: string; type?: 'website' | 'article'; jsonLd?: Record<string, unknown> | Record<string, unknown>[] }
+const { title, description, image = '/og-default.svg', type = 'website', jsonLd } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const fullTitle = Astro.url.pathname === '/' ? `${site.name} | AI & Digital Product Studio` : `${title} | ${site.name}`;
+const org = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: site.name,
+  legalName: site.legalName,
+  url: Astro.site?.toString(),
+  email: site.email,
+  telephone: site.phone,
+  description: site.description,
+  foundingDate: String(site.founded),
+  sameAs: Object.values(site.social),
+};
+const ld = [org, ...(jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [])];
+---
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+<meta property="og:type" content={type} />
+<meta property="og:site_name" content={site.name} />
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={new URL(image, Astro.site)} />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={fullTitle} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={new URL(image, Astro.site)} />
+<link rel="sitemap" href="/sitemap-index.xml" />
+<link rel="describedby" href="/llms.txt" type="text/plain" />
+<script type="application/ld+json" set:html={JSON.stringify(ld)} />
