@@ -16,6 +16,7 @@ import FeatureCards from '@/components/FeatureCards.astro';
 import Impact from '@/components/Impact.astro';
 import ClientStrip from '@/components/ClientStrip.astro';
 import WorkGallery from '@/components/WorkGallery.astro';
+import Showreel from '@/components/Showreel.astro';
 import { sectors } from '@/data/sectors';
 import Bento from '@/components/diagrams/Bento.astro';
 
@@ -35,6 +36,8 @@ const quick = services.filter((s) => s.from);
   <ClientStrip />
 
   <section class="container-x py-14"><Impact /></section>
+
+  <Showreel />
 
   <Section eyebrow="Why us" title="Three promises most agencies will not put in writing.">
     <FeatureCards />

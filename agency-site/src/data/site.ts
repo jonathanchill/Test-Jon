@@ -26,6 +26,8 @@ export const site = {
   // Shown in the footer and used in schema.org data. Remove any you do not hold.
   certifications: ['Cyber Essentials Plus'],
   bookingUrl: '/contact',
+  /** Home page showreel. Leave all empty for the placeholder. Set src (self-hosted MP4) or youtubeId / vimeoId. */
+  showreel: { src: '', poster: '', youtubeId: '', vimeoId: '' } as { src?: string; poster?: string; youtubeId?: string; vimeoId?: string },
 };
 
 export const nav = [

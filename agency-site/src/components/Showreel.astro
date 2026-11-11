@@ -1,0 +1,46 @@
+---
+/**
+ * Showreel slot. Until a video exists it renders a rounded placeholder card matching the gallery tiles.
+ * To go live, set ONE of these in src/data/site.ts under `showreel`:
+ *   - src: '/video/showreel.mp4' (self-hosted, plus an optional poster image)
+ *   - youtubeId: 'xxxxxxxx'  or  vimeoId: '123456789'  (loads on click, so no third-party scripts until then)
+ */
+import { site } from '@/data/site';
+const v = site.showreel ?? {};
+const hasVideo = Boolean(v.src || v.youtubeId || v.vimeoId);
+const embed = v.youtubeId ? `https://www.youtube-nocookie.com/embed/${v.youtubeId}?autoplay=1&rel=0` : v.vimeoId ? `https://player.vimeo.com/video/${v.vimeoId}?autoplay=1` : '';
+---
+<section class="container-x py-10 lg:py-14" aria-label="Showreel">
+  <figure class="showreel group relative aspect-[4/3] sm:aspect-video w-full overflow-hidden rounded-[1.75rem] border border-line bg-ink shadow-[0_30px_60px_-30px_rgba(11,15,26,.45)]" data-reveal data-embed={embed || undefined}>
+    {v.src ? (
+      <video class="h-full w-full object-cover" src={v.src} poster={v.poster} controls playsinline preload="metadata"></video>
+    ) : (
+      <>
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_20%,rgba(43,75,255,.55),transparent_55%),radial-gradient(ellipse_at_80%_80%,rgba(185,245,216,.35),transparent_50%),linear-gradient(135deg,#0b0f1a,#1c2233)]"></div>
+        <div class="absolute inset-0 opacity-[.07]" style="background-image: linear-gradient(to right, #fff 1px, transparent 1px), linear-gradient(to bottom, #fff 1px, transparent 1px); background-size: 64px 64px;"></div>
+        {v.poster && <img src={v.poster} alt="" class="absolute inset-0 h-full w-full object-cover" />}
+        <button type="button" class="play absolute inset-0 grid place-items-center pb-16 text-paper sm:pb-0" aria-label="Play showreel" disabled={!hasVideo}>
+          <span class="relative grid h-16 w-16 place-items-center rounded-full sm:h-24 sm:w-24 bg-paper text-ink shadow-2xl transition-transform duration-300 group-hover:scale-110">
+            <span class="absolute inset-0 rounded-full bg-paper/40 pulse-dot"></span>
+            <svg viewBox="0 0 24 24" class="relative ml-1 h-6 w-6 sm:h-9 sm:w-9" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+          </span>
+        </button>
+        <figcaption class="pointer-events-none absolute inset-x-5 bottom-5 flex flex-wrap items-end justify-between gap-3 text-paper sm:inset-x-8 sm:bottom-8">
+          <div><p class="eyebrow text-paper/60">Showreel</p><p class="mt-1 max-w-md text-base font-semibold sm:mt-2 sm:text-xl">The work, and the people behind it.</p></div>
+          <span class="rounded-full bg-ember px-3 py-1 text-xs font-semibold text-white">Video placeholder</span>
+        </figcaption>
+      </>
+    )}
+  </figure>
+</section>
+<script>
+  // Click-to-load embeds: swap the placeholder for the iframe only when someone presses play.
+  document.querySelectorAll<HTMLElement>('.showreel[data-embed]').forEach((fig) => {
+    fig.querySelector('.play')?.addEventListener('click', () => {
+      const f = document.createElement('iframe');
+      f.src = fig.dataset.embed!; f.title = 'Showreel'; f.allow = 'autoplay; fullscreen; picture-in-picture'; f.setAttribute('allowfullscreen', '');
+      f.className = 'absolute inset-0 h-full w-full';
+      fig.replaceChildren(f);
+    });
+  });
+</script>
