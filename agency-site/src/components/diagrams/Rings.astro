@@ -7,12 +7,13 @@ const { class: cls = '', rings = 5, color = '#9ca3af', pulse = true } = Astro.pr
   {Array.from({ length: rings }).map((_, i) => (
     <span class="ring-static absolute left-1/2 top-1/2 aspect-square -translate-x-1/2 -translate-y-1/2 rounded-full border" style={`height:${118 - i * 20}%; border-color:${color}; opacity:${0.18 + (i / rings) * 0.22};`}></span>
   ))}
-  {pulse && [0, 1, 2].map((i) => <span class="ring-ripple absolute left-1/2 top-1/2 aspect-square rounded-full border" style={`height:60%; border-color:${color}; animation-delay:${i * 1.4}s`}></span>)}
+  {pulse && [0, 1, 2].map((i) => <span class="ring-ripple absolute left-1/2 top-1/2 aspect-square -translate-x-1/2 -translate-y-1/2 rounded-full border" style={`height:42%; border-color:${color}; animation-delay:${i * 1.4}s`}></span>)}
   <div class="relative"><slot /></div>
 </div>
 <style>
   /* Each ripple expands over 4.2s. Three fire 1.4s apart, then the set rests for 3s before repeating (10s cycle). */
   .ring-ripple { opacity: 0; animation: ringRipple 10s cubic-bezier(.2,.6,.2,1) infinite; }
-  @keyframes ringRipple { 0% { transform: translate(-50%,-50%) scale(.7); opacity: 0; } 6% { opacity: .6; } 42% { transform: translate(-50%,-50%) scale(2.1); opacity: 0; } 100% { transform: translate(-50%,-50%) scale(2.1); opacity: 0; } }
+  /* Animate size rather than scale so the 1px line never thickens. */
+  @keyframes ringRipple { 0% { height: 42%; opacity: 0; } 6% { opacity: .6; } 42% { height: 126%; opacity: 0; } 100% { height: 126%; opacity: 0; } }
   @media (prefers-reduced-motion: reduce) { .ring-ripple { animation: none; } }
 </style>
