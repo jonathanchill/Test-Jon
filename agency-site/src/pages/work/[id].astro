@@ -4,12 +4,14 @@ import Section from '@/components/Section.astro';
 import WorkCard from '@/components/WorkCard.astro';
 import CtaBand from '@/components/CtaBand.astro';
 import { getCollection, render } from 'astro:content';
+import { clients } from '@/data/clients';
 export async function getStaticPaths() { const all = await getCollection('work'); return all.map((e) => ({ params: { id: e.id }, props: { entry: e } })); }
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 const d = entry.data;
 const more = (await getCollection('work')).filter((w) => w.id !== entry.id).sort((a, b) => a.data.order - b.data.order).slice(0, 3);
 const hue = (d.order * 47) % 360;
+const logo = clients.find((c) => c.name.toLowerCase() === d.client.toLowerCase());
 ---
 <Base title={d.title} description={d.summary} type="article">
   <article>
@@ -17,8 +19,10 @@ const hue = (d.order * 47) % 360;
       <p class="eyebrow">{d.client} · {d.sector} · {d.year}</p>
       <h1 class="mt-4 max-w-4xl text-display-lg font-bold leading-[1.02]">{d.title}</h1>
       <p class="mt-6 max-w-2xl text-xl text-ink/75">{d.summary}</p>
-      {d.placeholder && <p class="mt-6 inline-block rounded-full bg-ember px-4 py-1 text-sm font-semibold text-white">Placeholder content. Replace with a real case study before launch.</p>}
-      <div class="mt-10 aspect-[21/9] w-full rounded-3xl border border-line" style={`background: linear-gradient(135deg, hsl(${hue} 60% 92%), hsl(${(hue + 40) % 360} 55% 80%));`} role="img" aria-label="Project image placeholder"></div>
+      {d.placeholder && <p class="mt-6 inline-block rounded-full bg-ember px-4 py-1 text-sm font-semibold text-white">Draft case study. Figures are illustrative until the client has signed them off.</p>}
+      <div class="mt-10 grid aspect-[21/9] w-full place-items-center rounded-3xl border border-line" style={`background: linear-gradient(135deg, hsl(${hue} 60% 92%), hsl(${(hue + 40) % 360} 55% 80%));`} role="img" aria-label={`${d.client} logo`}>
+        {logo && <img src={logo.src} alt="" class="max-h-20 w-auto max-w-[50%] opacity-75" />}
+      </div>
     </header>
     <div class="container-x mt-12 grid gap-12 lg:grid-cols-12">
       <aside class="lg:col-span-4">
