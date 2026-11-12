@@ -12,6 +12,8 @@ results:
   - { value: "New", label: "revenue line: AI Search audits sold to 14 clients in the first quarter" }
 featured: true
 placeholder: true
+image: "/work/clients/thunderbolt.webp"
+imageAlt: "The Thunderbolt team in their Farnham studio"
 order: 3
 ---
 ## The brief

@@ -1,7 +1,7 @@
 ---
 title: "An AI operating layer for a specialist video game agency"
 client: "1minus1"
-summary: "We helped our sister agency turn two decades of games industry work into a searchable knowledge base, automate campaign reporting, and ship store page audits in minutes instead of days."
+summary: "We helped a specialist games agency turn two decades of industry work into a searchable knowledge base, automate campaign reporting, and ship store page audits in minutes instead of days."
 category: "AI"
 services: ["AI Opportunity Audit", "AI Product Development", "Business Process Automation"]
 sector: "Media & Entertainment"
@@ -12,11 +12,13 @@ results:
   - { value: "3x", label: "more pitches researched per month" }
 featured: true
 placeholder: true
+image: "/work/clients/1minus1.webp"
+imageAlt: "Website design work by 1minus1 for a games franchise"
 order: 2
 ---
 ## The brief
 
-1minus1 is a creative agency for video games, working with studios and publishers from indie teams to AAA on brand, web and marketing. It is also our sister company, which made it the obvious place to prove our own approach before asking anyone else to trust it.
+1minus1 is a creative agency for video games, working with studios and publishers from indie teams to AAA on brand, web and marketing.
 
 The agency had a familiar problem: twenty years of pitches, campaigns, store page tests and launch data sitting in folders, Slack threads and people's heads. Reporting to clients across paid, organic and creator channels took a chunk of every week. Store page audits, one of the agency's most valuable services, depended on two senior people's time.
 

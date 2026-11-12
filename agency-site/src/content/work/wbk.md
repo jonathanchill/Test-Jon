@@ -12,6 +12,8 @@ results:
   - { value: "70%", label: "fewer 'do you stock…?' enquiries handled by hand" }
 featured: true
 placeholder: true
+image: "/work/clients/wbk.webp"
+imageAlt: "Professional cookware from the WBK catalogue"
 order: 4
 ---
 ## The brief

@@ -16,6 +16,8 @@ const work = defineCollection({
     featured: z.boolean().default(false),
     placeholder: z.boolean().default(false),
     order: z.number().default(99),
+    image: z.string().optional(),
+    imageAlt: z.string().optional(),
   }),
 });
 

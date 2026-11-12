@@ -20,8 +20,10 @@ const logo = clients.find((c) => c.name.toLowerCase() === d.client.toLowerCase()
       <h1 class="mt-4 max-w-4xl text-display-lg font-bold leading-[1.02]">{d.title}</h1>
       <p class="mt-6 max-w-2xl text-xl text-ink/75">{d.summary}</p>
       {d.placeholder && <p class="mt-6 inline-block rounded-full bg-ember px-4 py-1 text-sm font-semibold text-white">Draft case study. Figures are illustrative until the client has signed them off.</p>}
-      <div class="mt-10 grid aspect-[21/9] w-full place-items-center rounded-3xl border border-line" style={`background: linear-gradient(135deg, hsl(${hue} 60% 92%), hsl(${(hue + 40) % 360} 55% 80%));`} role="img" aria-label={`${d.client} logo`}>
-        {logo && <img src={logo.src} alt="" class="max-h-20 w-auto max-w-[50%] opacity-75" />}
+      <div class="relative mt-10 aspect-[21/9] w-full overflow-hidden rounded-3xl border border-line" style={d.image ? undefined : `background: linear-gradient(135deg, hsl(${hue} 60% 92%), hsl(${(hue + 40) % 360} 55% 80%));`} data-reveal>
+        {d.image ? <img src={d.image} alt={d.imageAlt ?? ''} width="1600" height="1000" class="absolute inset-0 h-full w-full object-cover" /> : logo && <img src={logo.src} alt="" class="absolute left-1/2 top-1/2 max-h-20 w-auto max-w-[50%] -translate-x-1/2 -translate-y-1/2 opacity-75" />}
+        {d.image && logo && <span class="absolute left-6 top-6 inline-flex h-12 items-center rounded-full bg-white/95 px-5 shadow-md backdrop-blur"><img src={logo.src} alt={d.client} class="h-5 w-auto max-w-[160px]" /></span>}
+        {d.image && <span class="absolute bottom-5 right-6 rounded-full bg-ink/60 px-3 py-1 font-mono text-[11px] text-paper/80 backdrop-blur">Image: {d.client}</span>}
       </div>
     </header>
     <div class="container-x mt-12 grid gap-12 lg:grid-cols-12">
