@@ -1,6 +1,6 @@
 ---
 /**
- * Opposite Number mark: a number line inside a ring, with −1 and +1 marked.
+ * OppositeNumber mark: a number line inside a ring, with −1 and +1 marked.
  * Two points, equal and opposite. Their sum is zero, which is the 1minus1 nod.
  */
 interface Props { class?: string; variant?: 'full' | 'mark' | 'stacked'; inverse?: boolean }
@@ -17,14 +17,13 @@ const accent = '#2b4bff';
     <path d="M32 26v12" stroke={ink} stroke-width="3" stroke-linecap="round" />
   </svg>
 ) : variant === 'stacked' ? (
-  <svg class={cls} viewBox="0 0 220 120" fill="none" role="img" aria-label="Opposite Number">
+  <svg class={cls} viewBox="0 0 220 120" fill="none" role="img" aria-label="OppositeNumber">
     <circle cx="110" cy="30" r="24" stroke={ink} stroke-width="4.5" />
     <path d="M94 30h32" stroke={ink} stroke-width="4.5" stroke-linecap="round" />
     <circle cx="98.5" cy="30" r="5.8" fill={accent} />
     <circle cx="121.5" cy="30" r="5.8" fill={ink} />
     <path d="M110 24.5v11" stroke={ink} stroke-width="2.6" stroke-linecap="round" />
-    <text x="110" y="92" text-anchor="middle" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-weight="800" font-size="26" letter-spacing="-1" fill={ink}>Opposite</text>
-    <text x="110" y="114" text-anchor="middle" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-weight="500" font-size="20" letter-spacing="2.5" fill={ink}>NUMBER</text>
+    <text x="110" y="92" text-anchor="middle" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-weight="800" font-size="26" letter-spacing="-1" fill={ink}>OppositeNumber</text>
   </svg>
 ) : (
   <span class:list={['inline-flex items-center gap-2.5', cls]}>
@@ -35,6 +34,6 @@ const accent = '#2b4bff';
       <circle cx="45" cy="32" r="6.5" fill={ink} />
       <path d="M32 26v12" stroke={ink} stroke-width="3" stroke-linecap="round" />
     </svg>
-    <span class="whitespace-nowrap font-display text-[1.15rem] leading-none tracking-tight" style={`color:${ink}`}><span class="font-extrabold">Opposite</span> <span class="font-medium">Number</span></span>
+    <span class="whitespace-nowrap font-display text-[1.15rem] leading-none tracking-tight" style={`color:${ink}`}><span class="font-extrabold">Opposite</span><span class="font-medium">Number</span></span>
   </span>
 )}

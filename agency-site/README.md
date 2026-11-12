@@ -1,4 +1,4 @@
-# Agency site (working name: Opposite Number)
+# Agency site (working name: OppositeNumber)
 
 An Astro website for a new AI and digital product agency positioned against [Kyan](https://kyan.com). It is a separate business from 1minus1, so nothing here reuses 1minus1 branding, copy or infrastructure.
 

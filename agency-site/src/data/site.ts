@@ -4,12 +4,12 @@
  * domain, address and legal entity. Swap once and the whole site updates.
  */
 export const site = {
-  name: 'Opposite Number',
-  legalName: 'Opposite Number Ltd',
+  name: 'OppositeNumber',
+  legalName: 'OppositeNumber Ltd',
   tagline: 'AI that ships. Products that last.',
   shortName: 'OppNo',
   description:
-    'Opposite Number is an AI and digital product studio. We help ambitious UK businesses put AI to work in their operations and products, then design, build and run the software behind it.',
+    'OppositeNumber is an AI and digital product studio. We help ambitious UK businesses put AI to work in their operations and products, then design, build and run the software behind it.',
   email: 'hello@example.com',
   phone: '+44 (0)20 0000 0000',
   phoneHref: 'tel:+442000000000',
