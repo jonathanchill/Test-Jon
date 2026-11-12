@@ -1,33 +1,42 @@
 ---
 /**
- * Draggable, free-scrolling gallery of delivered work. Mixed aspect ratios, slight vertical offsets,
- * parallax on scroll and a cursor pill, so it reads as editorial rather than a carousel.
- * Images are AI-generated placeholders until real project photography exists.
+ * Draggable, free-scrolling gallery of client work. Cards come from the work collection, so each
+ * shows the client's photo, name and headline and links to its case study.
  */
-const items = [
-  { src: '/work/ops-dashboard.webp', w: 1200, h: 896, title: 'AI operations dashboard', meta: 'Automation · Evals', cls: 'w-[78vw] sm:w-[520px]', off: 'mt-0' },
-  { src: '/work/loyalty-app.webp', w: 928, h: 1152, title: 'Loyalty app', meta: 'Mobile · Retail', cls: 'w-[62vw] sm:w-[340px]', off: 'mt-10' },
-  { src: '/work/pipeline-wall.webp', w: 1200, h: 896, title: 'Pipeline monitoring', meta: 'Data · Platform', cls: 'w-[82vw] sm:w-[600px]', off: 'mt-4' },
-  { src: '/work/design-system.webp', w: 1200, h: 896, title: 'Design system', meta: 'Brand · Components', cls: 'w-[74vw] sm:w-[480px]', off: 'mt-14' },
+import { getCollection } from 'astro:content';
+import { clients } from '@/data/clients';
+const work = (await getCollection('work')).filter((w) => w.data.image).sort((a, b) => a.data.order - b.data.order);
+const sizes = [
+  { cls: 'w-[78vw] sm:w-[560px]', off: 'mt-0' },
+  { cls: 'w-[68vw] sm:w-[420px]', off: 'mt-10' },
+  { cls: 'w-[82vw] sm:w-[620px]', off: 'mt-4' },
+  { cls: 'w-[72vw] sm:w-[480px]', off: 'mt-14' },
 ];
+const logoFor = (client: string) => clients.find((c) => c.name.toLowerCase() === client.toLowerCase());
 ---
 <section class="relative overflow-hidden py-16 lg:py-24" aria-label="Work gallery">
   <div class="container-x mb-10 flex flex-wrap items-end justify-between gap-6" data-reveal>
     <div class="max-w-2xl"><p class="eyebrow">Delivered</p><h2 class="mt-3 text-display-lg font-bold leading-[1.02]">Things we have shipped.</h2></div>
-    <p class="max-w-sm text-sm text-muted">Drag to explore. Images are AI-generated placeholders pending real project photography.</p>
+    <div class="flex items-center gap-4"><p class="text-sm text-muted">Drag to explore</p><a href="/work" class="btn-outline">All case studies</a></div>
   </div>
   <div id="gallery" class="gallery relative flex cursor-grab select-none items-start gap-8 overflow-x-auto px-5 pb-6 pt-4 sm:px-8 lg:gap-12 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" data-reveal="stagger">
     <div class="shrink-0 w-[max(0px,calc((100vw-80rem)/2))]" aria-hidden="true"></div>
-    {items.map((it, i) => (
-      <figure class:list={['group shrink-0', it.cls, it.off]} data-depth={(i % 2 ? 0.06 : 0.1)}>
-        <div class="relative overflow-hidden rounded-[1.75rem] border border-line bg-paper-deep shadow-[0_30px_60px_-30px_rgba(11,15,26,.35)]">
-          <img src={it.src} width={it.w} height={it.h} alt={it.title} loading="lazy" decoding="async" draggable="false" class="block h-auto w-full scale-[1.06] transition-transform duration-700 ease-out group-hover:scale-100" />
-          <span class="absolute left-4 top-4 rounded-full bg-white/85 px-3 py-1 text-xs font-semibold backdrop-blur">{it.meta}</span>
-          <span class="absolute right-4 top-4 rounded-full bg-ember px-3 py-1 text-xs font-semibold text-white">AI placeholder</span>
-        </div>
-        <figcaption class="mt-4 flex items-baseline justify-between"><span class="font-semibold">{it.title}</span><span class="font-mono text-xs text-muted">0{i + 1}</span></figcaption>
+    {work.map((w, i) => {
+      const size = sizes[i % sizes.length]; const logo = logoFor(w.data.client);
+      return (
+      <figure class:list={['group shrink-0', size.cls, size.off]} data-depth={(i % 2 ? 0.06 : 0.1)}>
+        <a href={`/work/${w.id}`} draggable="false" class="block">
+          <div class="relative aspect-[16/11] overflow-hidden rounded-[1.75rem] border border-line bg-paper-deep shadow-[0_30px_60px_-30px_rgba(11,15,26,.35)]">
+            <img src={w.data.image} alt={w.data.imageAlt ?? w.data.client} width="1600" height="1000" loading="lazy" decoding="async" draggable="false" class="absolute inset-0 block h-full w-full scale-[1.06] object-cover transition-transform duration-700 ease-out group-hover:scale-100" />
+            <div class="absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent to-transparent"></div>
+            {logo && <span class="absolute left-4 top-4 inline-flex h-10 items-center rounded-full bg-white/95 px-4 shadow-sm backdrop-blur"><img src={logo.src} alt={w.data.client} class="h-4 w-auto max-w-[120px]" loading="lazy" draggable="false" /></span>}
+            <span class="absolute right-4 top-4 rounded-full bg-paper/20 px-3 py-1 text-xs font-semibold text-paper backdrop-blur">{w.data.category}</span>
+            <span class="absolute bottom-4 left-4 right-4 text-paper"><span class="eyebrow text-paper/70">{w.data.client} · {w.data.sector}</span></span>
+          </div>
+          <figcaption class="mt-4 flex items-start justify-between gap-4"><span class="font-semibold leading-snug group-hover:text-signal">{w.data.title}</span><span class="shrink-0 font-mono text-xs text-muted">0{i + 1}</span></figcaption>
+        </a>
       </figure>
-    ))}
+    ); })}
     <div class="shrink-0 w-8" aria-hidden="true"></div>
   </div>
   <div id="cursor-pill" class="pointer-events-none fixed left-0 top-0 z-50 hidden h-20 w-20 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-ink text-xs font-semibold text-paper opacity-0 transition-opacity duration-200 lg:grid" aria-hidden="true">Drag</div>
@@ -36,13 +45,13 @@ const items = [
   const g = document.getElementById('gallery')!;
   const pill = document.getElementById('cursor-pill')!;
   let down = false, startX = 0, startLeft = 0, moved = false;
-  g.addEventListener('pointerdown', (e) => { down = true; moved = false; startX = e.clientX; startLeft = g.scrollLeft; g.classList.add('cursor-grabbing'); g.setPointerCapture(e.pointerId); });
+  g.addEventListener('pointerdown', (e) => { if (e.pointerType === 'mouse' && e.button !== 0) return; down = true; moved = false; startX = e.clientX; startLeft = g.scrollLeft; g.classList.add('cursor-grabbing'); });
   g.addEventListener('pointermove', (e) => {
     pill.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
     if (!down) return; const dx = e.clientX - startX; if (Math.abs(dx) > 4) moved = true; g.scrollLeft = startLeft - dx;
   });
   const up = () => { down = false; g.classList.remove('cursor-grabbing'); };
-  g.addEventListener('pointerup', up); g.addEventListener('pointercancel', up);
+  addEventListener('pointerup', up); addEventListener('pointercancel', up);
   g.addEventListener('click', (e) => { if (moved) { e.preventDefault(); e.stopPropagation(); } }, true);
   g.addEventListener('pointerenter', () => { pill.classList.remove('opacity-0'); });
   g.addEventListener('pointerleave', () => { pill.classList.add('opacity-0'); up(); });
