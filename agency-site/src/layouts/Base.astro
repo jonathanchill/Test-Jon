@@ -3,7 +3,7 @@ import '@/styles/global.css';
 import Seo from '@/components/Seo.astro';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
-interface Props { title: string; description: string; image?: string; type?: 'website' | 'article'; jsonLd?: Record<string, unknown> | Record<string, unknown>[] }
+interface Props { title: string; description: string; image?: string; type?: 'website' | 'article'; jsonLd?: Record<string, unknown> | Record<string, unknown>[]; noindex?: boolean; breadcrumbs?: { name: string; href: string }[] }
 const gtm = import.meta.env.PUBLIC_GTM_ID;
 ---
 <!doctype html>

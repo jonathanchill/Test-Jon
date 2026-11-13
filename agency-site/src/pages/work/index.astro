@@ -6,14 +6,14 @@ import CtaBand from '@/components/CtaBand.astro';
 import { getCollection } from 'astro:content';
 const all = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
 ---
-<Base title="Work" description="Case studies: AI products, automation, mobile apps, web platforms and design systems.">
+<Base title="Case Studies: AI Automation & Digital" description="Case studies from OppositeNumber: AI automation, AI search visibility, web platforms and product data engines for businesses across Surrey and the UK.">
   <Hero eyebrow="Our work" title="Proof, <span class='text-signal'>not promises.</span>" lede="Every project below started with a number we agreed to move. Filter by AI or digital." />
   <section class="container-x pb-20">
     <div class="mb-10 flex flex-wrap gap-2" role="group" aria-label="Filter case studies">
       {['All', 'AI', 'Digital'].map((f, i) => <button type="button" data-filter={f} class:list={['rounded-full border px-4 py-2 text-sm font-semibold', i === 0 ? 'border-ink bg-ink text-paper' : 'border-line']} aria-pressed={i === 0}>{f}</button>)}
     </div>
     <div id="work-grid" class="grid gap-10 md:grid-cols-2 lg:grid-cols-3">
-      {all.map((w) => <div data-category={w.data.category}><WorkCard entry={w} /></div>)}
+      {all.map((w) => <div data-category={w.data.category}><WorkCard entry={w} headingLevel="h2" /></div>)}
     </div>
   </section>
   <CtaBand />

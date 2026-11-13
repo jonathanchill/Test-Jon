@@ -1,6 +1,6 @@
 # OppositeNumber
 
-> OppositeNumber is a UK AI and digital product studio. We help ambitious businesses put AI to work in their operations and products, then design, build and run the software behind it. Fixed-price sprints, published engagement models, and engineering-led delivery.
+> OppositeNumber is a Guildford, Surrey studio that designs, builds and looks after AI-driven systems and processes for growing businesses. Real developers, not just tools: we automate the work that slows a business down and keep it secure and compliant as it grows. Fixed-price audits and 10-day sprints, published engagement models, founders accountable for every project. The name: your opposite number is the person on the other side who makes things work.
 
 ## Services
 
@@ -8,6 +8,10 @@
 - [Digital Services](/digital-services): Product Strategy & Roadmaps, Proof of Concept, Mobile App Development, Web Platforms & SaaS, Marketing Websites & Headless CMS, Design Systems, Digital Branding
 - [Approach & Pricing](/approach): how we work and what it costs
 - [AI Readiness Scorecard](/ai-readiness): a five-minute self-assessment
+
+## People
+
+- [About and founders](/about)
 
 ## Proof
 

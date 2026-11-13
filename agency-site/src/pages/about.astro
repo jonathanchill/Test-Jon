@@ -1,0 +1,52 @@
+---
+import Base from '@/layouts/Base.astro';
+import Hero from '@/components/Hero.astro';
+import Section from '@/components/Section.astro';
+import CtaBand from '@/components/CtaBand.astro';
+import { founders } from '@/data/team';
+import { site } from '@/data/site';
+const addr = site.addresses[0];
+const values = [
+  ['Real people, on the hook', 'A named founder owns every engagement. You will never be handed to a ticket queue or a chatbot when something matters.'],
+  ['Say the true thing', 'If AI is not the answer, or a cheaper tool exists, we say so before you spend. Honesty early saves money later.'],
+  ['Secure and compliant by default', 'Least-privilege access, encryption, no training on your data, and an audit trail on every automated decision. Written into every statement of work.'],
+  ['Ship, measure, improve', 'Working software in weeks, with an agreed number to move and a report against it after launch.'],
+];
+---
+<Base title="About Us: Founders of a Guildford AI Studio" description="Meet the founders of OppositeNumber, a Guildford studio that builds and looks after AI systems for growing businesses. Real developers, secure by design." breadcrumbs={[{ name: 'About', href: '/about' }]}>
+  <Hero eyebrow="About us · Guildford, Surrey" title="Real developers building AI systems, <span class='text-signal'>and staying to look after them.</span>" lede="We are a small studio in Guildford that designs, builds and runs AI-driven systems and processes for businesses across Surrey and the South East. The technology changes monthly. The need for someone accountable on your side does not." cta={{ label: 'Book a 30-minute call', href: '/contact' }} />
+
+  <Section eyebrow="The name" title="Why OppositeNumber.">
+    <div class="prose-basic max-w-3xl" data-reveal>
+      <p>Your opposite number is the person in the other organisation who does what you do: the one you ring when something needs sorting, who understands the pressure you are under and has the authority to act. That is the relationship we want with every client.</p>
+      <p>AI makes it more important, not less. Businesses are being sold tools that promise to run themselves. In our experience they do not. They need people who understand the models, the data, the security risks and the regulations, and who are reachable when a supplier changes something overnight. We are those people. Real developers, on your side, keeping the systems streamlined, secure and compliant while you run the business.</p>
+      <p>There is a quieter meaning too. In maths, 1 and −1 are each other's opposite number. Put them together and the noise cancels out. We like that.</p>
+    </div>
+  </Section>
+
+  <Section eyebrow="Founders" title="The two people you will deal with." class="bg-paper-deep">
+    <div class="grid gap-8 md:grid-cols-2" data-reveal="stagger">
+      {founders.map((f) => (
+        <article class="card">
+          <div class="relative aspect-square w-full overflow-hidden rounded-3xl border border-line bg-paper-deep">
+            {f.photo ? <img src={f.photo} alt={`${f.name}, ${f.role} of OppositeNumber`} width="640" height="640" class="h-full w-full object-cover" loading="lazy" /> : <div class="grid h-full w-full place-items-center bg-[linear-gradient(135deg,#dfe6ff,#b9f5d8)] font-display text-7xl font-bold text-ink/70">{f.initials}</div>}
+          </div>
+          <h2 class="mt-6 text-2xl font-bold">{f.name}</h2>
+          <p class="mt-1 font-mono text-sm text-signal">{f.role}</p>
+          <p class="mt-4 text-ink/75">{f.bio}</p>
+        </article>
+      ))}
+    </div>
+  </Section>
+
+  <Section eyebrow="How we behave" title="Four things we hold ourselves to.">
+    <div class="grid gap-6 md:grid-cols-2" data-reveal="stagger">{values.map(([h, p]) => <div class="card"><h3 class="text-xl font-bold">{h}</h3><p class="mt-3 text-ink/70">{p}</p></div>)}</div>
+  </Section>
+
+  <Section dark eyebrow="Where we are" title="A studio in Guildford, clients across the South East.">
+    <div class="grid gap-10 lg:grid-cols-2">
+      <div data-reveal><p class="text-xl font-semibold">{addr.lines.join(', ')}</p><p class="mt-4 text-paper/70">Most of our clients are within 45 minutes of the studio: Farnham, Godalming, Woking, Haslemere and across Surrey and Hampshire. We would rather start a project in your office than on a video call.</p><div class="mt-6 flex flex-wrap gap-3"><a href={addr.mapsUrl} rel="noopener" class="btn-light">Directions</a><a href="/locations" class="btn border border-paper/30 text-paper hover:bg-paper hover:text-ink">Areas we serve</a></div></div>
+    </div>
+  </Section>
+  <CtaBand title="Talk to the people who will do the work" body="A 30-minute call with a founder. Bring a problem and we will tell you honestly whether AI, software or neither is the answer." />
+</Base>

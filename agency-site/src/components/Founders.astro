@@ -1,0 +1,25 @@
+---
+import { founders } from '@/data/team';
+import Section from '@/components/Section.astro';
+---
+<Section eyebrow="Real people behind the systems" title="AI looked after by people you can actually call." lede="Every system we build has two founders standing behind it. We meet you in person, we answer the phone, and we stay responsible for what we ship: keeping it secure, compliant and working as your business changes.">
+  <div class="grid gap-8 md:grid-cols-2" data-reveal="stagger">
+    {founders.map((f) => (
+      <article class="card flex flex-col gap-6 sm:flex-row sm:items-start">
+        <div class="relative h-40 w-40 shrink-0 overflow-hidden rounded-3xl border border-line bg-paper-deep">
+          {f.photo ? <img src={f.photo} alt={`${f.name}, ${f.role} of OppositeNumber`} width="320" height="320" class="h-full w-full object-cover" loading="lazy" /> : <div class="grid h-full w-full place-items-center bg-[linear-gradient(135deg,#dfe6ff,#b9f5d8)] font-display text-4xl font-bold text-ink/70">{f.initials}</div>}
+        </div>
+        <div>
+          <h3 class="text-2xl font-bold">{f.name}</h3>
+          <p class="mt-1 font-mono text-sm text-signal">{f.role} · Guildford</p>
+          <p class="mt-4 text-ink/75">{f.bio}</p>
+          {f.linkedin && <a href={f.linkedin} rel="noopener" class="mt-4 inline-block text-sm font-semibold underline decoration-signal underline-offset-4">LinkedIn</a>}
+        </div>
+      </article>
+    ))}
+  </div>
+  <div class="mt-10 flex flex-wrap items-center gap-4">
+    <a href="/about" class="btn-outline">Why we call ourselves OppositeNumber</a>
+    <p class="text-sm text-muted">Your opposite number is the person on the other side who is there to make things work. That is the job.</p>
+  </div>
+</Section>

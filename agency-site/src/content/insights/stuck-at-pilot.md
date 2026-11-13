@@ -3,6 +3,7 @@ title: "Why most AI programmes stall at the pilot stage"
 description: "Three pilots, zero production systems. Here is the pattern we see and the fix that works."
 date: 2026-10-20
 author: "Founder name"
+seoTitle: "Why AI Programmes Stall at the Pilot Stage"
 readingTime: 5
 tags: ["AI Strategy", "Adoption"]
 ---

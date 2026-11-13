@@ -13,7 +13,7 @@ const more = (await getCollection('work')).filter((w) => w.id !== entry.id).sort
 const hue = (d.order * 47) % 360;
 const logo = clients.find((c) => c.name.toLowerCase() === d.client.toLowerCase());
 ---
-<Base title={d.title} description={d.summary} type="article">
+<Base title={d.seoTitle ?? d.title} description={d.seoDescription ?? d.summary} type="article" image={d.image} breadcrumbs={[{ name: 'Work', href: '/work' }, { name: d.client, href: `/work/${entry.id}` }]}>
   <article>
     <header class="container-x pt-16 lg:pt-24">
       <p class="eyebrow">{d.client} · {d.sector} · {d.year}</p>

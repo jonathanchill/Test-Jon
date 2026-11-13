@@ -11,7 +11,7 @@ const related = services.filter((s) => s.group === service.group && s.slug !== s
 const back = service.group === 'ai' ? { href: '/ai-services', label: 'AI Services' } : { href: '/digital-services', label: 'Digital Services' };
 const ld = { '@context': 'https://schema.org', '@type': 'Service', name: service.title, description: service.summary, serviceType: service.pillar, areaServed: 'GB' };
 ---
-<Base title={service.title} description={service.summary} jsonLd={ld}>
+<Base title={service.title} description={service.summary} jsonLd={ld} breadcrumbs={[{ name: back.label, href: back.href }, { name: service.title, href: `/services/${service.slug}` }]}>
   <Hero eyebrow={`${back.label} · ${service.pillar}`} title={service.title} lede={service.summary} cta={{ label: 'Talk to us about this', href: '/contact' }} secondary={{ label: `All ${back.label}`, href: back.href }} />
   <Section>
     <div class="grid gap-12 lg:grid-cols-12">

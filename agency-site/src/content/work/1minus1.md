@@ -12,6 +12,8 @@ results:
   - { value: "3x", label: "more pitches researched per month" }
 featured: true
 placeholder: false
+seoTitle: "1minus1: AI Operating Layer, Games Agency"
+seoDescription: "Knowledge base, automated campaign reporting and store page audits for a specialist video game agency. Reporting time down 92%."
 image: "/work/clients/1minus1.webp"
 imageAlt: "Website design work by 1minus1 for a games franchise"
 order: 2

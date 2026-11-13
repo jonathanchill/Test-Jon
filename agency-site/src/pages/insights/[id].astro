@@ -9,7 +9,7 @@ const { Content } = await render(entry);
 const d = entry.data;
 const ld = { '@context': 'https://schema.org', '@type': 'Article', headline: d.title, description: d.description, datePublished: d.date.toISOString(), author: { '@type': 'Person', name: d.author }, publisher: { '@type': 'Organization', name: site.name } };
 ---
-<Base title={d.title} description={d.description} type="article" jsonLd={ld}>
+<Base title={d.seoTitle ?? d.title} description={d.description} type="article" jsonLd={ld} breadcrumbs={[{ name: 'Insights', href: '/insights' }, { name: d.title, href: `/insights/${entry.id}` }]}>
   <article class="container-x max-w-3xl pt-16 lg:pt-24">
     <p class="eyebrow">{d.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} · {d.readingTime} min read</p>
     <h1 class="mt-4 text-display-lg font-bold leading-[1.02]">{d.title}</h1>

@@ -16,7 +16,7 @@ const nearby = (loc.clients ?? []).map((c) => allWork.find((w) => w.data.client.
 const others = locations.filter((l) => l.slug !== loc.slug).slice(0, 6);
 const growth = services.filter((s) => ['ai-search-visibility', 'marketing-websites', 'process-automation', 'ten-day-ai-sprint', 'ai-opportunity-audit', 'web-platforms'].includes(s.slug));
 const title = `AI & digital agency for ${loc.name}`;
-const description = `${site.name} is a Guildford AI and digital agency working with businesses in ${loc.name}, ${loc.county}. AI automation, AI search visibility and websites that bring the right customers, ${loc.minutes} minutes from our studio.`;
+const description = `Guildford AI and digital agency serving ${loc.name}, ${loc.county}. AI automation, AI search visibility and websites that win customers, ${loc.minutes} minutes from our studio.`;
 const ld = [
   { '@context': 'https://schema.org', '@type': 'Service', name: `AI and digital services in ${loc.name}`, provider: { '@type': 'ProfessionalService', name: site.name, address: { '@type': 'PostalAddress', streetAddress: addr.lines[0], addressLocality: 'Guildford', addressRegion: 'Surrey', postalCode: addr.lines[3], addressCountry: 'GB' } }, areaServed: { '@type': 'City', name: loc.name }, description },
   { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: new URL('/', Astro.site).toString() }, { '@type': 'ListItem', position: 2, name: 'Areas we serve', item: new URL('/locations', Astro.site).toString() }, { '@type': 'ListItem', position: 3, name: loc.name, item: new URL(`/locations/${loc.slug}`, Astro.site).toString() }] },

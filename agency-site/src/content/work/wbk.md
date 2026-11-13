@@ -12,6 +12,8 @@ results:
   - { value: "70%", label: "fewer 'do you stock…?' enquiries handled by hand" }
 featured: true
 placeholder: false
+seoTitle: "WBK: AI Product Data Engine & Store"
+seoDescription: "A rebuilt e-commerce store and an AI engine that writes and syncs thousands of catering equipment listings. Conversion up 27%."
 image: "/work/clients/wbk.webp"
 imageAlt: "Professional cookware from the WBK catalogue"
 order: 4

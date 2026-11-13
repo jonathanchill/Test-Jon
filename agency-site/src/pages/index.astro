@@ -17,18 +17,19 @@ import Impact from '@/components/Impact.astro';
 import ClientStrip from '@/components/ClientStrip.astro';
 import WorkGallery from '@/components/WorkGallery.astro';
 import Showreel from '@/components/Showreel.astro';
+import Founders from '@/components/Founders.astro';
 import { sectors } from '@/data/sectors';
 import Bento from '@/components/diagrams/Bento.astro';
 
 const work = (await getCollection('work')).filter((w) => w.data.featured).sort((a, b) => a.data.order - b.data.order).slice(0, 4);
 const quick = services.filter((s) => s.from);
 ---
-<Base title="Home" description={site.description}>
+<Base title="AI Systems & Business Automation, Guildford" description={site.description}>
   <Hero
-    eyebrow="AI & digital product studio · Guildford, Surrey"
+    eyebrow="AI systems · automation · Guildford, Surrey"
     split
-    title="We are your <span class='text-signal'>Opposite Number.</span>"
-    lede="Guiding you through the age of AI to a more streamlined, cost-effective and powerful business. We find where AI pays back, prove it in a fixed-price sprint, then build and run the software behind it. No hype, no 40-slide decks. Working systems, measured results."
+    title="AI systems that streamline your business, <span class='text-signal'>built by real developers in Guildford.</span>"
+    lede="We design, build and look after AI-driven systems and processes for growing businesses: automating the work that slows you down and keeping it secure and compliant as you grow. Think of us as your opposite number through the age of AI, guiding you to a leaner, more cost-effective and more powerful business."
     cta={{ label: 'Book a 30-minute call', href: '/contact' }}
     secondary={{ label: 'Take the AI readiness scorecard', href: '/ai-readiness' }}
   ><HeroCards /></Hero>
@@ -38,6 +39,8 @@ const quick = services.filter((s) => s.from);
   <section class="container-x py-14"><Impact /></section>
 
   <Showreel />
+
+  <Founders />
 
   <Section eyebrow="Why us" title="Three promises most agencies will not put in writing.">
     <FeatureCards />

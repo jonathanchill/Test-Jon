@@ -1,10 +1,10 @@
 ---
 import { site } from '@/data/site';
-interface Props { title: string; description: string; image?: string; type?: 'website' | 'article'; jsonLd?: Record<string, unknown> | Record<string, unknown>[] }
-const { title, description, image = '/og-default.svg', type = 'website', jsonLd } = Astro.props;
+interface Props { title: string; description: string; image?: string; type?: 'website' | 'article'; jsonLd?: Record<string, unknown> | Record<string, unknown>[]; noindex?: boolean; breadcrumbs?: { name: string; href: string }[] }
+const { title, description, image = '/og-default.png', type = 'website', jsonLd, noindex = false, breadcrumbs } = Astro.props;
 const cleanPath = Astro.url.pathname.replace(/index\.html$/, '').replace(/\.html$/, '');
 const canonical = new URL(cleanPath, Astro.site);
-const fullTitle = cleanPath === '/' ? `${site.name} | AI & Digital Product Studio` : `${title} | ${site.name}`;
+const fullTitle = `${title} | ${site.name}`;
 const a = site.addresses[0];
 const org = {
   '@context': 'https://schema.org',
@@ -21,11 +21,13 @@ const org = {
   foundingDate: String(site.founded),
   sameAs: Object.values(site.social),
 };
-const ld = [org, ...(jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [])];
+const crumbs = breadcrumbs ? { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ name: 'Home', href: '/' }, ...breadcrumbs].map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.name, item: new URL(c.href, Astro.site).toString() })) } : null;
+const ld = [org, ...(crumbs ? [crumbs] : []), ...(jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [])];
 ---
 <title>{fullTitle}</title>
 <meta name="description" content={description} />
 <link rel="canonical" href={canonical} />
+{noindex && <meta name="robots" content="noindex, nofollow" />}
 <meta property="og:type" content={type} />
 <meta property="og:site_name" content={site.name} />
 <meta property="og:title" content={fullTitle} />

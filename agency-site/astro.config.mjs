@@ -8,7 +8,7 @@ const site = process.env.PUBLIC_SITE_URL || 'https://oppositenumber.ai';
 export default defineConfig({
   site,
   trailingSlash: 'never',
-  integrations: [sitemap()],
+  integrations: [sitemap({ filter: (page) => !page.includes('/thanks') && !page.includes('/404') })],
   vite: { plugins: [tailwindcss()] },
   build: { format: 'file' },
   prefetch: { prefetchAll: true },

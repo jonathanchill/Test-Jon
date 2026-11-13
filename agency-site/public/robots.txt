@@ -1,3 +1,4 @@
 User-agent: *
 Allow: /
-Sitemap: /sitemap-index.xml
+Disallow: /thanks
+Sitemap: https://oppositenumber.ai/sitemap-index.xml

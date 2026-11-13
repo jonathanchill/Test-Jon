@@ -9,7 +9,7 @@ export const site = {
   tagline: 'AI that ships. Products that last.',
   shortName: 'OppNo',
   description:
-    'OppositeNumber is an AI and digital product studio. We help ambitious UK businesses put AI to work in their operations and products, then design, build and run the software behind it.',
+    'Guildford AI and digital product studio. We find where AI pays back, prove it in a fixed-price sprint, then build and run the software behind it.',
   email: 'hello@oppositenumber.ai',
   phone: '+44 (0)20 0000 0000',
   phoneHref: 'tel:+442000000000',
@@ -43,7 +43,7 @@ export const nav = [
   { label: 'Approach & Pricing', href: '/approach' },
   { label: 'Work', href: '/work' },
   { label: 'Sectors', href: '/sectors' },
-  { label: 'Team', href: '/team' },
+  { label: 'About', href: '/about' },
   { label: 'Insights', href: '/insights' },
 ];
 

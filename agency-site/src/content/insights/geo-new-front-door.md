@@ -3,6 +3,7 @@ title: "AI search is the new front door. Is your brand on the guest list?"
 description: "Buyers now ask ChatGPT and Perplexity before they search Google. What Generative Engine Optimisation actually involves."
 date: 2026-08-14
 author: "Founder name"
+seoTitle: "AI Search Is the New Front Door (GEO)"
 readingTime: 4
 tags: ["GEO", "Marketing"]
 ---

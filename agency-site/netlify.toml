@@ -32,3 +32,8 @@
   to = "https://oppositenumber.ai/:splat"
   status = 301
   force = true
+
+[[redirects]]
+  from = "/team"
+  to = "/about"
+  status = 301

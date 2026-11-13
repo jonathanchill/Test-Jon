@@ -11,7 +11,7 @@ import { getCollection } from 'astro:content';
 const services = byGroup('digital');
 const work = (await getCollection('work')).filter((w) => w.data.category === 'Digital').sort((a, b) => a.data.order - b.data.order).slice(0, 3);
 ---
-<Base title="Digital Services" description="Digital strategy, mobile apps, web platforms, headless CMS websites, design systems and digital branding from a UK product studio.">
+<Base title="Web & App Development, Guildford" description="Digital strategy, mobile apps, web platforms, headless CMS websites, design systems and digital branding from a UK product studio.">
   <Hero eyebrow="Digital Services" title="Strategy, design and build for products people <span class='text-signal'>come back to.</span>" lede="Apps, platforms and websites engineered to perform and built to change. We bring senior strategists, designers and engineers to every project, and we hand over code and documentation your team can own." cta={{ label: 'Arrange a discovery call', href: '/contact' }} />
   {pillars.digital.map((p, i) => (
     <Section id={p.name.toLowerCase()} eyebrow={`0${i + 1}`} title={p.name} lede={p.blurb} class={i % 2 ? 'bg-paper-deep' : ''}>

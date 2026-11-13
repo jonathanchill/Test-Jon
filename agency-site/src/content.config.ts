@@ -18,6 +18,8 @@ const work = defineCollection({
     order: z.number().default(99),
     image: z.string().optional(),
     imageAlt: z.string().optional(),
+    seoTitle: z.string().optional(),
+    seoDescription: z.string().optional(),
   }),
 });
 
@@ -31,6 +33,7 @@ const insights = defineCollection({
     readingTime: z.number(),
     tags: z.array(z.string()).default([]),
     draft: z.boolean().default(false),
+    seoTitle: z.string().optional(),
   }),
 });
 

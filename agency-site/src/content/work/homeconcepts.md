@@ -12,6 +12,8 @@ results:
   - { value: "640 h", label: "admin hours returned to the team per year" }
 featured: true
 placeholder: false
+seoTitle: "Homeconcepts: AI Estimating for Builders"
+seoDescription: "AI estimating and client-update automation cut quote turnaround from a week to under a day for a Central London design and build firm."
 image: "/work/clients/homeconcepts.webp"
 imageAlt: "A Homeconcepts renovation: open-plan dining room with exposed brick wall"
 order: 1
