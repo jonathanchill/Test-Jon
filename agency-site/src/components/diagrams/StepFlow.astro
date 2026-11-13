@@ -7,10 +7,10 @@ const { class: cls = '', steps = [
   { title: 'Test against real cases', sub: 'Day 9 · security & accuracy' },
   { title: 'Demo & go / no-go', sub: 'Day 10 · your decision' },
 ] } = Astro.props;
-const trunkX = 250; const startY = 36; const gap = 72; const pillW = 236; const pillH = 50;
+const trunkX = 272; const startY = 36; const gap = 72; const pillW = 230; const pillH = 50;
 ---
 <div class:list={['relative overflow-hidden rounded-2xl', cls]} style="background-image: linear-gradient(to right, rgba(11,15,26,.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(11,15,26,.06) 1px, transparent 1px); background-size: 48px 48px;">
-  <svg viewBox="0 0 520 330" class="h-auto w-full" role="img" aria-label="Sprint steps connected in sequence">
+  <svg viewBox="0 0 544 330" class="h-auto w-full" role="img" aria-label="Sprint steps connected in sequence">
     <path d={`M${trunkX} ${startY + pillH / 2} V ${startY + (steps.length - 1) * gap + pillH / 2}`} stroke="#0b0f1a" stroke-opacity=".35" stroke-width="1.5" class="draw" />
     {steps.map((s, i) => {
       const left = i % 2 === 0; const y = startY + i * gap; const x = left ? trunkX - 36 - pillW : trunkX + 36; const jy = y + pillH / 2;
