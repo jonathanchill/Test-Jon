@@ -1,6 +1,6 @@
-/** PLACEHOLDER testimonials. Replace with real, attributed quotes before launch. */
+/** Client testimonials shown on the home and Digital Services pages. */
 export const testimonials = [
-  { quote: 'Placeholder: a short quote from a client about the outcome we delivered and how it felt to work with us.', name: 'Client name', role: 'Job title', company: 'Company' },
-  { quote: 'Placeholder: a second quote, ideally with a number in it. Revenue, hours saved, time to launch.', name: 'Client name', role: 'Job title', company: 'Company' },
-  { quote: 'Placeholder: a third quote focused on the team, the process and ongoing support.', name: 'Client name', role: 'Job title', company: 'Company' },
+  { quote: 'Fundamentally changed the cost and footprint of the IT side of our business.', name: 'Steve Gimblett', role: '', company: 'WBK', href: '/work/wbk' },
+  { quote: 'An AI-augmented system built by real, trusted developers that worked in two weeks.', name: 'Ashton Hawthorne', role: '', company: 'Homeconcepts', href: '/work/homeconcepts' },
+  { quote: 'Brilliant team and support, vastly streamlined agency systems. I’m really happy.', name: 'Saybhan Delilkhan', role: '', company: 'Thunderbolt Digital', href: '/work/thunderbolt' },
 ];
