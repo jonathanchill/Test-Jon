@@ -126,7 +126,7 @@ export const locations: Location[] = [
     economy: 'Research and technology campuses, pharmaceutical and healthcare companies, professional and financial services, and business parks along the M25.',
     sectors: ['Research & technology', 'Pharmaceutical & healthcare', 'Professional services', 'Business parks'],
     faq: [
-      { q: 'Do you have experience in regulated industries?', a: 'Yes. Our governance work is aligned to ISO 42001 and we are comfortable operating inside existing ISO 27001 controls.' },
+      { q: 'Do you have experience in regulated industries?', a: 'Yes. Every engagement includes a data and security review, and we are used to working inside clients\' existing compliance and audit requirements.' },
       { q: 'How far is Leatherhead from Guildford?', a: 'About 25 minutes along the A246 through the Surrey Hills.' },
     ],
   },

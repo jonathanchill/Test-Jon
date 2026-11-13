@@ -88,7 +88,7 @@ const quick = services.filter((s) => s.from);
       <ul class="space-y-5" data-reveal="stagger">
         {[
           ['Vendor-neutral', 'Anthropic, OpenAI, Google or open-weight models, chosen by evaluation score and swapped without touching your systems.'],
-          ['Governed by default', 'Policy checks, PII redaction and a complete audit trail on every call. Aligned to ISO 42001.'],
+          ['Governed by default', 'Policy checks, PII redaction and a complete audit trail on every call.'],
           ['Measured forever', 'Evals re-run automatically when a provider updates a model, so quality never silently drops.'],
         ].map(([h, p]) => (<li class="rounded-3xl border border-line bg-white/60 p-6"><h3 class="text-xl font-semibold">{h}</h3><p class="mt-2 text-ink/70">{p}</p></li>))}
       </ul>

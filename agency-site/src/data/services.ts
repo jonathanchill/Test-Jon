@@ -98,7 +98,7 @@ export const services: Service[] = [
     pillar: 'AI Adoption',
     title: 'AI Governance & Security',
     summary: 'Policies, controls and security testing that keep your AI usage safe, compliant and defensible.',
-    outcomes: ['AI acceptable-use and data policies', 'Risk register and controls mapped to ISO 42001', 'Security review of AI-exposed surfaces'],
+    outcomes: ['AI acceptable-use and data policies', 'Risk register and controls you can show an auditor', 'Security review of AI-exposed surfaces'],
     deliverables: ['Policy pack', 'Risk assessment', 'Prompt-injection and data-leak testing', 'Board briefing'],
     timeline: '3 to 6 weeks',
   },

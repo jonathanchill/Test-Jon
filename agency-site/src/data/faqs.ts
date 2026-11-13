@@ -21,6 +21,6 @@ export const faqs = [
   },
   {
     q: 'How do you handle data security and AI risk?',
-    a: 'Every AI engagement includes a data and security review, evaluation against your success metrics, and guardrails against prompt injection and data leakage. We align governance work to ISO 42001 and can work inside your existing ISO 27001 controls.',
+    a: 'Every AI engagement includes a data and security review, evaluation against your success metrics, and guardrails against prompt injection and data leakage.',
   },
 ];
