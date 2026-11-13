@@ -37,9 +37,9 @@ export const services: Service[] = [
     summary:
       'From idea to a working, tested AI prototype in ten working days. Real data, real users, real decision at the end.',
     outcomes: ['A working prototype on your data', 'Evaluation results against a success metric you set', 'A go / no-go recommendation with costs'],
-    deliverables: ['Day 1 framing workshop', 'Prototype and eval harness', 'Security and data review', 'Demo and decision pack'],
+    deliverables: ['Day 1 framing workshop', 'Prototype built and tested on your data', 'Security and data review', 'Demo and go / no-go decision'],
     timeline: '10 working days',
-    from: 'Fixed price',
+    from: '£8,995 fixed',
   },
   {
     slug: 'fractional-ai-lead',
