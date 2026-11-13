@@ -1,0 +1,26 @@
+---
+import Base from '@/layouts/Base.astro';
+import Hero from '@/components/Hero.astro';
+import Section from '@/components/Section.astro';
+import CtaBand from '@/components/CtaBand.astro';
+import { locations } from '@/data/locations';
+import { site } from '@/data/site';
+const addr = site.addresses[0];
+---
+<Base title="Areas we serve" description={`${site.name} is an AI and digital agency based in Guildford, Surrey, working with businesses across Farnham, Godalming, Woking, Haslemere and the wider South East.`}>
+  <Hero eyebrow="Areas we serve" title="Based in Guildford. <span class='text-signal'>Working across Surrey and Hampshire.</span>" lede={`Our studio is at ${addr.lines.join(', ')}. Most of our clients are within 45 minutes of it, and we would rather meet in person at the start of a project than start on a video call.`} cta={{ label: 'Book a 30-minute call', href: '/contact' }} />
+  <Section eyebrow="Towns" title="Where we work most.">
+    <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" data-reveal="stagger">
+      {locations.map((l) => (
+        <li><a href={`/locations/${l.slug}`} class="card group flex h-full flex-col">
+          <p class="eyebrow">{l.county} · {l.minutes} min from Guildford</p>
+          <h2 class="mt-3 text-2xl font-bold group-hover:text-signal">{l.name}</h2>
+          <p class="mt-3 flex-1 text-ink/70">{l.intro.split('. ')[0]}.</p>
+          <div class="mt-5 flex flex-wrap gap-2">{l.sectors.slice(0, 3).map((s) => <span class="rounded-full border border-line px-3 py-1 text-xs">{s}</span>)}</div>
+        </a></li>
+      ))}
+    </ul>
+    <p class="mt-10 max-w-2xl text-ink/70">Not listed? We travel across Surrey, Hampshire and West Sussex, and work remotely with clients further afield. <a href="/contact" class="underline decoration-signal underline-offset-4">Tell us where you are</a>.</p>
+  </Section>
+  <CtaBand />
+</Base>

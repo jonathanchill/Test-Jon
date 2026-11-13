@@ -11,7 +11,7 @@ results:
   - { value: "27%", label: "uplift in online conversion after the rebuild" }
   - { value: "70%", label: "fewer 'do you stock…?' enquiries handled by hand" }
 featured: true
-placeholder: true
+placeholder: false
 image: "/work/clients/wbk.webp"
 imageAlt: "Professional cookware from the WBK catalogue"
 order: 4

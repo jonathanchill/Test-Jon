@@ -11,7 +11,7 @@ results:
   - { value: "15 min", label: "to audit a Steam store page, down from a day" }
   - { value: "3x", label: "more pitches researched per month" }
 featured: true
-placeholder: true
+placeholder: false
 image: "/work/clients/1minus1.webp"
 imageAlt: "Website design work by 1minus1 for a games franchise"
 order: 2

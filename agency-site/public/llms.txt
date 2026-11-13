@@ -14,6 +14,11 @@
 - [Work](/work): case studies
 - [Insights](/insights): articles on AI strategy, engineering and adoption
 
+## Where we work
+
+- Studio: 2 Guildford Park Road, Guildford, Surrey, GU2 7ND
+- [Areas we serve](/locations): Farnham, Godalming, Woking, Haslemere, Cranleigh, Dorking, Camberley, Farnborough, Fleet, Aldershot, Weybridge, Leatherhead
+
 ## Contact
 
 - [Contact](/contact)

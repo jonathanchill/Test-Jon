@@ -1,5 +1,6 @@
 ---
 import { site, nav, footerNav } from '@/data/site';
+import { locations } from '@/data/locations';
 import Logo from '@/components/Logo.astro';
 const year = new Date().getFullYear();
 ---
@@ -10,7 +11,7 @@ const year = new Date().getFullYear();
       <p class="font-display text-display-md font-bold leading-tight">{site.tagline}</p>
       <a href="/contact" class="btn-light mt-8">Start a conversation</a>
     </div>
-    <div class="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:col-span-7">
+    <div class="grid grid-cols-2 gap-8 sm:grid-cols-4 lg:col-span-7">
       <div>
         <p class="eyebrow text-paper/50">Explore</p>
         <ul class="mt-4 space-y-2 text-sm">{nav.map((i) => <li><a href={i.href} class="hover:text-mint">{i.label}</a></li>)}</ul>
@@ -20,6 +21,14 @@ const year = new Date().getFullYear();
         <ul class="mt-4 space-y-2 text-sm">
           {footerNav.map((i) => <li><a href={i.href} class="hover:text-mint">{i.label}</a></li>)}
           <li><a href="/contact" class="hover:text-mint">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="eyebrow text-paper/50">Areas we serve</p>
+        <ul class="mt-4 space-y-2 text-sm">
+          <li><a href="/locations" class="hover:text-mint">Guildford studio</a></li>
+          {locations.slice(0, 7).map((l) => <li><a href={`/locations/${l.slug}`} class="hover:text-mint">{l.name}</a></li>)}
+          <li><a href="/locations" class="text-paper/60 hover:text-mint">All areas</a></li>
         </ul>
       </div>
       <div class="col-span-2 sm:col-span-1">

@@ -1,5 +1,5 @@
 # Root copy so a Netlify import of the whole repo builds the agency site.
-
+# or when the repo root is used and Netlify detects the file here.
 [build]
   base = "agency-site"
   command = "npm run build"
@@ -7,10 +7,10 @@
 
 [build.environment]
   NODE_VERSION = "22"
+  PUBLIC_SITE_URL = "https://oppositenumber.ai"
 
-# Set PUBLIC_SITE_URL in the Netlify UI (Site configuration > Environment
-# variables) to the real domain once you have one. Until then the sitemap and
-# canonical tags use https://example.com.
+# PUBLIC_SITE_URL drives canonical links, Open Graph URLs and the sitemap.
+# Override it per deploy context in the Netlify UI if you need a staging domain.
 
 [[headers]]
   for = "/*"
@@ -19,3 +19,16 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
+
+# Canonical host: send the Netlify subdomain and www to the apex domain.
+[[redirects]]
+  from = "https://superlative-alfajores-c5cf7c.netlify.app/*"
+  to = "https://oppositenumber.ai/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://www.oppositenumber.ai/*"
+  to = "https://oppositenumber.ai/:splat"
+  status = 301
+  force = true

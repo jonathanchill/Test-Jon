@@ -10,12 +10,19 @@ export const site = {
   shortName: 'OppNo',
   description:
     'OppositeNumber is an AI and digital product studio. We help ambitious UK businesses put AI to work in their operations and products, then design, build and run the software behind it.',
-  email: 'hello@example.com',
+  email: 'hello@oppositenumber.ai',
   phone: '+44 (0)20 0000 0000',
   phoneHref: 'tel:+442000000000',
   addresses: [
-    { label: 'Studio', lines: ['Address line 1', 'Town', 'Postcode'], mapsUrl: '#' },
+    {
+      label: 'Guildford studio',
+      lines: ['2 Guildford Park Road', 'Guildford', 'Surrey', 'GU2 7ND'],
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=2+Guildford+Park+Road+Guildford+GU2+7ND',
+      geo: { lat: 51.2384, lng: -0.5839 },
+    },
   ],
+  town: 'Guildford',
+  county: 'Surrey',
   social: {
     linkedin: 'https://www.linkedin.com/',
     youtube: 'https://www.youtube.com/',
@@ -42,6 +49,7 @@ export const nav = [
 
 export const footerNav = [
   { label: 'AI Readiness Scorecard', href: '/ai-readiness' },
+  { label: 'Areas we serve', href: '/locations' },
   { label: 'Careers', href: '/careers' },
   { label: 'Privacy', href: '/privacy' },
   { label: 'Terms', href: '/terms' },

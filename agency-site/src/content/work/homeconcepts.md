@@ -11,7 +11,7 @@ results:
   - { value: "31%", label: "more quotes issued per month" }
   - { value: "640 h", label: "admin hours returned to the team per year" }
 featured: true
-placeholder: true
+placeholder: false
 image: "/work/clients/homeconcepts.webp"
 imageAlt: "A Homeconcepts renovation: open-plan dining room with exposed brick wall"
 order: 1

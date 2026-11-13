@@ -11,7 +11,7 @@ results:
   - { value: "41%", label: "of client brands now cited in AI answers, up from 12%" }
   - { value: "New", label: "revenue line: AI Search audits sold to 14 clients in the first quarter" }
 featured: true
-placeholder: true
+placeholder: false
 image: "/work/clients/thunderbolt.webp"
 imageAlt: "The Thunderbolt team in their Farnham studio"
 order: 3
