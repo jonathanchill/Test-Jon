@@ -48,7 +48,7 @@
   .prose-basic p { @apply mb-5 text-lg leading-relaxed text-ink/80; }
   .prose-basic ul { @apply mb-6 list-disc space-y-2 pl-6 text-lg text-ink/80; }
   .prose-basic blockquote { @apply my-8 border-l-4 border-signal pl-6 text-xl italic text-ink; }
-  .prose-basic a { @apply underline decoration-signal underline-offset-4 hover:text-signal; }
+  .prose-basic a { @apply underline decoration-ink underline-offset-4 hover:text-signal hover:decoration-signal; }
 }
 
 @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }

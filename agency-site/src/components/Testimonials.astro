@@ -5,7 +5,7 @@ import { testimonials } from '@/data/testimonials';
   {testimonials.map((t) => (
     <figure class="card flex flex-col justify-between">
       <blockquote class="text-lg leading-relaxed">“{t.quote}”</blockquote>
-      <figcaption class="mt-6 text-sm"><span class="font-semibold">{t.name}</span><br /><span class="text-muted">{[t.role, t.company].filter(Boolean).join(', ')}</span>{t.href && <a href={t.href} class="ml-2 text-signal underline decoration-signal underline-offset-4">Case study</a>}</figcaption>
+      <figcaption class="mt-6 text-sm"><span class="font-semibold">{t.name}</span><br /><span class="text-muted">{[t.role, t.company].filter(Boolean).join(', ')}</span>{t.href && <a href={t.href} class="ml-2 text-ink underline decoration-ink underline-offset-4 hover:text-signal hover:decoration-signal">Case study</a>}</figcaption>
     </figure>
   ))}
 </div>

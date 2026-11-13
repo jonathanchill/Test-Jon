@@ -13,7 +13,7 @@ import Section from '@/components/Section.astro';
           <h3 class="text-2xl font-bold">{f.name}</h3>
           <p class="mt-1 font-mono text-sm text-signal">{f.role} · Guildford</p>
           <p class="mt-4 text-ink/75">{f.bio}</p>
-          {f.linkedin && <a href={f.linkedin} rel="noopener" class="mt-4 inline-block text-sm font-semibold underline decoration-signal underline-offset-4">LinkedIn</a>}
+          {f.linkedin && <a href={f.linkedin} rel="noopener" class="mt-4 inline-block text-sm font-semibold underline decoration-ink underline-offset-4 hover:text-signal hover:decoration-signal">LinkedIn</a>}
         </div>
       </article>
     ))}
