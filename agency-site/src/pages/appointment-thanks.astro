@@ -1,0 +1,24 @@
+---
+import Base from '@/layouts/Base.astro';
+import Hero from '@/components/Hero.astro';
+import Section from '@/components/Section.astro';
+import { site } from '@/data/site';
+const addr = site.addresses[0];
+const prep = [
+  ['One problem, not ten', 'Pick the process, product or bottleneck that is costing you the most time or money. We will start there.'],
+  ['Who touches it today', 'A rough idea of which people and systems are involved. A sketch on paper is fine.'],
+  ['What good looks like', 'The number you would want to move: hours saved, quotes sent, enquiries answered, errors removed.'],
+];
+---
+<Base title="Appointment booked" description="Your call with OppositeNumber is booked. Here is what happens next and how to get the most from it." noindex>
+  <Hero eyebrow="Appointment booked" title="Thanks, <span class='text-signal'>we'll see you then.</span>" lede="A calendar invite with the joining details is on its way. Add it to your diary and you are set. If anything changes, reply to the invite or email us." cta={{ label: 'Back to the homepage', href: '/' }} secondary={{ label: 'Take the AI readiness scorecard', href: '/ai-readiness' }} />
+  <Section eyebrow="Get the most from the call" title="Three things worth having to hand.">
+    <div class="grid gap-6 md:grid-cols-3" data-reveal="stagger">
+      {prep.map(([h, p], i) => <div class="card"><p class="font-mono text-sm text-signal">0{i + 1}</p><h3 class="mt-3 text-xl font-semibold">{h}</h3><p class="mt-3 text-ink/70">{p}</p></div>)}
+    </div>
+    <p class="mt-10 max-w-2xl text-ink/70">You will speak to one of the two founders, not a salesperson. If AI is not the answer we will say so on the call.</p>
+  </Section>
+  <Section dark eyebrow="Meeting in person?" title="Our studio in Guildford.">
+    <div class="grid gap-8 lg:grid-cols-2"><div data-reveal><p class="text-xl font-semibold">{addr.lines.join(', ')}</p><p class="mt-3 text-paper/70">Parking is nearby and we are a short walk from Guildford station. Email <a href={`mailto:${site.email}`} class="underline">{site.email}</a> if you need directions.</p><a href={addr.mapsUrl} rel="noopener" class="btn-light mt-6">Open in Google Maps</a></div></div>
+  </Section>
+</Base>
