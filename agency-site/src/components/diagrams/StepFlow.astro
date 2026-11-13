@@ -2,12 +2,12 @@
 /** Orthogonal step-flow on a faint grid. Nodes reveal in sequence once scrolled into view. */
 interface Props { steps?: { title: string; sub: string }[]; class?: string }
 const { class: cls = '', steps = [
-  { title: 'Framing workshop', sub: 'Day 1' },
-  { title: 'Eval set on your data', sub: 'Days 2–4' },
-  { title: 'Working prototype', sub: 'Days 5–8' },
-  { title: 'Go / no-go pack', sub: 'Day 10' },
+  { title: 'Scope & design', sub: 'Days 1–2 · design + PM' },
+  { title: 'Build on your data', sub: 'Days 3–8 · senior developers' },
+  { title: 'Test against real cases', sub: 'Day 9 · security & accuracy' },
+  { title: 'Demo & go / no-go', sub: 'Day 10 · your decision' },
 ] } = Astro.props;
-const trunkX = 250; const startY = 36; const gap = 72; const pillW = 210; const pillH = 50;
+const trunkX = 250; const startY = 36; const gap = 72; const pillW = 236; const pillH = 50;
 ---
 <div class:list={['relative overflow-hidden rounded-2xl', cls]} style="background-image: linear-gradient(to right, rgba(11,15,26,.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(11,15,26,.06) 1px, transparent 1px); background-size: 48px 48px;">
   <svg viewBox="0 0 520 330" class="h-auto w-full" role="img" aria-label="Sprint steps connected in sequence">
