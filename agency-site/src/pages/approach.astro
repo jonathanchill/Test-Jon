@@ -6,7 +6,7 @@ import CtaBand from '@/components/CtaBand.astro';
 import Faq from '@/components/Faq.astro';
 const models = [
   { name: 'Fixed-price sprint', who: 'For proving an idea fast', price: '10-Day AI Sprint £8,995', includes: ['Senior team only', 'Working prototype on your data', '10 dev days, 2 design, 2 PM', 'Go / no-go decision at the end'], cta: 'Book a sprint' },
-  { name: 'Scoped project', who: 'For a defined product or platform', price: 'Fixed scope, fixed price', includes: ['Discovery and estimate first, always', 'Milestone billing tied to demos', 'Change control you can see', 'Warranty period after launch'], cta: 'Scope a project' },
+  { name: 'Bespoke project', who: 'Anything outside a package', price: 'Fixed price to scope', includes: ['We scope it with you, then quote a fixed price', 'Milestone billing tied to demos', 'Change control you can see', 'Warranty period after launch'], cta: 'Scope a project' },
   { name: 'Retained team', who: 'For an ongoing roadmap', price: 'Day-rate bands £XXX to £X,XXX', includes: ['Dedicated squad, monthly rolling', 'Published day rates by role', 'Monthly outcome reporting', 'Hand over to in-house whenever you choose'], cta: 'Build a team' },
   { name: 'Support retainer', who: 'For keeping things secure and current', price: 'From £XXX / month', includes: ['Security patches and dependency updates', 'Monitoring and incident response', 'Small changes bank', 'Quarterly health review'], cta: 'Get supported' },
 ];
@@ -20,7 +20,7 @@ const principles = [
 ];
 ---
 <Base title="Approach & Pricing" description="How we work and what it costs. Fixed-price sprints, scoped projects, retained teams and support retainers, with published rate bands.">
-  <Hero eyebrow="Approach & pricing" title="How we work, and <span class='text-signal'>what it costs.</span>" lede="Most agencies hide their prices until the third meeting. We would rather you knew the shape of the deal before the first one. Four engagement models, each with a clear scope and a clear number." cta={{ label: 'Get a quote', href: '/contact' }} />
+  <Hero eyebrow="Approach & pricing" title="How we work, and <span class='text-signal'>what it costs.</span>" lede="Most agencies hide their prices until the third meeting. We would rather you knew the shape of the deal before the first one. Buy a priced package, or have us scope something bespoke and quote a fixed price for it. Either way, a clear scope and a clear number." cta={{ label: 'Get a quote', href: '/contact' }} />
   <Section eyebrow="Engagement models" title="Pick the shape that fits.">
     <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-4" data-reveal="stagger">
       {models.map((m) => (

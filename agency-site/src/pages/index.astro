@@ -18,6 +18,7 @@ import ClientStrip from '@/components/ClientStrip.astro';
 import WorkGallery from '@/components/WorkGallery.astro';
 import Showreel from '@/components/Showreel.astro';
 import Founders from '@/components/Founders.astro';
+import PricingModes from '@/components/PricingModes.astro';
 import { sectors } from '@/data/sectors';
 import Bento from '@/components/diagrams/Bento.astro';
 
@@ -29,7 +30,7 @@ const quick = services.filter((s) => s.from);
     eyebrow="AI systems · automation · Guildford, Surrey"
     split
     title="Optimise your business with <span class='text-signal'>AI systems.</span>"
-    lede="We are a Guildford studio of real developers who design, build and look after AI-driven systems, processes and products for growing businesses: automating the work that slows you down and keeping it secure and compliant as you grow. Think of us as your opposite number through the age of AI, guiding you to a leaner, more cost-effective and more powerful business."
+    lede="We are a Guildford studio of real developers who design, build and look after AI-driven systems, processes and products for growing businesses: automating the work that slows you down and keeping it secure and compliant as you grow. Packaged or bespoke, always at a fixed price. Think of us as your opposite number through the age of AI, guiding you to a leaner, more cost-effective and more powerful business."
     cta={{ label: 'Book a 30-minute call', href: '/contact' }}
     secondary={{ label: 'Take the AI readiness scorecard', href: '/ai-readiness' }}
   ><HeroCards /></Hero>
@@ -94,7 +95,7 @@ const quick = services.filter((s) => s.from);
     </div>
   </Section>
 
-  <Section eyebrow="Start here" title="Two fixed-price ways to begin.">
+  <Section eyebrow="How you buy" title="Packaged or bespoke. Either way, a fixed price." lede="Pick a priced package to start fast, or have us scope something bespoke and quote a fixed price for it. No day-rate surprises.">
     <div class="grid gap-6 md:grid-cols-2" data-reveal="stagger">
       {quick.map((s) => (
         <a href={`/services/${s.slug}`} class="card group">
@@ -105,6 +106,7 @@ const quick = services.filter((s) => s.from);
         </a>
       ))}
     </div>
+      <PricingModes />
   </Section>
 
   <Section eyebrow="Sectors" title="Built for your industry, not a generic template." lede="The same engineering rigour, shaped around the regulation, data and customers your sector actually has." class="bg-paper-deep">

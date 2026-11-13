@@ -5,7 +5,7 @@ export const faqs = [
   },
   {
     q: 'Do you publish prices?',
-    a: 'Yes. Our sprints and audits are fixed price, and our engagement models page shows day-rate bands for retained teams. You will never get a surprise invoice from us.',
+    a: 'Yes. The 10-Day AI Sprint and the Opportunity Audit are priced packages. Anything bespoke we scope with you first and then quote as a fixed price for that scope, with milestone billing tied to demos. You will never get a surprise invoice from us.',
   },
   {
     q: 'What technologies do you use?',

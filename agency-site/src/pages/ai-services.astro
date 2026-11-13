@@ -3,6 +3,7 @@ import Base from '@/layouts/Base.astro';
 import Hero from '@/components/Hero.astro';
 import Section from '@/components/Section.astro';
 import ServiceCard from '@/components/ServiceCard.astro';
+import PricingModes from '@/components/PricingModes.astro';
 import CtaBand from '@/components/CtaBand.astro';
 import WorkCard from '@/components/WorkCard.astro';
 import { byGroup, pillars } from '@/data/services';
@@ -19,6 +20,10 @@ const steps = [
 ---
 <Base title="AI Consultancy & Development, Guildford" description="AI consultancy, development and adoption for UK businesses. Fixed-price audits, 10-day sprints, automation, governance and AI search visibility.">
   <Hero eyebrow="AI Services" title="AI consultancy and development that ends in <span class='text-signal'>working software.</span>" lede="AI is reshaping how every business operates. We help you find the real opportunities, prove them fast and build systems your teams trust. Every engagement has a number attached and a decision at the end." cta={{ label: 'Book a free AI consultation', href: '/contact' }} secondary={{ label: 'Take the readiness scorecard', href: '/ai-readiness' }} />
+
+  <Section eyebrow="Packaged or bespoke" title="Two ways to buy AI work from us." lede="Start with a priced package, or tell us what you need and we will scope it and quote a fixed price. Both come with the same senior team and the same security and testing standards.">
+    <PricingModes compact />
+  </Section>
 
   {pillars.ai.map((p, i) => (
     <Section id={p.name.toLowerCase().replace(/\s+/g, '-')} eyebrow={`0${i + 1}`} title={p.name} lede={p.blurb} class={i % 2 ? 'bg-paper-deep' : ''}>

@@ -3,6 +3,7 @@ import Base from '@/layouts/Base.astro';
 import Hero from '@/components/Hero.astro';
 import Section from '@/components/Section.astro';
 import ServiceCard from '@/components/ServiceCard.astro';
+import PricingModes from '@/components/PricingModes.astro';
 import CtaBand from '@/components/CtaBand.astro';
 import WorkCard from '@/components/WorkCard.astro';
 import Testimonials from '@/components/Testimonials.astro';
@@ -13,6 +14,10 @@ const work = (await getCollection('work')).filter((w) => w.data.category === 'Di
 ---
 <Base title="Web & App Development, Guildford" description="Digital strategy, mobile apps, web platforms, headless CMS websites, design systems and digital branding from a UK product studio.">
   <Hero eyebrow="Digital Services" title="Strategy, design and build for products people <span class='text-signal'>come back to.</span>" lede="Apps, platforms and websites engineered to perform and built to change. We bring senior strategists, designers and engineers to every project, and we hand over code and documentation your team can own." cta={{ label: 'Arrange a discovery call', href: '/contact' }} />
+
+  <Section eyebrow="Packaged or bespoke" title="Two ways to buy digital work from us." lede="Start with a priced package, or tell us what you need and we will scope it and quote a fixed price. Both come with the same senior team and the same security and testing standards.">
+    <PricingModes compact />
+  </Section>
   {pillars.digital.map((p, i) => (
     <Section id={p.name.toLowerCase()} eyebrow={`0${i + 1}`} title={p.name} lede={p.blurb} class={i % 2 ? 'bg-paper-deep' : ''}>
       <div class="grid gap-6 md:grid-cols-3" data-reveal="stagger">{services.filter((s) => s.pillar === p.name).map((s) => <ServiceCard service={s} />)}</div>
