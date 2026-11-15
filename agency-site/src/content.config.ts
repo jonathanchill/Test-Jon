@@ -20,6 +20,7 @@ const work = defineCollection({
     imageAlt: z.string().optional(),
     seoTitle: z.string().optional(),
     seoDescription: z.string().optional(),
+    clientSize: z.enum(['0–10', '11–50', '51–200', '200+']).optional(),
   }),
 });
 

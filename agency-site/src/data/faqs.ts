@@ -1,5 +1,9 @@
 export const faqs = [
   {
+    q: 'What size of business do you work with?',
+    a: 'Mostly businesses with 11 to 50 employees, where one automated workflow or one well-built product makes a visible difference. We also work with founders and teams of up to 10, and with larger organisations of 51 to 200 where we usually start inside a single department.',
+  },
+  {
     q: 'How quickly can we start, and how long does a project take?',
     a: 'We can usually start a 10-Day AI Sprint or an Opportunity Audit within two weeks. A well-scoped MVP, app or website typically takes eight to sixteen weeks. Larger platforms run longer, and many clients keep a retained team afterwards.',
   },

@@ -29,6 +29,7 @@ const logo = clients.find((c) => c.name.toLowerCase() === d.client.toLowerCase()
     <div class="container-x mt-12 grid gap-12 lg:grid-cols-12">
       <aside class="lg:col-span-4">
         <dl class="space-y-6">
+          <div><dt class="eyebrow">Client</dt><dd class="mt-2 text-lg font-semibold">{d.client}</dd><dd class="text-sm text-muted">{d.sector}{d.clientSize && ` · ${d.clientSize} employees`}</dd></div>
           <div><dt class="eyebrow">Services</dt><dd class="mt-2 flex flex-wrap gap-2">{d.services.map((s) => <span class="rounded-full border border-line px-3 py-1 text-sm">{s}</span>)}</dd></div>
           {d.results.length > 0 && <div><dt class="eyebrow">Results</dt><dd class="mt-2 grid gap-4">{d.results.map((r) => <div><p class="font-display text-4xl font-bold text-signal">{r.value}</p><p class="text-sm text-muted">{r.label}</p></div>)}</dd></div>}
         </dl>

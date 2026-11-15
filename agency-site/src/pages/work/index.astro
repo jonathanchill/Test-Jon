@@ -7,7 +7,7 @@ import { getCollection } from 'astro:content';
 const all = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
 ---
 <Base title="Case Studies: AI Automation & Digital" description="Case studies from OppositeNumber: AI automation, AI search visibility, web platforms and product data engines for businesses across Surrey and the UK.">
-  <Hero eyebrow="Our work" title="Proof, <span class='text-signal'>not promises.</span>" lede="Every project below started with a number we agreed to move. Filter by AI or digital." />
+  <Hero eyebrow="Our work" title="Proof, <span class='text-signal'>not promises.</span>" lede="Every project below started with a number we agreed to move. Our clients are typically businesses of 11 to 50 people, with others from 0 to 10 and 51 to 200. Filter by AI or digital." />
   <section class="container-x pb-20">
     <div class="mb-10 flex flex-wrap gap-2" role="group" aria-label="Filter case studies">
       {['All', 'AI', 'Digital'].map((f, i) => <button type="button" data-filter={f} class:list={['rounded-full border px-4 py-2 text-sm font-semibold', i === 0 ? 'border-ink bg-ink text-paper' : 'border-line']} aria-pressed={i === 0}>{f}</button>)}
