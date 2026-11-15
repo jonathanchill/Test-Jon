@@ -1,7 +1,7 @@
 export const faqs = [
   {
     q: 'What size of business do you work with?',
-    a: 'Mostly businesses with 11 to 50 employees, where one automated workflow or one well-built product makes a visible difference. We also work with founders and teams of up to 10, and with larger organisations of 51 to 200 where we usually start inside a single department.',
+    a: 'Established businesses of 20 to 250 people. In a firm of 30 or 40, one automated workflow makes a visible difference across the whole company. In a larger one we usually start inside a single department, prove the return, then widen out from there.',
   },
   {
     q: 'How quickly can we start, and how long does a project take?',

@@ -1,6 +1,5 @@
 ---
 import { site, nav, footerNav } from '@/data/site';
-import { locations } from '@/data/locations';
 import Logo from '@/components/Logo.astro';
 const year = new Date().getFullYear();
 ---
@@ -24,11 +23,10 @@ const year = new Date().getFullYear();
         </ul>
       </div>
       <div>
-        <p class="eyebrow text-paper/50">Areas we serve</p>
+        <p class="eyebrow text-paper/50">Where we work</p>
         <ul class="mt-4 space-y-2 text-sm">
           <li><a href="/locations" class="hover:text-mint">Guildford studio</a></li>
-          {locations.slice(0, 7).map((l) => <li><a href={`/locations/${l.slug}`} class="hover:text-mint">{l.name}</a></li>)}
-          <li><a href="/locations" class="text-paper/60 hover:text-mint">All areas</a></li>
+          <li><a href="/locations" class="hover:text-mint">All areas</a></li>
         </ul>
       </div>
       <div class="col-span-2 sm:col-span-1">

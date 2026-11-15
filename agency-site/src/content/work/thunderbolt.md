@@ -12,7 +12,7 @@ results:
   - { value: "New", label: "revenue line: AI Search audits sold to 14 clients in the first quarter" }
 featured: true
 placeholder: false
-clientSize: "11–50"
+clientSize: "20–50"
 seoTitle: "Thunderbolt: AI Search Visibility"
 seoDescription: "A white-labelled AI Search service and reporting automation for a Farnham digital agency. New revenue line, six hours a week back."
 image: "/work/clients/thunderbolt.webp"
