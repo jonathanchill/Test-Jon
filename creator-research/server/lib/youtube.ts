@@ -20,8 +20,8 @@ export function createYouTubeClient(apiKey: string, fetchImpl: typeof fetch = fe
   async function get(path: string, params: Record<string, string>): Promise<any> {
     const url = new URL(`${BASE}/${path}`)
     for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v)
-    url.searchParams.set('key', apiKey)
-    const res = await fetchImpl(url, { headers: { accept: 'application/json' } })
+    // The key travels in a header, not the address, so it never ends up in logs of requested URLs.
+    const res = await fetchImpl(url, { headers: { accept: 'application/json', 'x-goog-api-key': apiKey } })
     if (res.ok) return res.json()
     let reason = ''
     let message = `YouTube API ${path} returned ${res.status}`
