@@ -39,6 +39,18 @@ npm run migrate         # with DATABASE_URL set
 npm run dev             # http://localhost:3000
 ```
 
+### On your own computer, at no cost
+
+With Docker Desktop installed, this runs the tool and its database together:
+
+```bash
+cd creator-research
+cp .env.example .env    # then fill in APP_PASSWORD, YOUTUBE_API_KEY and ANTHROPIC_API_KEY
+docker compose up -d --build
+```
+
+Open http://localhost:3000 and sign in with your name and the password you set. It is reachable from that computer only. A run only makes progress while the computer is on; it carries on from where it stopped. The data is kept between restarts. `docker compose down` stops it; adding `-v` also deletes the data.
+
 To try the screens before any keys exist, set `DATA_MODE=demo`. Demo mode uses invented channels and a keyword scorer in place of Claude, says so on every screen, and marks its export file DEMO. Give demo mode its own database: it stores the invented channels and counts its searches against the same daily allowance table.
 
 For production:

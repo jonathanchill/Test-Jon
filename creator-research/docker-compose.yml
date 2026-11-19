@@ -1,0 +1,38 @@
+# Runs the tool and its database on your own computer, at no cost.
+#   1. Copy .env.example to .env and fill in the keys.
+#   2. docker compose up -d --build
+#   3. Open http://localhost:3000
+# The database is kept in a Docker volume, so it survives restarts.
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: creator
+      POSTGRES_PASSWORD: creator
+      POSTGRES_DB: creator_research
+    volumes:
+      - creator-research-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U creator -d creator_research"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  app:
+    build: .
+    env_file: .env
+    environment:
+      # The database above. This overrides any DATABASE_URL in .env.
+      DATABASE_URL: postgres://creator:creator@db:5432/creator_research
+      DATABASE_CA_CERT: ""
+    ports:
+      # Reachable from this computer only, not from the network.
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  creator-research-data:
