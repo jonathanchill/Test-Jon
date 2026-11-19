@@ -11,6 +11,18 @@ import { createYouTubeClient } from '../lib/youtube'
 // Ids and counts are well inside the safe integer range, so read bigint columns as numbers.
 pg.types.setTypeParser(20, Number)
 
+/**
+ * Managed databases (DigitalOcean included) use their own certificate authority.
+ * Put its certificate in DATABASE_CA_CERT and the connection is encrypted and verified.
+ */
+function pgOptions(url: string): pg.PoolConfig {
+  const ca = process.env.DATABASE_CA_CERT
+  if (!ca) return { connectionString: url }
+  const u = new URL(url)
+  u.searchParams.delete('sslmode') // otherwise it overrides the certificate below
+  return { connectionString: u.toString(), ssl: { ca: ca.replace(/\\n/g, '\n'), rejectUnauthorized: true } }
+}
+
 let cached: (Deps & { expander: TermExpander | null }) | null = null
 
 /** Builds the database pool and platform clients once, from environment settings. */
@@ -18,7 +30,7 @@ export function useDeps() {
   if (cached) return cached
   const config = getConfig()
   if (!config.databaseUrl) throw createError({ statusCode: 500, statusMessage: 'DATABASE_URL is not set' })
-  const db = new pg.Pool({ connectionString: config.databaseUrl, max: 10 })
+  const db = new pg.Pool({ ...pgOptions(config.databaseUrl), max: 10 })
   const demo = config.dataMode === 'demo'
   cached = {
     db,

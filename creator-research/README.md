@@ -54,6 +54,7 @@ Environment settings (see `.env.example`):
 | Setting | What it is |
 | - | - |
 | `DATABASE_URL` | PostgreSQL connection string |
+| `DATABASE_CA_CERT` | For a managed database such as DigitalOcean's: the contents of its CA certificate, so the connection is encrypted and verified |
 | `APP_PASSWORD` | Team password. Required in production: the app refuses to serve without it |
 | `YOUTUBE_API_KEY` | Google Cloud project with the YouTube Data API v3 switched on |
 | `ANTHROPIC_API_KEY` | For search terms and scoring |

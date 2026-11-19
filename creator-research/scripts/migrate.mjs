@@ -8,7 +8,15 @@ const here = dirname(fileURLToPath(import.meta.url))
 const dir = join(here, '..', 'db', 'migrations')
 
 export async function migrate(connectionString) {
-  const client = new pg.Client({ connectionString })
+  const ca = process.env.DATABASE_CA_CERT
+  let options = { connectionString }
+  if (ca) {
+    // Managed databases use their own certificate authority; sslmode in the URL would override it.
+    const u = new URL(connectionString)
+    u.searchParams.delete('sslmode')
+    options = { connectionString: u.toString(), ssl: { ca: ca.replace(/\\n/g, '\n'), rejectUnauthorized: true } }
+  }
+  const client = new pg.Client(options)
   await client.connect()
   try {
     await client.query('create table if not exists schema_migrations (name text primary key, applied_at timestamptz not null default now())')
