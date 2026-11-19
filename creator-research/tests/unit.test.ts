@@ -50,6 +50,13 @@ describe('rules', () => {
     expect(gamblingSignals(['Gros gain aux machines à sous'])).not.toEqual([])
     expect(gamblingSignals(['Restoring a 1980s arcade machine', 'Slot car racing set review', 'Game Boy cartridge slot repair'])).toEqual([])
   })
+  it('ignores a stray gambling word but catches a channel that keeps using them', () => {
+    expect(gamblingSignals(['Fixing a 1970s slot machine', 'Game Boy repair', 'Was this eBay lot a gamble?'])).toEqual([])
+    expect(gamblingSignals(['Tech roulette: I bought 5 mystery phones'])).toEqual([])
+    expect(gamblingSignals(['Casino night vlog', 'My biggest gamble yet', 'Jackpot! Vegas roulette run'])).not.toEqual([])
+    expect(gamblingSignals(['Retro arcade tour', 'Best betting tips for the weekend'])).toEqual(['betting tips'])
+  })
+
   it('warns when views are far below followers', () => {
     const w = numericWarnings({ followers: 200_000, medianViews: 600, postsPerMonth: 4, lastPostAt: new Date().toISOString(), madeForKids: false, videosSampled: 15 })
     expect(w.join(' ')).toMatch(/far below/)

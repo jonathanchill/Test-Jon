@@ -4,23 +4,45 @@ import type { Brief } from './types'
 // Rule 6: gambling and casino content is excluded. This list is the safety net
 // that works even when Claude is unavailable. A match by itself only blocks
 // approval until a person has looked; Claude's reading decides in normal runs.
-const GAMBLING = [
-  /\bcasinos?\b/i, /\bgambl(?:e|ing|er)s?\b/i, /\bsports?\s?bet(?:s|ting)?\b/i, /\bbetting\s+tips?\b/i,
-  /\bslots?\s+(?:machines?|wins?|bonus|online|stream)\b/i, /\bonline\s+slots?\b/i, /\broulette\b/i, /\bblackjack\b/i,
+
+// Phrases that mean gambling whenever they appear: one is enough.
+const GAMBLING_CLEAR = [
+  /\bonline\s+casinos?\b/i, /\bcasino\s+(?:bonus|wins?|stream|review|en\s+ligne)\b/i, /\bcrypto\s+casino\b/i,
+  /\bsports?\s?bet(?:s|ting)\b/i, /\bbetting\s+(?:tips?|picks?|odds|strategy)\b/i, /\bfree\s+bets?\b/i,
+  /\bonline\s+slots?\b/i, /\bslots?\s+(?:wins?|bonus|stream|session|jackpot)\b/i, /\bbonus\s+hunt\b/i,
   /\bbookmakers?\b/i, /\bparis?\s+sportifs?\b/i, /\bmachines?\s+à\s+sous\b/i, /\bjeux\s+d['’]argent\b/i,
-  /\bpronos?(?:tics?)?\s+(?:foot|sportifs?|paris)\b/i, /\bstake\.com\b/i, /\bcrypto\s+casino\b/i,
+  /\bpronos?(?:tics?)?\s+(?:foot|sportifs?|paris)\b/i, /\bstake\.com\b/i,
+  /\b(?:roulette|blackjack)\s+strategy\b/i, /\bstratégie\s+roulette\b/i,
 ]
 
+// Words that are often innocent ("a gamble", "Russian roulette", repairing a
+// slot machine). They count only when they keep coming up across a channel.
+const GAMBLING_LOOSE = [/\bcasinos?\b/i, /\bgambl(?:e|es|ed|ing|ers?)\b/i, /\broulette\b/i, /\bblackjack\b/i, /\bslot\s+machines?\b/i, /\bjackpots?\b/i]
+const LOOSE_TEXTS_NEEDED = 3
+
+/**
+ * Gambling terms found across a channel's name, description and titles (pass
+ * each as its own text). Empty unless there is a clear phrase, or loose words
+ * in at least three separate texts.
+ */
 export function gamblingSignals(texts: (string | null | undefined)[]): string[] {
-  const found = new Set<string>()
+  const clear = new Set<string>()
+  const loose = new Set<string>()
+  let looseTexts = 0
   for (const text of texts) {
     if (!text) continue
-    for (const re of GAMBLING) {
+    for (const re of GAMBLING_CLEAR) {
       const m = text.match(re)
-      if (m) found.add(m[0].toLowerCase())
+      if (m) clear.add(m[0].toLowerCase())
+    }
+    const hits = GAMBLING_LOOSE.map(re => text.match(re)?.[0].toLowerCase()).filter((h): h is string => Boolean(h))
+    if (hits.length) {
+      looseTexts++
+      for (const h of hits) loose.add(h)
     }
   }
-  return [...found]
+  if (clear.size) return [...clear]
+  return looseTexts >= LOOSE_TEXTS_NEEDED ? [...loose] : []
 }
 
 /** Warnings worked out from the numbers alone, before Claude reads anything. */
