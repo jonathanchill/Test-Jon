@@ -69,6 +69,26 @@ function briefBlock(brief: Brief): string {
   ].filter(Boolean).join('\n')
 }
 
+/** The team's own decisions on this brief, shown to Claude so its scores follow their judgement. */
+export function examplesBlock(examples: ScoreInput['examples']): string | null {
+  if (!examples?.length) return null
+  const lines = [
+    '<team_decisions>',
+    'A person on the team has already reviewed these creators for this brief. Their decisions show where the team\'s line sits, and they outrank the general scoring guide above: score creators who resemble an approved one high and creators who resemble a rejected one low, and follow any reasoning in their notes. They are examples of judgement, not a list of names to match, and a creator can be rejected for reasons that do not show in titles, so weigh a pattern across several decisions more than any single one.',
+  ]
+  for (const e of examples) {
+    lines.push('<decision>')
+    lines.push(`Creator: ${e.name}`)
+    lines.push(`Team decision: ${e.decision}${e.personScore ? `, fit score set by a person: ${e.personScore}` : ''}`)
+    if (e.personReason) lines.push(`Their reason: ${e.personReason}`)
+    if (e.note) lines.push(`Their note: ${e.note}`)
+    lines.push(`Recent video titles: ${e.recentTitles.join(' | ') || '(none)'}`)
+    lines.push('</decision>')
+  }
+  lines.push('</team_decisions>')
+  return lines.join('\n')
+}
+
 function fmt(n: number | null): string {
   return n == null ? 'not public' : n.toLocaleString('en-GB')
 }
@@ -109,7 +129,7 @@ export function createClaudeScorer(opts: { model: string, effort: 'low' | 'mediu
         // The instructions and the brief are the same for every creator on a brief, so they are cached.
         system: [
           { type: 'text', text: SCORE_SYSTEM },
-          { type: 'text', text: briefBlock(input.brief), cache_control: { type: 'ephemeral' } },
+          { type: 'text', text: [briefBlock(input.brief), examplesBlock(input.examples)].filter(Boolean).join('\n\n'), cache_control: { type: 'ephemeral' } },
         ],
         messages: [{ role: 'user', content: channelBlock(input) }],
       })

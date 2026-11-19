@@ -34,7 +34,12 @@ async function rescore() {
     </div>
     <div class="panel">
       <h2 style="margin-top: 0">Tune the scoring</h2>
-      <p class="muted">If the scores are off, say what a good fit looks like and score again. Allow a day for this on the first real brief.</p>
+      <p class="muted">The scores are only as good as what Claude knows about this client. Two things teach it:</p>
+      <ul class="plain muted">
+        <li><b>Your decisions.</b> Approve, reject or correct 20 to 30 creators first, with a short note where the reason is not obvious. Claude is shown those decisions when it scores the rest.</li>
+        <li><b>The guidance below.</b> Say in plain words what a good fit looks like and what rules a creator out.</li>
+      </ul>
+      <p class="muted">Then score again. Creators you have already approved, rejected or edited are left alone. Allow a day for this on the first real brief.</p>
       <label for="guide">What counts as a good fit</label>
       <textarea id="guide" v-model="notes" style="min-height: 110px" />
       <p><button :disabled="!status?.claude.ready" @click="rescore">Save and score again</button> <span v-if="message" class="small muted">{{ message }}</span></p>

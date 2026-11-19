@@ -6,7 +6,7 @@ import { extractLinkedHandles } from './links'
 import { lastPostAt, median, medianViews, postsPerMonth } from './metrics'
 import { markExhausted, reserve } from './quota'
 import { gamblingSignals, isExcludedByBrief, numericWarnings, suppressionHash } from './rules'
-import { QuotaExceededError, type Brief, type ChannelInfo, type RecentItem, type Scorer, type SearchRow, type YouTubeClient } from './types'
+import { QuotaExceededError, type Brief, type ChannelInfo, type RecentItem, type ReviewedExample, type Scorer, type SearchRow, type YouTubeClient } from './types'
 import { YOUTUBE_COST } from './youtube'
 
 // The run for one brief, in the order the scope sets out:
@@ -320,6 +320,37 @@ async function checkInstagram({ db, config, instagram, now = () => new Date() }:
 
 // ---------- Step 3: scoring ----------
 
+const EXAMPLES_PER_KIND = 12
+
+/**
+ * The decisions people have already made on this brief: approvals, rejections,
+ * shortlists and hand-corrected scores. Claude sees them when it scores the
+ * rest, so the scoring follows the reviewer's judgement.
+ */
+export async function reviewedExamples(db: Pool, briefId: number): Promise<(ReviewedExample & { creatorId: number })[]> {
+  const res = await db.query(
+    `select * from (
+       select bc.creator_id, c.name, bc.status, bc.edited, bc.fit_score, bc.reason, bc.review_note, a.recent_items,
+              row_number() over (partition by bc.status order by bc.reviewed_at desc nulls last, bc.creator_id) as rn
+       from brief_creators bc
+       join creators c on c.id = bc.creator_id
+       join accounts a on a.creator_id = bc.creator_id and a.platform = 'youtube'
+       where bc.brief_id = $1 and bc.stage in ('checked', 'scored') and bc.excluded_reason is null
+         and (bc.status in ('approved', 'shortlisted', 'rejected') or bc.edited)
+     ) t where rn <= $2 order by status, creator_id`,
+    [briefId, EXAMPLES_PER_KIND],
+  )
+  return res.rows.map(r => ({
+    creatorId: Number(r.creator_id),
+    name: r.name,
+    recentTitles: (r.recent_items as RecentItem[]).slice(0, 6).map(i => i.title),
+    decision: r.status === 'found' ? 'score corrected' : r.status,
+    personScore: r.edited ? r.fit_score : null,
+    personReason: r.edited ? r.reason : null,
+    note: r.review_note || null,
+  }))
+}
+
 async function scoreBatch({ db, config, scorer }: Deps, brief: Brief): Promise<StepResult> {
   const rows = await db.query(
     `select bc.creator_id, bc.warnings, bc.niches, bc.excluded_reason, c.name, c.country, c.country_source, c.language, c.language_source,
@@ -334,6 +365,7 @@ async function scoreBatch({ db, config, scorer }: Deps, brief: Brief): Promise<S
   if (rows.rowCount === 0) return { worked: false }
   if (!scorer) return { worked: false, blocked: 'Claude is not set up (ANTHROPIC_API_KEY), so creators are listed without a fit score.' }
 
+  const examples = await reviewedExamples(db, brief.id)
   let stop: string | undefined
   let worked = false
   const queue = [...rows.rows]
@@ -355,6 +387,7 @@ async function scoreBatch({ db, config, scorer }: Deps, brief: Brief): Promise<S
           },
           recentTitles: (row.recent_items as RecentItem[]).map(i => i.title),
           evidenceTitles: evidence.rows.map(e => e.title),
+          examples: examples.filter(e => e.creatorId !== Number(row.creator_id)).map(({ creatorId: _id, ...e }) => e),
         })
         const warnings = [...new Set([...row.warnings, ...result.warnings])]
         const niches = [...new Set([...row.niches, ...result.niches])]

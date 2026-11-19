@@ -93,6 +93,18 @@ export interface ScoreInput {
   }
   recentTitles: string[]
   evidenceTitles: string[]
+  /** Decisions a person has already made on this brief, so scoring follows their judgement. */
+  examples?: ReviewedExample[]
+}
+
+export interface ReviewedExample {
+  name: string
+  recentTitles: string[]
+  decision: 'approved' | 'shortlisted' | 'rejected' | 'score corrected'
+  /** The score a person set by hand, if they changed it. */
+  personScore: number | null
+  personReason: string | null
+  note: string | null
 }
 
 export interface ScoreResult {

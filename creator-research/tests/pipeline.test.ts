@@ -9,7 +9,8 @@ import { tick, type Deps } from '../server/lib/pipeline'
 import { planBrief } from '../server/lib/plan'
 import { reserve } from '../server/lib/quota'
 import { briefCounts, deleteCreator, listCreators } from '../server/lib/store'
-import type { Brief } from '../server/lib/types'
+import { examplesBlock } from '../server/lib/claude'
+import type { Brief, ScoreInput } from '../server/lib/types'
 
 // Runs the whole pipeline against a real PostgreSQL database, with the demo
 // YouTube client standing in for the API. Set TEST_DATABASE_URL to run it.
@@ -119,6 +120,31 @@ describe.skipIf(!url)('pipeline', () => {
     const names = [2, 3, 4].map(i => sheet.getRow(i).getCell(1).value)
     expect(names.sort()).toEqual(picked.map(r => r.name).sort())
     expect(wb.getWorksheet('Summary')!.getRow(3).getCell(2).value).toBe('Jonathan')
+  })
+
+  it('shows Claude the decisions a person has already made when it scores the rest', async () => {
+    const all = await listCreators(db, brief.id)
+    const approved = all.filter(r => r.status === 'approved')
+    const rejected = all.find(r => r.status === 'found' && !r.excluded_reason)!
+    await db.query(`update brief_creators set status = 'rejected', review_note = 'Too much swearing for this client' where brief_id = $1 and creator_id = $2`, [brief.id, rejected.creator_id])
+    await db.query(`update brief_creators set stage = 'checked' where brief_id = $1 and stage = 'scored' and status = 'found'`, [brief.id])
+    await db.query(`update briefs set status = 'running' where id = $1`, [brief.id])
+    const seen: ScoreInput[] = []
+    const real = deps.scorer!
+    deps.scorer = { source: 'spy', score: async (input) => { seen.push(input); return real.score(input) } }
+    await drain()
+    deps.scorer = real
+    expect(seen.length).toBeGreaterThan(0)
+    for (const input of seen) {
+      const names = input.examples!.map(e => e.name)
+      for (const a of approved) expect(names).toContain(a.name)
+      expect(names).not.toContain(input.channel.name)
+      expect(input.examples!.find(e => e.name === rejected.name)).toMatchObject({ decision: 'rejected', note: 'Too much swearing for this client' })
+      expect(input.examples!.some(e => /Casino/.test(e.name))).toBe(false)
+    }
+    const text = examplesBlock(seen[0]!.examples)!
+    expect(text).toContain('Too much swearing for this client')
+    expect(text).toContain(approved[0]!.name)
   })
 
   it('deletes a creator on request and does not find them again', async () => {

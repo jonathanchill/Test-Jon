@@ -87,6 +87,7 @@ Keys go in environment settings only. They are never logged, returned by the API
 3. **Numbers.** Channels are looked up 50 at a time (1 unit). Channels inside the follower range get their recent uploads read (2 units each). Channels below the brief's smallest follower count, or with a hidden count, are counted but go no further.
 4. **Links.** Instagram, TikTok and Twitch handles are read from the channel and video descriptions and attached to the same creator.
 5. **Scoring.** Claude reads the description, recent titles and the videos the searches found, and returns a score, reason, warnings and niches.
+   Claude is also shown the decisions people have already made on the brief (up to 12 each of approved, shortlisted and rejected, plus any notes), so later scoring follows the reviewer's judgement. Review 20 to 30 creators, then use "Save and score again" on the Export tab.
 6. **Review.** A person approves, shortlists, rejects or edits. Edited scores are never overwritten by a later scoring run.
 7. **Export.** Approved creators only, after ticking a confirmation. The file records who approved it.
 
