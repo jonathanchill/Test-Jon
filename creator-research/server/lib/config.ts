@@ -28,7 +28,8 @@ export function getConfig() {
     recheckDays: int('RECHECK_DAYS', 30),
 
     anthropicConfigured: Boolean(env.ANTHROPIC_API_KEY || env.ANTHROPIC_AUTH_TOKEN),
-    scoringModel: env.SCORING_MODEL || 'claude-opus-5-5',
+    /** Claude Haiku 5.5 by default, chosen for cost: a full run is about a pound or two. Set SCORING_MODEL=claude-opus-5-5 for sharper judgement at roughly 40 times the price. */
+    scoringModel: env.SCORING_MODEL || 'claude-haiku-5-5',
     scoringEffort: (['low', 'medium', 'high'].includes(env.SCORING_EFFORT ?? '') ? env.SCORING_EFFORT : 'medium') as 'low' | 'medium' | 'high',
     scoringConcurrency: Math.max(1, int('SCORING_CONCURRENCY', 4)),
 

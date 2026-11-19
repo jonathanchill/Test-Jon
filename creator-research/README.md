@@ -58,6 +58,7 @@ Environment settings (see `.env.example`):
 | `APP_PASSWORD` | Team password. Required in production: the app refuses to serve without it |
 | `YOUTUBE_API_KEY` | Google Cloud project with the YouTube Data API v3 switched on |
 | `ANTHROPIC_API_KEY` | For search terms and scoring |
+| `SCORING_MODEL` | Default `claude-haiku-5-5`, the cheapest model, chosen for cost. `claude-opus-5-5` judges fit more sharply at roughly 40 times the price |
 | `YOUTUBE_SEARCH_DAILY_LIMIT`, `YOUTUBE_UNITS_DAILY_LIMIT` | Default 100 and 10,000. Raise only if Google grants more |
 | `INSTAGRAM_ACCESS_TOKEN`, `INSTAGRAM_USER_ID` | Leave empty until the Meta app is ready |
 

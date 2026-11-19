@@ -7,8 +7,14 @@ import type { Brief, ScoreInput, ScoreResult, Scorer, TermExpander } from './typ
 // language, and reading titles, descriptions and bios to judge fit. Every score
 // and reason it writes is reviewed by a person before a list is approved.
 
-// If the model declines a request, the API re-runs it on a fallback model.
-const FALLBACK_BETA = 'server-side-fallback-2026-07-01'
+// On the larger models, if the model declines a request the API re-runs it on a
+// fallback model. Claude Haiku 5.5 has no fallback and rejects the setting, so
+// it is only sent for the models that take it.
+function fallback(model: string): { betas: ['server-side-fallback-2026-07-01'], fallbacks: 'default' } | Record<string, never> {
+  return /^claude-(fable-5-[12]|opus-5(-5)?|sonnet-5-5)$/.test(model)
+    ? { betas: ['server-side-fallback-2026-07-01'], fallbacks: 'default' }
+    : {}
+}
 
 const ScoreSchema = z.object({
   fit_score: z.number().int().describe('1 to 5. 5 = clear fit with evidence, 1 = not a fit'),
@@ -98,8 +104,7 @@ export function createClaudeScorer(opts: { model: string, effort: 'low' | 'mediu
       const response = await client.beta.messages.parse({
         model: opts.model,
         max_tokens: 4000,
-        betas: [FALLBACK_BETA],
-        fallbacks: 'default',
+        ...fallback(opts.model),
         output_config: { effort: opts.effort, format: betaZodOutputFormat(ScoreSchema) },
         // The instructions and the brief are the same for every creator on a brief, so they are cached.
         system: [
@@ -147,8 +152,7 @@ export function createClaudeExpander(opts: { model: string }, client = new Anthr
       const response = await client.beta.messages.parse({
         model: opts.model,
         max_tokens: 8000,
-        betas: [FALLBACK_BETA],
-        fallbacks: 'default',
+        ...fallback(opts.model),
         output_config: { effort: 'medium', format: betaZodOutputFormat(TermsSchema) },
         system: TERMS_SYSTEM,
         messages: [{ role: 'user', content: briefBlock(brief) }],
