@@ -1,0 +1,31 @@
+{
+  "name": "creator-research",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "1minus1 creator research tool: finds and checks creators from the platforms' own data.",
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "start": "node .output/server/index.mjs",
+    "migrate": "node scripts/migrate.mjs",
+    "test": "vitest run",
+    "typecheck": "nuxt typecheck",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.10.0",
+    "exceljs": "^4.4.0",
+    "nuxt": "^4.6.4",
+    "pg": "^8.23.1",
+    "vue": "^3.5.45",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/pg": "^8.23.1",
+    "typescript": "^6.0.3",
+    "vitest": "^5.1.1",
+    "vue-tsc": "^3.3.14"
+  }
+}
