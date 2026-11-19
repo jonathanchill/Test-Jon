@@ -35,7 +35,7 @@ onMounted(load)
         <thead><tr><th>Channel</th><th>Why</th></tr></thead>
         <tbody>
           <tr v-for="r in hidden" :key="r.creator_id">
-            <td><a :href="r.youtube_url" target="_blank" rel="noopener noreferrer">{{ r.name }}</a></td>
+            <td><a :href="r.primary_url" target="_blank" rel="noopener noreferrer">{{ r.name }}</a></td>
             <td>{{ r.check_status === 'not_found' ? 'YouTube returned nothing for this channel' : 'Subscriber count is hidden' }}</td>
           </tr>
         </tbody>

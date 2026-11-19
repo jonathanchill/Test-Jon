@@ -76,12 +76,15 @@ export interface YouTubeClient {
   readonly source: string
   searchVideos(p: { q: string, regionCode: string, relevanceLanguage: string, maxResults: number }): Promise<SearchHit[]>
   getChannels(ids: string[]): Promise<ChannelInfo[]>
+  /** Looks a channel up by its @handle. Costs the same as one getChannels call. */
+  getChannelByHandle(handle: string): Promise<ChannelInfo | null>
   getRecentUploads(uploadsPlaylistId: string, max: number): Promise<VideoInfo[]>
 }
 
 export interface ScoreInput {
   brief: Brief
   channel: {
+    platform: string
     name: string
     description: string
     declaredCountry: string | null

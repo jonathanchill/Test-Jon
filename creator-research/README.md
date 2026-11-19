@@ -22,6 +22,7 @@ Built from "Creator research tool - scope and research" (19 November 2026).
 | Which search found which creator; date and source on every number | Built |
 | Daily limits: stop, queue, resume next day | Built and tested |
 | Delete a creator on request | Built. They are also skipped by later searches |
+| Adding creators by hand (TikTok, Instagram or YouTube handles and links) | Built. They join the same list, review and export. Follower numbers for TikTok are typed in by a person and marked as such |
 | Instagram lookups (version 2) | Code written against Meta's documented Business Discovery API but **never run**. Off until the Meta app exists |
 | TikTok (version 3) | **Not built.** Waiting on the decision between the four options. Linked TikTok handles are recorded as "not checked" |
 | Scheduled re-checks (version 3) | A "Re-check numbers" button per brief. No automatic schedule yet |

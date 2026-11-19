@@ -34,7 +34,10 @@ export interface CreatorRow {
   reviewed_by: string | null
   reviewed_at: string | null
   edited: boolean
-  youtube_url: string
+  /** The account the row's numbers come from: YouTube where there is one, otherwise the largest checked account. */
+  primary_platform: string
+  primary_url: string
+  added_by: string | null
   handle: string | null
   followers: number | null
   median_recent_views: number | null
@@ -72,15 +75,17 @@ export async function listCreators(db: Db, briefId: number, f: CreatorFilters = 
     `select bc.creator_id, c.name, c.country, c.country_source, c.language, c.language_source,
             bc.niches, bc.stage, bc.fit_score, bc.reason, bc.warnings, bc.estimate_note, bc.excluded_reason,
             bc.score_source, bc.score_error, bc.status, bc.review_note, bc.reviewed_by, bc.reviewed_at, bc.edited,
-            a.url as youtube_url, a.handle, a.followers::float8 as followers, a.median_recent_views::float8 as median_recent_views,
+            a.platform as primary_platform, a.url as primary_url, a.handle, bc.added_by, a.followers::float8 as followers, a.median_recent_views::float8 as median_recent_views,
             a.posts_per_month::float8 as posts_per_month, a.last_post_at, a.checked_at, a.source, a.check_status,
             (select count(*)::int from evidence e where e.brief_id = bc.brief_id and e.creator_id = bc.creator_id) as evidence_count,
             coalesce((select json_agg(json_build_object('platform', l.platform, 'handle', l.handle, 'url', l.url,
                         'followers', l.followers, 'check_status', l.check_status, 'source', l.source, 'checked_at', l.checked_at) order by l.platform)
-                      from accounts l where l.creator_id = bc.creator_id and l.platform <> 'youtube'), '[]') as linked
+                      from accounts l where l.creator_id = bc.creator_id and l.id <> a.id), '[]') as linked
      from brief_creators bc
      join creators c on c.id = bc.creator_id
-     join accounts a on a.creator_id = bc.creator_id and a.platform = 'youtube'
+     join lateral (
+       select * from accounts x where x.creator_id = bc.creator_id
+       order by (x.platform = 'youtube') desc, x.followers desc nulls last, x.id limit 1) a on true
      where ${where.join(' and ')}
      order by bc.fit_score desc nulls last, a.followers desc nulls last, c.name`,
     params,

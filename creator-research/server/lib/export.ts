@@ -48,18 +48,18 @@ export async function buildExport(db: Db, brief: Brief, approvedBy: string): Pro
     for (const row of t.rows) s.addRow([row.key, ...FOLLOWER_BANDS.map(b => row.byBand[b.key] ?? 0), row.total])
     s.addRow([])
   }
-  writeTable('This list, by country and YouTube subscribers', local('Country', r => [r.country ? (r.country_source === 'estimate' ? `${r.country} (estimate)` : r.country) : 'Unknown']))
-  writeTable('This list, by niche and YouTube subscribers', local('Niche', r => r.niches.length ? r.niches : ['No niche matched']))
+  writeTable('This list, by country and follower count', local('Country', r => [r.country ? (r.country_source === 'estimate' ? `${r.country} (estimate)` : r.country) : 'Unknown']))
+  writeTable('This list, by niche and follower count', local('Niche', r => r.niches.length ? r.niches : ['No niche matched']))
   writeTable(`All creators found who fit the brief (fit score ${counts.minScore} or higher): ${counts.fit}`, counts.byCountry)
   writeTable('All creators found who fit, by niche', counts.byNiche)
 
   heading('How to read this')
   for (const line of [
-    'Subscriber and view numbers come from YouTube\'s own data. Each row shows the date the number was checked.',
+    'Follower and view numbers are for the creator\'s main platform. Each row shows where the numbers came from and the date they were checked.',
     'Country is where the creator says they are based. Where it is marked as an estimate, it was judged from language and content.',
     'This list does not say where a creator\'s audience lives or how old they are. That information is not public.',
     'A creator who covers two niches is counted under both, so niche rows can add up to more than the total.',
-    `Only creators found through YouTube are included. ${counts.notChecked.noPublicNumbers} channel(s) hide their subscriber count and could not be checked.`,
+    `Creators were found through YouTube searches, plus any the team added by hand. ${counts.notChecked.noPublicNumbers} channel(s) hide their subscriber count and could not be checked.`,
   ]) s.addRow([line])
 
   // ---- Creators ----
@@ -69,13 +69,15 @@ export async function buildExport(db: Db, brief: Brief, approvedBy: string): Pro
     { header: 'Country', key: 'country', width: 14 },
     { header: 'Language', key: 'language', width: 10 },
     { header: 'Niches', key: 'niches', width: 26 },
-    { header: 'YouTube', key: 'youtube', width: 42 },
-    { header: 'Subscribers', key: 'followers', width: 13 },
-    { header: 'Median views, recent videos', key: 'views', width: 16 },
-    { header: 'Videos per month', key: 'ppm', width: 10 },
+    { header: 'Main platform', key: 'platform', width: 12 },
+    { header: 'Link', key: 'link', width: 42 },
+    { header: 'Followers', key: 'followers', width: 13 },
+    { header: 'Median views, recent posts', key: 'views', width: 16 },
+    { header: 'Posts per month', key: 'ppm', width: 10 },
     { header: 'Fit (1 to 5)', key: 'fit', width: 8 },
     { header: 'Why', key: 'reason', width: 60 },
     { header: 'Notes', key: 'warnings', width: 50 },
+    { header: 'YouTube', key: 'youtube', width: 34 },
     { header: 'Instagram', key: 'instagram', width: 34 },
     { header: 'TikTok', key: 'tiktok', width: 34 },
     { header: 'Numbers checked on', key: 'checked', width: 14 },
@@ -84,19 +86,21 @@ export async function buildExport(db: Db, brief: Brief, approvedBy: string): Pro
   c.getRow(1).font = { bold: true }
   c.views = [{ state: 'frozen', ySplit: 1 }]
   for (const r of approved) {
-    const link = (platform: string) => r.linked.find(l => l.platform === platform)?.url ?? ''
+    const link = (platform: string) => r.primary_platform === platform ? r.primary_url : r.linked.find(l => l.platform === platform)?.url ?? ''
     c.addRow({
       name: r.name,
       country: r.country ? `${r.country}${r.country_source === 'estimate' ? ' (estimate)' : ''}` : 'Unknown',
       language: r.language ?? '',
       niches: r.niches.join(', '),
-      youtube: r.youtube_url,
+      platform: r.primary_platform,
+      link: r.primary_url,
       followers: r.followers,
       views: r.median_recent_views,
       ppm: r.posts_per_month,
       fit: r.fit_score,
       reason: r.reason ?? '',
       warnings: [...r.warnings, r.estimate_note ? `Estimate: ${r.estimate_note}` : ''].filter(Boolean).join('; '),
+      youtube: link('youtube'),
       instagram: link('instagram'),
       tiktok: link('tiktok'),
       checked: day(r.checked_at),

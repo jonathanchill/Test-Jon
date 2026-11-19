@@ -8,7 +8,9 @@ const changed = ref(false)
 const edit = reactive({ fit_score: 3, reason: '', warnings: '', review_note: '', country: '' })
 const base = `/api/briefs/${props.brief.id}/creators/${props.creatorId}`
 
+const manual = reactive<Record<number, { followers: number | '', views: number | '' }>>({})
 function fill(d: any) {
+  for (const a of d.accounts) manual[a.id] ??= { followers: a.followers ?? '', views: a.median_recent_views ?? '' }
   c.value = d
   Object.assign(edit, { fit_score: d.fit_score ?? 3, reason: d.reason ?? '', warnings: d.warnings.join('\n'), review_note: d.review_note ?? '', country: d.country ?? '' })
 }
@@ -35,6 +37,17 @@ function saveEdits() {
   if (country !== (c.value.country ?? '')) body.country = country || null
   return patch(body)
 }
+async function saveNumbers(a: any) {
+  error.value = ''
+  try {
+    const m = manual[a.id]!
+    await $fetch(`/api/accounts/${a.id}`, { method: 'PATCH', body: { followers: m.followers, median_recent_views: m.views === '' ? null : m.views } })
+    fill(await $fetch<any>(base))
+    changed.value = true
+  } catch (e) {
+    error.value = errorText(e)
+  }
+}
 async function remove() {
   if (!window.confirm(`Delete ${c.value.name} from the tool completely? This removes them from every brief and they will not be found again. Use this when a creator asks to be removed.`)) return
   try {
@@ -44,7 +57,7 @@ async function remove() {
     error.value = errorText(e)
   }
 }
-const yt = computed(() => c.value?.accounts.find((a: any) => a.platform === 'youtube'))
+const yt = computed(() => c.value?.accounts.find((a: any) => a.platform === 'youtube') ?? c.value?.accounts[0])
 </script>
 
 <template>
@@ -76,12 +89,19 @@ const yt = computed(() => c.value?.accounts.find((a: any) => a.platform === 'you
           <dt>Posts per month</dt><dd>{{ a.posts_per_month ?? 'n/a' }}</dd>
           <dt>Last post</dt><dd>{{ date(a.last_post_at) }}</dd>
         </dl>
-        <p v-else-if="a.check_status === 'unchecked'" class="muted small">Numbers not checked. {{ a.platform === 'tiktok' ? 'TikTok has no route switched on yet, so check this one by hand.' : a.platform === 'instagram' ? 'Instagram lookups start when the Meta app is set up.' : '' }}</p>
+        <p v-else-if="a.check_status === 'unchecked'" class="muted small">Numbers not checked. {{ a.platform === 'tiktok' ? 'TikTok has no official source, so read the numbers off the profile and type them in.' : a.platform === 'instagram' ? 'Instagram lookups start when the Meta app is set up. Until then you can type the numbers in.' : '' }}</p>
         <p v-else class="muted small">No public numbers.</p>
-        <p class="small muted">Source: {{ a.source }}<span v-if="a.checked_at"> · checked {{ date(a.checked_at) }}</span><span v-if="a.link_source"> · found via: {{ a.link_source }}</span></p>
+        <form v-if="a.platform !== 'youtube' && (a.check_status === 'unchecked' || a.source.startsWith('Entered by hand'))" class="row small" @submit.prevent="saveNumbers(a)">
+          <input v-model.number="manual[a.id]!.followers" type="number" min="0" required placeholder="Followers" style="width: 130px" :aria-label="`${a.platform} followers`">
+          <input v-model.number="manual[a.id]!.views" type="number" min="0" placeholder="Median views (optional)" style="width: 190px" :aria-label="`${a.platform} median views`">
+          <button class="tiny" type="submit">Save numbers</button>
+        </form>
+                <p class="small muted">Source: {{ a.source }}<span v-if="a.checked_at"> · checked {{ date(a.checked_at) }}</span><span v-if="a.link_source"> · found via: {{ a.link_source }}</span></p>
       </div>
 
       <h3>Why they are on the list</h3>
+      <p v-if="c.added_by" class="small">Added by hand by {{ c.added_by }}.</p>
+      <p v-else-if="!c.evidence.length" class="small muted">No search evidence recorded.</p>
       <ul class="plain">
         <li v-for="(e, i) in c.evidence" :key="i">
           <a :href="e.url" target="_blank" rel="noopener noreferrer">{{ e.title }}</a>
@@ -89,7 +109,7 @@ const yt = computed(() => c.value?.accounts.find((a: any) => a.platform === 'you
         </li>
       </ul>
 
-      <h3>Recent videos</h3>
+      <h3>Recent posts</h3>
       <ul class="plain small">
         <li v-for="v in (yt?.recent_items ?? []).slice(0, 12)" :key="v.id">
           <a :href="v.url" target="_blank" rel="noopener noreferrer">{{ v.title }}</a>

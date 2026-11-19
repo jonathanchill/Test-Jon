@@ -22,11 +22,11 @@ onMounted(load)
         {{ num(c.funnel.inRange) }} in the follower range, {{ num(c.funnel.scored) }} scored. Rejected and blocked creators are left out.
         <span v-if="c.searches.queued"> <b>{{ c.searches.queued }} searches have not run yet, so this number will rise.</b></span>
       </p>
-      <p class="muted small">This counts creators found through YouTube only. Creators who are only on TikTok or Instagram are not in it.</p>
+      <p class="muted small">This counts creators found through YouTube searches, plus any added by hand. Creators who are only on TikTok or Instagram are in it only if someone added them. Follower counts are for each creator's main platform.</p>
     </div>
 
     <div v-for="t in [c.byCountry, c.byNiche]" :key="t.label">
-      <h2>By {{ t.label.toLowerCase() }} and YouTube subscribers</h2>
+      <h2>By {{ t.label.toLowerCase() }} and follower count</h2>
       <div class="table-scroll">
         <table>
           <thead><tr><th>{{ t.label }}</th><th v-for="b in c.bands" :key="b.key" class="num">{{ b.label }}</th><th class="num">Total</th></tr></thead>

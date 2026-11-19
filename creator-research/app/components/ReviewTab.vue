@@ -62,6 +62,27 @@ async function bulk(status: string) {
     error.value = errorText(e)
   }
 }
+const add = reactive({ platform: 'tiktok', text: '', busy: false, message: '' })
+async function addByHand() {
+  add.busy = true
+  add.message = ''
+  try {
+    const res = await $fetch<{ added: number, results: { line: string, outcome: string, detail?: string }[], invalid: string[] }>(
+      `/api/briefs/${props.brief.id}/creators/add`, { method: 'POST', body: { platform: add.platform, text: add.text } })
+    const problems = [
+      ...res.results.filter(r => r.outcome !== 'added').map(r => `${r.line}: ${r.detail ?? r.outcome}`),
+      ...res.invalid.map(l => `${l}: not a handle or link I can read`),
+    ]
+    add.message = `${res.added} added.${problems.length ? ` Not added: ${problems.join('; ')}` : ''}`
+    if (!problems.length) add.text = ''
+    await load()
+    emit('changed')
+  } catch (e) {
+    add.message = errorText(e)
+  } finally {
+    add.busy = false
+  }
+}
 async function closed(changed: boolean) {
   openId.value = null
   if (changed) { await load(); emit('changed') }
@@ -70,6 +91,25 @@ async function closed(changed: boolean) {
 
 <template>
   <div>
+    <details class="panel" style="margin-top: 14px">
+      <summary><b>Add creators by hand</b> <span class="muted small">for creators you found yourself, such as in TikTok One or Instagram's creator marketplace</span></summary>
+      <form style="margin-top: 10px" @submit.prevent="addByHand">
+        <div class="row" style="align-items: flex-start">
+          <div style="width: 150px">
+            <label for="addp">Platform</label>
+            <select id="addp" v-model="add.platform"><option value="tiktok">TikTok</option><option value="instagram">Instagram</option><option value="youtube">YouTube</option></select>
+          </div>
+          <div style="flex: 1; min-width: 260px">
+            <label for="addt">Handles or links <span class="hint">one per line. A link sets its own platform.</span></label>
+            <textarea id="addt" v-model="add.text" required placeholder="@retrohandhelds&#10;https://www.tiktok.com/@pixelattic" />
+          </div>
+        </div>
+        <p class="small muted">YouTube channels get their numbers pulled and are scored like the rest. Instagram accounts get numbers once Instagram is connected. TikTok has no official source, so open the creator and type in the follower count you see.</p>
+        <button type="submit" :disabled="add.busy">Add to this brief</button>
+        <span v-if="add.message" class="small" style="margin-left: 10px">{{ add.message }}</span>
+      </form>
+    </details>
+
     <div class="row filters" style="margin: 14px 0">
       <input v-model="filters.q" type="search" placeholder="Search by name" aria-label="Search by name">
       <select v-model="filters.country" aria-label="Country">
@@ -114,7 +154,7 @@ async function closed(changed: boolean) {
         <thead>
           <tr>
             <th><input type="checkbox" :checked="allSelected" aria-label="Select all" @change="toggleAll"></th>
-            <th>Creator</th><th>Country</th><th class="num">Subscribers</th><th class="num">Median views</th><th class="num">Videos / month</th>
+            <th>Creator</th><th>Country</th><th class="num">Followers</th><th class="num">Median views</th><th class="num">Posts / month</th>
             <th>Fit</th><th style="min-width: 240px">Reason and warnings</th><th>Also on</th><th>Review</th>
           </tr>
         </thead>
@@ -123,14 +163,15 @@ async function closed(changed: boolean) {
             <td @click.stop><input type="checkbox" :checked="selected.has(r.creator_id)" :aria-label="`Select ${r.name}`" @change="toggle(r.creator_id)"></td>
             <td>
               <b>{{ r.name }}</b>
-              <div class="small"><a :href="r.youtube_url" target="_blank" rel="noopener noreferrer" @click.stop>{{ r.handle ? `@${r.handle}` : 'YouTube channel' }}</a></div>
+              <div class="small"><a :href="r.primary_url" target="_blank" rel="noopener noreferrer" @click.stop>{{ r.handle ? `@${r.handle}` : 'channel' }}</a> <span class="muted" style="margin-left: 4px">{{ r.primary_platform }}</span></div>
+              <div v-if="r.added_by" class="small muted">added by {{ r.added_by }}</div>
               <div v-if="r.niches.length" class="small muted">{{ r.niches.join(', ') }}</div>
             </td>
             <td class="nowrap">
               {{ countryName(r.country) }}
               <div v-if="r.country_source === 'estimate'" class="small muted">estimate</div>
             </td>
-            <td class="num" :title="`Checked ${date(r.checked_at)}. Source: ${r.source}`">{{ num(r.followers) }}</td>
+            <td class="num" :title="`Checked ${date(r.checked_at)}. Source: ${r.source}`">{{ r.check_status === 'unchecked' ? 'not checked' : num(r.followers) }}</td>
             <td class="num">{{ num(r.median_recent_views) }}</td>
             <td class="num">{{ r.posts_per_month ?? 'n/a' }}</td>
             <td>

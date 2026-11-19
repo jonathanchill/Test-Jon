@@ -29,7 +29,7 @@ const ScoreSchema = z.object({
 
 const SCORE_SYSTEM = `You help 1minus1, an agency that sends products to creators, decide which creators fit a brief. A colleague reviews every score you give, so they need a judgement they can check quickly against the evidence.
 
-You will get a brief and one YouTube channel: its description, its numbers, the titles of its recent videos, and the videos that our searches found. Judge how well this creator fits the brief.
+You will get a brief and one creator account. It is usually a YouTube channel, and sometimes an Instagram or TikTok account a colleague added by hand. You get its description or bio, its numbers, the titles or captions of its recent posts, and any videos that our searches found. Judge how well this creator fits the brief.
 
 Scoring:
 5 - Clear fit. Regularly covers the brief's niches and has already covered this kind of product or a close equivalent.
@@ -97,12 +97,13 @@ function channelBlock(input: ScoreInput): string {
   const c = input.channel
   return [
     '<channel>',
+    `Platform: ${c.platform}`,
     `Name: ${c.name}`,
     `Declared country: ${c.declaredCountry ?? 'not declared'}`,
     `Declared language: ${c.declaredLanguage ?? 'not declared'}`,
-    `Subscribers: ${fmt(c.followers)}`,
-    `Median views on recent videos: ${fmt(c.medianViews)}`,
-    `Videos per month: ${c.postsPerMonth ?? 'unknown'}`,
+    `Followers: ${fmt(c.followers)}`,
+    `Median views on recent posts: ${fmt(c.medianViews)}`,
+    `Posts per month: ${c.postsPerMonth ?? 'unknown'}`,
     `Marked as made for kids: ${c.madeForKids == null ? 'unknown' : c.madeForKids ? 'yes' : 'no'}`,
     '<description>',
     c.description.slice(0, 3000) || '(empty)',

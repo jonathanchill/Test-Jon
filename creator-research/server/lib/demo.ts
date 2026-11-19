@@ -167,6 +167,12 @@ export function createDemoYouTubeClient(now: () => Date = () => new Date()): You
     async getChannels(ids): Promise<ChannelInfo[]> {
       return channels.filter(c => ids.includes(c.id)).map(({ lang: _l, theme: _t, videos: _v, ...info }) => info)
     },
+    async getChannelByHandle(handle): Promise<ChannelInfo | null> {
+      const found = channels.find(c => c.handle === handle.replace(/^@/, '').toLowerCase())
+      if (!found) return null
+      const { lang: _l, theme: _t, videos: _v, ...info } = found
+      return info
+    },
     async getRecentUploads(playlistId, max): Promise<VideoInfo[]> {
       return channels.find(c => c.uploadsPlaylistId === playlistId)?.videos.slice(0, max) ?? []
     },

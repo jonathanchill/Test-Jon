@@ -5,6 +5,7 @@ import { migrate } from '../scripts/migrate.mjs'
 import { getConfig } from '../server/lib/config'
 import { createDemoScorer, createDemoYouTubeClient } from '../server/lib/demo'
 import { buildExport } from '../server/lib/export'
+import { addManualCreators, parseManualEntries } from '../server/lib/manual'
 import { tick, type Deps } from '../server/lib/pipeline'
 import { planBrief } from '../server/lib/plan'
 import { reserve } from '../server/lib/quota'
@@ -145,6 +146,26 @@ describe.skipIf(!url)('pipeline', () => {
     const text = examplesBlock(seen[0]!.examples)!
     expect(text).toContain('Too much swearing for this client')
     expect(text).toContain(approved[0]!.name)
+  })
+
+  it('takes creators added by hand on any platform and keeps them on the same list', async () => {
+    const { entries, invalid } = parseManualEntries('@RetroTok\nhttps://www.instagram.com/Pixel.Gram/\nhttps://www.youtube.com/@thecrtsheddemo\nnot a handle!', 'tiktok')
+    expect(invalid).toEqual(['not a handle!'])
+    expect(entries.map(e => `${e.platform}:${e.handle}`)).toEqual(['tiktok:retrotok', 'instagram:pixel.gram', 'youtube:thecrtsheddemo'])
+    const results = await addManualCreators(deps, brief, entries, 'Jonathan')
+    expect(results.filter(r => r.outcome === 'added').map(r => r.line)).toHaveLength(2) // the YouTube channel was already found by search
+    expect(results[2]!.outcome).toBe('already on this brief')
+    await db.query(`update briefs set status = 'running' where id = $1`, [brief.id])
+    await drain()
+    expect((await reload()).status).toBe('complete') // unchecked accounts do not hold a run open
+    const rows = await listCreators(db, brief.id)
+    const tok = rows.find(r => r.name === '@retrotok')!
+    expect(tok).toMatchObject({ primary_platform: 'tiktok', check_status: 'unchecked', added_by: 'Jonathan', fit_score: null, followers: null })
+    expect(rows.find(r => r.name === '@pixel.gram')).toMatchObject({ primary_platform: 'instagram', primary_url: 'https://www.instagram.com/pixel.gram/' })
+    // Adding the same handle again does not make a second record.
+    const again = await addManualCreators(deps, brief, entries.slice(0, 1), 'Jonathan')
+    expect(again[0]!.outcome).toBe('already on this brief')
+    expect((await db.query(`select count(*)::int as n from accounts where platform = 'tiktok' and handle = 'retrotok'`)).rows[0].n).toBe(1)
   })
 
   it('deletes a creator on request and does not find them again', async () => {

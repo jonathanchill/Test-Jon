@@ -284,7 +284,7 @@ async function saveLinkedAccounts(db: Pool, creatorId: number, links: { platform
 async function checkInstagram({ db, config, instagram, now = () => new Date() }: Deps, brief: Brief): Promise<StepResult> {
   if (!instagram) return { worked: false }
   const rows = await db.query(
-    `select a.id, a.handle from accounts a join brief_creators bc on bc.creator_id = a.creator_id
+    `select distinct a.id, a.handle from accounts a join brief_creators bc on bc.creator_id = a.creator_id
      where bc.brief_id = $1 and bc.stage in ('checked', 'scored') and a.platform = 'instagram' and a.check_status = 'unchecked'
      order by a.id limit 10`,
     [brief.id],
@@ -305,6 +305,14 @@ async function checkInstagram({ db, config, instagram, now = () => new Date() }:
           [row.id, p.name, p.biography, p.followers, median(p.posts.map(x => x.views).filter((v): v is number => v != null)), p.posts.length,
             postsPerMonth(dates, now()), lastPostAt(dates), JSON.stringify(items), p.followers == null ? 'no_public_numbers' : 'checked', instagram.source],
         )
+        // Now there is something to read, creators with no score get one.
+        await db.query(
+          `update brief_creators bc set stage = 'checked', score_attempts = 0, score_error = null
+           from accounts a where a.id = $1 and bc.creator_id = a.creator_id and bc.stage = 'scored' and bc.fit_score is null and not bc.edited`,
+          [row.id],
+        )
+        // A creator added by hand is named after their handle until the real name is known.
+        if (p.name) await db.query(`update creators c set name = $2 from accounts a where a.id = $1 and c.id = a.creator_id and c.name like '@%'`, [row.id, p.name])
       }
       worked = true
     } catch (err) {
@@ -334,7 +342,9 @@ export async function reviewedExamples(db: Pool, briefId: number): Promise<(Revi
               row_number() over (partition by bc.status order by bc.reviewed_at desc nulls last, bc.creator_id) as rn
        from brief_creators bc
        join creators c on c.id = bc.creator_id
-       join accounts a on a.creator_id = bc.creator_id and a.platform = 'youtube'
+       join lateral (
+         select * from accounts x where x.creator_id = bc.creator_id
+         order by (x.platform = 'youtube') desc, x.followers desc nulls last, x.id limit 1) a on true
        where bc.brief_id = $1 and bc.stage in ('checked', 'scored') and bc.excluded_reason is null
          and (bc.status in ('approved', 'shortlisted', 'rejected') or bc.edited)
      ) t where rn <= $2 order by status, creator_id`,
@@ -354,15 +364,29 @@ export async function reviewedExamples(db: Pool, briefId: number): Promise<(Revi
 async function scoreBatch({ db, config, scorer }: Deps, brief: Brief): Promise<StepResult> {
   const rows = await db.query(
     `select bc.creator_id, bc.warnings, bc.niches, bc.excluded_reason, c.name, c.country, c.country_source, c.language, c.language_source,
-            a.description, a.followers, a.median_recent_views, a.posts_per_month, a.made_for_kids, a.recent_items
+            a.platform, a.title as account_title, a.description, a.followers, a.median_recent_views, a.posts_per_month, a.made_for_kids, a.recent_items
      from brief_creators bc
      join creators c on c.id = bc.creator_id
-     join accounts a on a.creator_id = bc.creator_id and a.platform = 'youtube'
+     join lateral (
+       select * from accounts x where x.creator_id = bc.creator_id
+       order by (x.platform = 'youtube') desc, x.followers desc nulls last, x.id limit 1) a on true
      where bc.brief_id = $1 and bc.stage = 'checked' and bc.score_attempts < 3
      order by bc.creator_id limit $2`,
     [brief.id, config.scoringConcurrency * 2],
   )
   if (rows.rowCount === 0) return { worked: false }
+
+  // An account added by hand whose numbers have not been checked gives Claude
+  // nothing to read. It is passed straight to a person, not scored on a name.
+  const empty = rows.rows.filter(r => !r.description && (r.recent_items as RecentItem[]).length === 0)
+  if (empty.length) {
+    await db.query(
+      `update brief_creators set stage = 'scored', score_error = 'Nothing public has been checked for this account yet, so it has no score. Score it by hand.'
+       where brief_id = $1 and creator_id = any($2::bigint[])`,
+      [brief.id, empty.map(r => r.creator_id)],
+    )
+    return { worked: true }
+  }
   if (!scorer) return { worked: false, blocked: 'Claude is not set up (ANTHROPIC_API_KEY), so creators are listed without a fit score.' }
 
   const examples = await reviewedExamples(db, brief.id)
@@ -376,6 +400,7 @@ async function scoreBatch({ db, config, scorer }: Deps, brief: Brief): Promise<S
         const result = await scorer.score({
           brief,
           channel: {
+            platform: row.platform,
             name: row.name,
             description: row.description ?? '',
             declaredCountry: row.country_source === 'declared' || row.country_source === 'person' ? row.country : null,

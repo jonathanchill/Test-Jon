@@ -34,6 +34,18 @@ export function createYouTubeClient(apiKey: string, fetchImpl: typeof fetch = fe
     throw new Error(message)
   }
 
+  const toChannel = (it: any): ChannelInfo => ({
+    id: it.id,
+    title: it.snippet?.title ?? '',
+    description: it.snippet?.description ?? '',
+    handle: typeof it.snippet?.customUrl === 'string' ? it.snippet.customUrl.replace(/^@/, '') : null,
+    country: it.snippet?.country ?? null,
+    defaultLanguage: it.snippet?.defaultLanguage ?? null,
+    subscribers: it.statistics?.hiddenSubscriberCount ? null : num(it.statistics?.subscriberCount),
+    uploadsPlaylistId: it.contentDetails?.relatedPlaylists?.uploads ?? null,
+    madeForKids: typeof it.status?.madeForKids === 'boolean' ? it.status.madeForKids : null,
+  })
+
   return {
     source: 'YouTube Data API v3',
 
@@ -57,17 +69,13 @@ export function createYouTubeClient(apiKey: string, fetchImpl: typeof fetch = fe
       if (ids.length === 0) return []
       if (ids.length > 50) throw new Error('getChannels takes at most 50 ids per call')
       const data = await get('channels', { part: 'snippet,statistics,contentDetails,status', id: ids.join(','), maxResults: '50' })
-      return (data.items ?? []).map((it: any): ChannelInfo => ({
-        id: it.id,
-        title: it.snippet?.title ?? '',
-        description: it.snippet?.description ?? '',
-        handle: typeof it.snippet?.customUrl === 'string' ? it.snippet.customUrl.replace(/^@/, '') : null,
-        country: it.snippet?.country ?? null,
-        defaultLanguage: it.snippet?.defaultLanguage ?? null,
-        subscribers: it.statistics?.hiddenSubscriberCount ? null : num(it.statistics?.subscriberCount),
-        uploadsPlaylistId: it.contentDetails?.relatedPlaylists?.uploads ?? null,
-        madeForKids: typeof it.status?.madeForKids === 'boolean' ? it.status.madeForKids : null,
-      }))
+      return (data.items ?? []).map(toChannel)
+    },
+
+    async getChannelByHandle(handle): Promise<ChannelInfo | null> {
+      const data = await get('channels', { part: 'snippet,statistics,contentDetails,status', forHandle: `@${handle.replace(/^@/, '')}` })
+      const item = (data.items ?? [])[0]
+      return item ? toChannel(item) : null
     },
 
     async getRecentUploads(uploadsPlaylistId, max): Promise<VideoInfo[]> {
